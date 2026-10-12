@@ -205,12 +205,21 @@ td.c, th.c { text-align: center; }
   .field { flex-wrap: wrap; } .field input[type=text] { min-width: 0; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* AI 운영 요약 */
+.ai-box { border: 1px solid var(--pri); border-radius: 6px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; background: color-mix(in srgb, var(--pri) 4%, var(--card)); }
+.ai-h { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ai-h b { color: var(--pri); }
+.ai-h .btn { margin-left: auto; }
+.ai-h .btn small { opacity: .8; font-weight: 400; margin-left: 4px; }
+.ai-text { white-space: pre-wrap; font-size: 12.5px; line-height: 1.6; max-height: 260px; overflow: auto; color: var(--fg); }
 </style></head>
 <body><div id="app" class="app"><div class="content" style="margin:40px">서버에서 데이터를 읽는 중…</div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>const ICONS = {"P01":"<svg viewBox=\"0 0 16 16\" fill=\"currentColor\" aria-hidden=\"true\"><path fill=\"currentColor\" d=\"M2.5 1a.5.5 0 0 0-.486.379L1.859 2H1.5a.5.5 0 0 0 0 1h.11l-.596 2.379A.5.5 0 0 0 1 5.5v8a.5.5 0 0 0 .853.354L3 12.707v.793a.5.5 0 0 0 1 0v-8a.5.5 0 0 0-.014-.121L3.391 3H5v.5a.5.5 0 0 0 .5.5H7v3.5a.5.5 0 0 0 .5.5a.498.498 0 0 1 .354.854A.497.497 0 0 1 7 8.5a.5.5 0 0 0-1 0c0 .605.367 1.155.926 1.387a1.503 1.503 0 0 0 1.96-1.961c-.161-.392-.502-.63-.886-.774V4h1.5a.5.5 0 0 0 .5-.5V3h1.61l-.594 2.379A.5.5 0 0 0 11 5.5v8a.5.5 0 0 0 .854.354L13 12.707v.793a.5.5 0 0 0 1 0v-8a.5.5 0 0 0-.016-.121L13.391 3h.109a.5.5 0 0 0 0-1h-.36l-.156-.621a.5.5 0 0 0-.968 0L11.859 2H10v-.5a.5.5 0 0 0-.5-.5h-4a.5.5 0 0 0-.5.5V2H3.14l-.154-.621A.5.5 0 0 0 2.5 1m10 2.56l.445 1.788l-.945.945v-.73zm-10 .003l.445 1.784L2 6.293v-.73zM3 6.707v2.586l-1-1v-.586zm10 0v2.586l-1-1v-.586zm-11 3l1 1v.586l-1 1zm10 0l1 1v.586l-1 1z\"/></svg>","P02":"<svg viewBox=\"0 0 512 512\" fill=\"currentColor\" aria-hidden=\"true\"><path fill=\"currentColor\" d=\"M39.557 19L323.44 273h149.003L188.56 19zM25 30.13v25.847L311 311.87v-25.846zm64 107.263v34.584L375 427.87v-84.843l-64-13.002zM77.555 185.89l-42.9 10.723l287.79 257.498l42.9-10.723zM25 212.13v23.847L311 491.87v-23.847zM329 291v21.973l64 16v126.054l-64 16V493h158v-21.973l-64-16V328.973l64-16V291zm112 135.865v14.108l21.88 5.47z\"/></svg>","P03":"<svg viewBox=\"0 0 512 512\" fill=\"currentColor\" aria-hidden=\"true\"><path fill=\"currentColor\" d=\"m283.016 48.38l-139.713 83.54a59.9 59.9 0 0 0-17.585-2.632C91.632 129.288 64 157.904 64 193.204c0 14.546 4.692 27.957 12.594 38.699a64 64 0 0 1-2.918-4.325l75.413 135.295l-.137.557a88.3 88.3 0 0 0-2.439 20.679l.013 42.607l-41.158.004v42.611h257.299v-42.667l-51.559.052l-.012-42.607c0-34.106-19.346-63.533-47.294-77.153l-4.438-1.999l-60.217-108.02l105.111-62.851l45.841 82.325c-1.918 7.072-1.495 14.819 1.621 21.884l1.363 2.739c2.069 3.709 4.747 6.828 7.828 9.296l.028 43.648l-.037.164l39.743 11.029l5.325-20.58l-24.457-6.802l.002-20.818c4.685-.265 9.382-1.644 13.723-4.24c4.593-2.746 8.247-6.531 10.844-10.903l18.013 10.779l-6.488 25.161l19.872 5.514L448 242.357l-.046-.005l.034-.067l-37.749-22.591a32.7 32.7 0 0 0-3.706-10.619c-4.794-8.599-12.864-14.018-21.635-15.542l-47.13-84.511c8.451-13.07 9.561-30.503 1.454-45.045c-11.362-20.38-36.526-27.364-56.206-15.597m-54.211 293.118c21.691 0 39.462 17.383 41.032 39.431l.113 3.18v42.611h-82.291v-42.611c0-22.464 16.785-40.867 38.075-42.494zm-58.397-104.21l2.278-2.616l37.087 66.506l.785-.188c-12.526 2.936-23.968 8.832-33.605 16.939l-3.588 3.2l-36.294-65.087l-.561.105c13.232-2.417 25.01-9.199 33.898-18.859m-44.69-65.389c11.362 0 20.573 9.539 20.573 21.305s-9.211 21.306-20.573 21.306s-20.572-9.539-20.572-21.306c0-11.766 9.21-21.305 20.572-21.305m175.35-96.784c5.681 0 10.286 4.77 10.286 10.653s-4.605 10.653-10.286 10.653s-10.286-4.77-10.286-10.653s4.605-10.653 10.286-10.653\"/></svg>","P04":"<svg viewBox=\"0 0 100 100\" fill=\"currentColor\" aria-hidden=\"true\"><path fill=\"currentColor\" d=\"M39 0c-2.77 0-5 2.23-5 5v40c0 2.77 2.23 5 5 5h22c2.77 0 5-2.23 5-5V5c0-2.77-2.23-5-5-5Zm10.98 15H50a10 10 0 0 1 10 10a10 10 0 0 1-10 10a10 10 0 0 1-10-10a10 10 0 0 1 9.98-10m-23.802 5.25a4.824 4.824 0 0 0-4.834 4.834v33.832a4.824 4.824 0 0 0 4.834 4.834h12.447v13.5h2.092L34.62 100h7.244l6.096-22.75h4.078L58.135 100h7.246l-6.096-22.75h2.09v-13.5h12.447a4.824 4.824 0 0 0 4.834-4.834V25.084a4.824 4.824 0 0 0-4.834-4.834h-3.82c0 8.196.023 16.39-.031 24.586c.257 4.565-3.627 8.812-8.157 9.129c-7.542.069-15.087.027-22.63.02c-4.514.234-8.746-3.537-9.133-8.02c-.1-8.286-.034-16.576-.053-24.863v-.852z\" color=\"currentColor\"/></svg>","P05":"<svg viewBox=\"0 0 16 16\" fill=\"currentColor\" aria-hidden=\"true\"><path fill=\"currentColor\" d=\"M12.527 1a.5.5 0 0 0-.203.031l-4 1.5a.5.5 0 0 0 0 .938l4 1.5A.5.5 0 0 0 13 4.5v-3a.5.5 0 0 0-.473-.5M5.5 2a.5.5 0 0 0-.5.5V4h-.5a.5.5 0 0 0-.484.379L3.859 5h4.282l-.157-.621A.5.5 0 0 0 7.5 4H7V2.5a.5.5 0 0 0-.5-.5zM3 6a.5.5 0 0 0 0 1v7a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1V7a.5.5 0 0 0 0-1zm1.5 2a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 1 .5-.5\"/></svg>","P06":"<svg viewBox=\"0 0 512 512\" fill=\"currentColor\" aria-hidden=\"true\"><path fill=\"currentColor\" d=\"m100.63 319l-59-5.93v-23.45h80.18A53.36 53.36 0 0 0 100.63 319m385.87 14.56a36.16 36.16 0 1 1-36.17-36.16a36.16 36.16 0 0 1 36.17 36.16m-6.31 0a29.86 29.86 0 1 0-29.86 29.86a29.89 29.89 0 0 0 29.87-29.86zm-29.86-12.85a12.85 12.85 0 1 0 12.85 12.85a12.85 12.85 0 0 0-12.84-12.85zm-262.41 12.85a36.16 36.16 0 1 1-36.17-36.16a36.16 36.16 0 0 1 36.17 36.16m-36.17-29.86a29.86 29.86 0 1 0 29.86 29.86a29.89 29.89 0 0 0-29.86-29.86m0 17a12.85 12.85 0 1 0 12.85 12.85a12.85 12.85 0 0 0-12.85-12.84zm116.44-178.42H25.5v131.37h242.69zM483.61 282v10.09a53.13 53.13 0 0 0-86.45 41.43H281.6a25.08 25.08 0 0 0-21.83-12.85h-56.42a53.33 53.33 0 0 0-21.68-31.08h102.69v-91.71a12.27 12.27 0 0 1 12.27-12.27h66.31a12.27 12.27 0 0 1 12.27 12.27v2.67h-7.77v43.84H446A37.65 37.65 0 0 1 483.61 282m-123.34-81.44h-52V252h52z\"/></svg>"};
 // TWIN PRO 화면 모델 — 서버(Supabase) 테이블을 읽어 화면 계산에 쓰는 읽기 전용 상태 S를 만든다.
 // 상태를 바꾸는 규칙(R1~R7)은 전부 서버 함수(sql/02_functions.sql)에 있다. 여기에는 계산만 있다.
+const AI_LIMIT = 5;
 const BASE = '2026-09-16 12:00', DAY = '2026-09-16', OP_START = '2026-09-07 08:00', SHIFT_END = '2026-09-16 16:00';
 const toM = s => { const [d, t] = s.split(' '); const [Y, M, D] = d.split('-').map(Number); const [h, m] = t.split(':').map(Number); return Date.UTC(Y, M - 1, D, h, m) / 60000; };
 const p2 = n => String(n).padStart(2, '0');
@@ -255,6 +264,11 @@ function buildState(rows) {
   st.inspections = rows.inspections.slice().sort((a, b) => a.inspection_id.localeCompare(b.inspection_id));
   st.actuals = rows.production_actual; st.plan = rows.production_plan; st.rework = rows.rework; st.status_codes = rows.status_codes;
   st.events = rows.event_log.slice().sort((a, b) => b.id - a.id).map(e => ({ at: ts(e.at), text: e.text }));
+  const ai = (rows.ai_summary || []).slice().sort((a, b) => b.id - a.id)[0];
+  st.ai = ai ? { sim_at: ts(ai.sim_at), text: ai.text, model: ai.model } : null;
+  const today = new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 10);       // 한국 날짜
+  st.aiUsed = num((rows.ai_usage || []).find(u => String(u.day).slice(0, 10) === today)?.used) || 0;
+  st.signals = (rows.signal_log || []).slice().sort((a, b) => b.id - a.id).slice(0, 8).map(g => ({ ...g, sim_at: ts(g.sim_at), value: num(g.value) }));
   return st;
 }
 
@@ -322,7 +336,8 @@ if (false) module.exports = { buildState, setS: s => { S = s; }, kpis, processAc
 
 // 서버 연결 계층. 기본은 Supabase(supabase-js). 자동 테스트에서는 window.__TP_TEST_API(같은 SQL을 올린 로컬 Postgres)를 쓴다.
 const TABLES = ['vessels', 'zones', 'processes', 'equipment', 'equipment_snapshot', 'blocks', 'status_codes', 'work_orders', 'production_plan', 'production_actual',
-  'equipment_intervals', 'incidents', 'incident_actions', 'work_history', 'inspections', 'rework', 'sim_clock', 'event_log'];
+  'equipment_intervals', 'incidents', 'incident_actions', 'work_history', 'inspections', 'rework', 'sim_clock', 'event_log', 'ai_summary', 'ai_usage', 'signal_log'];
+const OPTIONAL = new Set(['ai_summary', 'ai_usage', 'signal_log']);   // 확장 SQL(3단계) 적용 전에도 화면이 열리도록: 없으면 빈 표
 const LS = k => { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } };
 const BUILT_URL = 'https://rrgvqgphhwzkeuvdwndu.supabase.co', BUILT_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZ3ZxZ3BoaHd6a2V1dmR3bmR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE4MDA3OTAsImV4cCI6MjEwNzM3Njc5MH0.6dnywttjbB77nPBOAPNY-SSPDH1onNmdgx80QRJ1mPU';
 const SUPABASE_URL = LS('tpSupabaseUrl') || BUILT_URL, SUPABASE_ANON_KEY = LS('tpSupabaseKey') || BUILT_KEY;
@@ -333,6 +348,7 @@ const SERVER_LABEL = window.__TP_TEST_API ? '로컬 Postgres(테스트)' : 'Supa
 const API = NEEDS_SETUP ? null : window.__TP_TEST_API ? {
   load: () => window.__TP_TEST_API.load(),
   rpc: (fn, args) => window.__TP_TEST_API.rpc(fn, args, DEMO_CODE),
+  ai: () => window.__TP_TEST_API.ai(DEMO_CODE),
   subscribe: () => {},
 } : (() => {
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
@@ -340,12 +356,17 @@ const API = NEEDS_SETUP ? null : window.__TP_TEST_API ? {
   const getWriter = () => writer || (writer = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false, storageKey: 'tp-writer' }, global: { headers: { 'x-demo-code': DEMO_CODE } } }));
   async function all(t) {           // 1000행 제한을 넘는 표도 끝까지 읽는다
     let out = [], from = 0;
-    for (;;) { const { data, error } = await sb.from('tp_' + t).select('*').range(from, from + 999); if (error) throw new Error(`${t}: ${error.message}`); out = out.concat(data); if (data.length < 1000) return out; from += 1000; }
+    for (;;) { const { data, error } = await sb.from('tp_' + t).select('*').range(from, from + 999);
+      if (error) { if (OPTIONAL.has(t)) return []; throw new Error(`${t}: ${error.message}`); }
+      out = out.concat(data); if (data.length < 1000) return out; from += 1000; }
   }
   return {
     async load() { const r = await Promise.all(TABLES.map(all)); return Object.fromEntries(TABLES.map((t, i) => [t, r[i]])); },
     resetWriter() { writer = null; },
     async rpc(fn, args) { const { data, error } = await getWriter().rpc(fn, args); if (error) throw new Error(error.message); return data; },
+    async ai() {          // AI 운영 요약: Edge Function(tp-ai-summary)이 시연 코드 확인 → 하루 5회 차감 → Claude 호출 → DB 저장
+      const r = await fetch(`${SUPABASE_URL}/functions/v1/tp-ai-summary`, { method: 'POST', headers: { Authorization: `Bearer ${SUPABASE_ANON_KEY}`, apikey: SUPABASE_ANON_KEY, 'x-demo-code': DEMO_CODE, 'Content-Type': 'application/json' }, body: '{}' });
+      const j = await r.json().catch(() => null); if (!j) throw new Error(`AI 서버 응답 오류(HTTP ${r.status})`); return j; },
     subscribe(onChange, onStatus) {
       sb.channel('tp-all').on('postgres_changes', { event: '*', schema: 'public' }, p => { if (String(p.table).startsWith('tp_')) onChange(); })
         .subscribe(s => onStatus(s === 'SUBSCRIBED' ? '실시간 연결' : s === 'CLOSED' || s === 'CHANNEL_ERROR' || s === 'TIMED_OUT' ? '실시간 끊김 · 조작 후 다시 읽음' : '연결 중'));
@@ -467,14 +488,25 @@ function viewDash() {
       ${items.join('') || '<div class="empty">확인할 사건이 없습니다.</div>'}</section>
     <section class="panel"><div class="ph"><h2>기준일 작업지시 현황</h2><span class="sub">09/16 · ${todayWos().length}건</span><button class="btn line" data-act="goWoAll">전체 작업지시 ›</button></div>
       <div class="tw"><table><thead><tr><th>작업지시</th><th>블록 · 공정</th><th>설비</th><th>계획</th><th>작업 상태</th><th>지연</th><th>진행률</th><th>최근 이력</th></tr></thead><tbody>${rows}</tbody></table></div></section>
-    <section class="panel"><div class="ph"><h2>운영 요약</h2><span class="sub">${hm(nowS())} 기준 · 규칙 기반</span></div>
+    <section class="panel"><div class="ph"><h2>운영 요약</h2><span class="sub">${hm(nowS())} 기준 · AI 요약 + 규칙 기반 요약</span></div>
+      ${aiBox()}
+      <b style="font-size:13px">규칙 기반 요약 <span class="small">(항상 최신 · 서버 값으로 즉시 계산)</span></b>
       <div id="summaryText">${esc(summaryText(k))}</div>
       <div class="tw"><table><thead><tr><th>항목</th><th class="num">값</th></tr></thead><tbody>
         <tr><td>이송 완료 블록</td><td class="num">${k.transferred} / ${k.blocks}</td></tr><tr><td>기한 도래 작업 완료</td><td class="num">${k.dueDone} / ${k.dueTotal}</td></tr>
         <tr><td>검사 합격률</td><td class="num">${k.inspPass} / ${k.inspTotal} 차수</td></tr><tr><td>미해소 사건</td><td class="num">${k.open}건</td></tr></tbody></table></div>
-      <div class="row"><button class="btn pri" data-act="copySummary">요약 복사</button><span class="small">서버 기록 ${S.events.length}건</span></div>
+      <div class="row"><button class="btn" data-act="copySummary">${S.ai ? 'AI 요약 복사' : '요약 복사'}</button><span class="small">서버 기록 ${S.events.length}건</span></div>
       <div class="events">${S.events.slice(0, 4).map(e => `<span>${hm(e.at)} ${esc(e.text)}</span>`).join('') || '<span class="small">시연 중 서버에 기록된 변경이 여기에 표시됩니다.</span>'}</div></section>
   </div>`;
+}
+function aiBox() {
+  const left = Math.max(0, AI_LIMIT - S.aiUsed);
+  const fresh = S.ai && S.ai.sim_at === nowS() && S.events[0] && S.events[0].text === 'AI 운영 요약 생성';   // 생성 뒤 시각 진행·서버 변경이 없으면 최신
+  const why = !UI.canWrite ? '시연 코드를 입력해야 생성할 수 있습니다' : !left ? '오늘 사용 횟수를 모두 썼습니다' : '';
+  return `<div class="ai-box"><div class="ai-h"><b>AI 운영 요약</b><span class="small">${S.ai ? `시연 시각 ${hm(S.ai.sim_at)} 기준${fresh ? '' : ' · <span class="c-o">이후 변경 있음</span>'}` : '아직 생성하지 않음'}</span>
+    <button class="btn pri" data-act="aiGen" ${why || UI.aiBusy ? `disabled title="${why || '생성 중'}"` : ''}>${UI.aiBusy ? '생성 중…' : `✦ AI 요약 생성`} <small>오늘 ${left}/${AI_LIMIT}</small></button></div>
+    ${S.ai ? `<div class="ai-text" id="aiText">${esc(S.ai.text)}</div><span class="small">Claude(${esc(S.ai.model || '')})가 서버 DB의 현재 값만으로 작성 · 하루 ${AI_LIMIT}회 제한</span>`
+      : `<span class="small">버튼을 누르면 서버가 DB의 현재 상태(설비·작업·미해소 사건)를 Claude에 보내 운영 요약과 이상 상황 설명을 만듭니다. 하루 ${AI_LIMIT}회.</span>`}</div>`;
 }
 function histText(h) { return h ? `${hm(h.event_at)} ${STATUS.his[h.event_type] || h.event_type} · ${h.note || ''}` : '-'; }
 function summaryText(k) {
@@ -564,7 +596,23 @@ function viewEq() {
       ${action}
       <div class="row">${eqBtns}</div>
     </section>
-  </div>`;
+  </div>
+  ${signalPanel(id)}`;
+}
+const SIGNALS = [['COUNT', '생산 카운트'], ['RUN', '가동'], ['STOP', '정지'], ['FAULT', '이상 정지']];
+function signalPanel(id) {
+  const sig = draft('sigType', 'COUNT'), eq = draft('sigEq', id);
+  const rows = S.signals.map(g => `<tr><td>${hm(g.sim_at)}</td><td>${g.equipment_id}</td><td>${(SIGNALS.find(x => x[0] === g.signal) || [, g.signal])[1]}${g.value != null ? ' ' + g.value : ''}</td>
+    <td class="c">${g.ok ? '<span class="badge g">반영</span>' : '<span class="badge r">거부</span>'}</td><td class="clip" title="${esc(g.msg)}">${esc(g.msg)}</td></tr>`).join('');
+  return `<section class="panel"><div class="ph"><h2>가상 설비 신호</h2><span class="sub">IoT 입구 시뮬레이터 · 현장 PLC·게이트웨이가 보낼 신호를 같은 서버 입구(tp_ingest_signal)로 넣습니다 · 신호도 R1~R7 규칙을 거칩니다</span></div>
+    <div class="row">${selectBox('sigEq', Object.values(S.equipment).map(e => [e.equipment_id, `${e.equipment_id} ${e.equipment_name} (${STATUS.eq[e.status][0]})`]), eq, 'data-draft')}
+      ${selectBox('sigType', SIGNALS, sig, 'data-draft')}
+      <input type="number" id="sigVal" data-draft="sigVal" min="1" step="1" style="width:90px" placeholder="수량" value="${esc(draft('sigVal', ''))}" ${sig === 'COUNT' ? '' : 'disabled'}>
+      <button class="btn pri" data-act="sendSignal" ${UI.canWrite ? '' : 'disabled title="시연 코드를 입력해야 신호를 보낼 수 있습니다"'}>신호 보내기</button>
+      <span class="grow"></span>
+      <button class="btn ${UI.simOn ? 'danger' : 'line'}" data-act="simToggle" ${UI.canWrite ? '' : 'disabled title="시연 코드를 입력해야 자동 재생할 수 있습니다"'}>${UI.simOn ? '■ 자동 재생 정지' : '▶ 자동 재생'}</button>
+      <span class="small">자동 재생 = ${SIM_SEC}초마다 시연 시각 +5분, 가동 중인 설비가 계획수량의 10%씩 생산 카운트 전송</span></div>
+    <div class="tw"><table><thead><tr><th>시연 시각</th><th>설비</th><th>신호</th><th class="c">결과</th><th>서버 응답</th></tr></thead><tbody>${rows || '<tr><td colspan="5" class="c small">아직 받은 신호가 없습니다.</td></tr>'}</tbody></table></div></section>`;
 }
 
 // ---------- 3. 생산 현황 ----------
@@ -646,13 +694,70 @@ function viewWo() {
     <div class="field"><span class="lb">블록</span><div class="in"><input type="text" id="woQ" data-filter="woQ" value="${esc(f.q)}" placeholder="블록·작업지시 번호"></div></div>
     <label class="radios"><input type="checkbox" id="woOver" data-filter="woOver" ${f.overdue ? 'checked' : ''}> 기한 도래 미완료만 (${kpis().overdue.length})</label>
     <button class="btn pri" data-act="noop">검색</button><button class="btn" data-act="resetFilter" data-arg="wo">↻ 초기화</button></div>
+  ${UI.imp ? importPanel() : ''}
   <div class="grid g-wo">
     <section class="panel"><div class="ph"><h2>작업지시 목록</h2><span class="sub">총 ${list.length}건</span>
-      <button class="btn" disabled title="해커톤 이후 구현">− 작업지시 삭제</button><button class="btn" disabled title="해커톤 이후 구현">⊕ 신규 작업지시 등록</button><button class="btn line" data-act="csv" data-arg="wo">⭳ 엑셀(CSV)</button></div>
+      <button class="btn" disabled title="해커톤 이후 구현">− 작업지시 삭제</button><button class="btn" disabled title="해커톤 이후 구현">⊕ 신규 작업지시 등록</button><button class="btn line" data-act="impToggle">⭱ 실적 가져오기</button><button class="btn line" data-act="csv" data-arg="wo">⭳ 엑셀(CSV)</button></div>
       <div class="tw"><table><thead><tr><th></th><th>작업지시</th><th>블록 · 공정</th><th>설비</th><th>계획</th><th class="c">작업 상태</th><th class="c">지연</th><th>진행률</th><th>최근 이력</th></tr></thead><tbody>${rows || '<tr><td colspan="9" class="c small">조건에 맞는 작업지시가 없습니다.</td></tr>'}</tbody></table></div>
       <div class="pager">${Array.from({ length: pages }, (_, n) => `<button class="${UI.page.wo === n + 1 ? 'on' : ''}" data-act="page" data-arg="wo:${n + 1}">${n + 1}</button>`).join('')}</div></section>
     ${w ? woEditor(w) : '<section class="panel"><div class="empty">작업지시를 선택하세요.</div></section>'}
   </div>`;
+}
+// ---------- 실적 가져오기(엑셀/CSV) ----------
+// 파일의 각 행 = 작업지시 + 누적 인정수량. 화면은 미리 확인만 하고, 반영 여부는 서버 규칙(R6)이 한 트랜잭션으로 판단한다.
+function importCheck(r) {
+  const w = S.wo[r.wo];
+  if (!w) return ['err', '없는 작업지시'];
+  if (!/^\s*\d+(\.\d+)?\s*$/.test(r.qty)) return ['err', '수량이 숫자가 아님'];
+  const q = Number(r.qty);
+  if (w.status !== 'IN_PROGRESS') return ['warn', `${STATUS.wo[w.status][0]} 상태 → 서버 거부 예상`];
+  if (q > w.planned_qty) return ['warn', '계획수량 초과 → 서버 거부 예상'];
+  if (q < w.accepted_qty) return ['warn', '현재보다 감소 → 서버 거부 예상'];
+  return ['ok', q === w.planned_qty ? '반영 시 완료 처리' : `+${+(q - w.accepted_qty).toFixed(1)} ${unit(w.unit)}`];
+}
+function importPanel() {
+  const rows = UI.imp.rows || [];
+  const chk = rows.map(importCheck), errs = chk.filter(c => c[0] === 'err').length;
+  const body = rows.map((r, n) => { const w = S.wo[r.wo], [k, m] = chk[n];
+    return `<tr><td class="c">${n + 1}</td><td>${esc(r.wo)}</td><td class="num">${esc(r.qty)}</td><td class="num">${w ? `${w.accepted_qty} / ${w.planned_qty} ${unit(w.unit)}` : '-'}</td><td class="c">${w ? badge('wo', w.status) : '-'}</td>
+      <td><span class="badge ${k === 'ok' ? 'g' : k === 'warn' ? 'o' : 'r'}">${k === 'ok' ? '정상' : k === 'warn' ? '주의' : '오류'}</span> <span class="small">${esc(m)}</span></td></tr>`; }).join('');
+  return `<section class="panel"><div class="ph"><h2>실적 가져오기</h2><span class="sub">엑셀(.xlsx)·CSV · 열: 작업지시, 인정수량(누적) · MES 등 외부 시스템 내보내기 파일도 같은 경로로 들어옵니다</span><button class="btn" data-act="impToggle">닫기</button></div>
+    <div class="row"><input type="file" id="impFile" accept=".csv,.xlsx,.xls"><button class="btn line" data-act="impTemplate">⭳ 양식 내려받기(진행 중 작업)</button>
+      <span class="grow"></span><span class="small">${UI.imp.name ? esc(UI.imp.name) + ' · ' : ''}${rows.length}행${errs ? ` · 오류 ${errs}행` : ''}</span>
+      <button class="btn pri" data-act="impSend" ${!rows.length || errs || !UI.canWrite ? `disabled title="${!UI.canWrite ? '시연 코드가 필요합니다' : errs ? '오류 행을 고친 뒤 다시 올리세요' : '파일을 먼저 고르세요'}"` : ''}>서버에 반영 (${rows.length}행)</button></div>
+    ${rows.length ? `<div class="tw"><table><thead><tr><th class="c">행</th><th>작업지시</th><th class="num">가져올 인정수량</th><th class="num">현재 / 계획</th><th class="c">작업 상태</th><th>사전 확인</th></tr></thead><tbody>${body}</tbody></table></div>
+      <span class="small">한 행이라도 서버 규칙에 걸리면 전체를 취소합니다(반영 0건). '주의' 행은 서버가 거부하는 모습을 보여 줄 때 그대로 두세요.</span>` : '<div class="empty">파일을 고르면 여기에서 미리 확인합니다.</div>'}</section>`;
+}
+function parseCsv(text) {
+  const out = []; let row = [], cur = '', q = false;
+  text = text.replace(/^\uFEFF/, '');
+  for (let i = 0; i < text.length; i++) { const c = text[i];
+    if (q) { if (c === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
+    else if (c === '"') q = true; else if (c === ',' || c === '\t') { row.push(cur); cur = ''; }
+    else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(cur); out.push(row); row = []; cur = ''; }
+    else cur += c; }
+  if (cur !== '' || row.length) { row.push(cur); out.push(row); }
+  return out.filter(r => r.some(v => v.trim() !== ''));
+}
+function importRows(table) {
+  const h = (table[0] || []).map(x => x.trim().toLowerCase());
+  const iw = h.findIndex(x => /작업지시|work_order/.test(x)), iq = h.findIndex(x => /인정수량|accepted_qty/.test(x));
+  if (iw < 0 || iq < 0) throw new Error('첫 줄에 "작업지시"와 "인정수량" 열이 있어야 합니다.');
+  return table.slice(1).map(r => ({ wo: (r[iw] || '').trim(), qty: (r[iq] || '').trim() }));
+}
+function loadXlsxLib() {
+  if (window.XLSX) return Promise.resolve();
+  return new Promise((ok, ng) => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'; s.onload = ok; s.onerror = () => ng(new Error('엑셀 읽기 도구를 불러오지 못했습니다. CSV로 저장해 올려 주세요.')); document.head.appendChild(s); });
+}
+async function readImportFile(f) {
+  try {
+    let table;
+    if (/\.xlsx?$/i.test(f.name)) { await loadXlsxLib(); const wb = XLSX.read(await f.arrayBuffer(), { type: 'array' }); table = parseCsv(XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]])); }
+    else table = parseCsv(await f.text());
+    const rows = importRows(table); if (rows.length > 200) throw new Error('한 번에 200행까지 가져올 수 있습니다.');
+    UI.imp = { name: f.name, rows }; toast(`${rows.length}행을 읽었습니다. 사전 확인 후 [서버에 반영]을 누르세요.`);
+  } catch (e) { UI.imp = { rows: [] }; toast('파일을 읽지 못했습니다: ' + (e.message || e), true); }
+  render();
 }
 function woEditor(w) {
   const id = w.work_order_id, p = proc(w.process_id);
@@ -811,8 +916,35 @@ const ACT = {
   },
   procSave(pid) { call('tp_rename_process', { p_pid: pid, p_name: draft('procName', S.processes[pid].process_name) }, () => delete UI.draft.procName); },
   csv(k) { exportCsv(k); },
-  copySummary() { const t = summaryText(kpis()); navigator.clipboard?.writeText(t).then(() => toast('운영 요약을 복사했습니다.'), () => { const r = document.createRange(); r.selectNodeContents(document.getElementById('summaryText')); getSelection().removeAllRanges(); getSelection().addRange(r); toast('복사가 막혀 있어 요약 문장을 선택해 두었습니다. Ctrl+C로 복사하세요.'); }); },
+  impToggle() { UI.imp = UI.imp ? null : { rows: [] }; render(); },
+  impTemplate() { const data = [['작업지시', '인정수량', '계획수량', '단위', '블록', '공정'], ...woList().filter(w => w.status === 'IN_PROGRESS').map(w => [w.work_order_id, w.accepted_qty, w.planned_qty, unit(w.unit), w.block_id, proc(w.process_id).process_name])];
+    const csv = '\uFEFF' + data.map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
+    try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); a.download = 'TWINPRO_실적가져오기_양식.csv'; document.body.appendChild(a); a.click(); a.remove(); } catch (e) { /* 다운로드가 막힌 환경 */ }
+    toast(`진행 중 작업 ${data.length - 1}건으로 양식을 만들었습니다. 인정수량(누적)만 고쳐서 올리세요.`); },
+  impSend() { const rows = (UI.imp?.rows || []).map(r => ({ work_order_id: r.wo, accepted_qty: Number(r.qty) }));
+    call('tp_import_progress', { p_rows: rows }, () => { UI.imp = { rows: [] }; }); },
+  sendSignal() { const t = draft('sigType', 'COUNT'); call('tp_ingest_signal', { p_eq: draft('sigEq', UI.sel.eq), p_signal: t, p_value: t === 'COUNT' ? Number(UI.draft.sigVal || 0) : null }); },
+  simToggle() { if (UI.simOn) return stopSim('자동 재생을 멈췄습니다.'); UI.simOn = true; simTimer = setInterval(simTick, SIM_SEC * 1000); toast(`자동 재생 시작 · ${SIM_SEC}초마다 +5분`); render(); simTick(); },
+  async aiGen() { if (UI.aiBusy) return; UI.aiBusy = true; render();
+    try { const r = await API.ai(); toast(r.msg || (r.ok ? '완료' : '실패'), !r.ok); if (!r.ok && /시연 코드가 필요/.test(r.msg || '')) { UI.canWrite = false; UI.codeOpen = true; } }
+    catch (e) { toast('AI 서버 호출 실패: ' + (e.message || e), true); }
+    finally { UI.aiBusy = false; await reload().catch(() => render()); } },
+  copySummary() { const t = S.ai ? S.ai.text : summaryText(kpis()); navigator.clipboard?.writeText(t).then(() => toast('운영 요약을 복사했습니다.'), () => { const r = document.createRange(); r.selectNodeContents(document.getElementById('summaryText')); getSelection().removeAllRanges(); getSelection().addRange(r); toast('복사가 막혀 있어 요약 문장을 선택해 두었습니다. Ctrl+C로 복사하세요.'); }); },
 };
+// 자동 재생: 이 탭에서만 돈다(탭을 닫으면 멈춤). 신호는 전부 서버 규칙을 거친다.
+const SIM_SEC = 4; let simTimer = null, simBusy = false;
+function stopSim(msg, ng) { clearInterval(simTimer); simTimer = null; UI.simOn = false; if (msg) toast(msg, ng); render(); }
+async function simTick() {
+  if (simBusy || UI.busy) return; simBusy = true;
+  try {
+    const c = await API.rpc('tp_advance_clock', { p_min: 5 }); if (!c.ok) return stopSim('자동 재생 종료: ' + c.msg, !/16:00/.test(c.msg));
+    let n = 0;
+    for (const e of Object.values(S.equipment).filter(x => x.status === 'RUNNING')) { const w = S.wo[e.work_order_id]; if (!w || w.status !== 'IN_PROGRESS') continue;
+      const r = await API.rpc('tp_ingest_signal', { p_eq: e.equipment_id, p_signal: 'COUNT', p_value: Math.max(1, Math.round(w.planned_qty * 0.1)) }); if (r.ok) n++; }
+    await reload(); toast(`자동 신호 · 시연 시각 ${hm(nowS())} · 생산 카운트 ${n}건 반영`);
+  } catch (e) { stopSim('자동 재생 오류: ' + (e.message || e), true); }
+  finally { simBusy = false; }
+}
 function clearWoDraft() { for (const k of ['woEq', 'woStatus', 'woQty', 'woHold', 'woMemo']) delete UI.draft[k]; }
 const FILTER = {
   eqProc: v => UI.f.eq.proc = v, eqSt: v => UI.f.eq.st = v, eqQ: v => UI.f.eq.q = v, eqKind: v => UI.f.eq.kind = v,
@@ -832,7 +964,8 @@ document.addEventListener('input', e => {
 document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'codeIn') { e.preventDefault(); UI.draft.codeIn = e.target.value; ACT.codeSave(); } });
 document.addEventListener('change', e => {
   const el = e.target;
-  if (el.dataset.draft && el.tagName === 'SELECT') { UI.draft[el.dataset.draft] = el.value; return; }
+  if (el.id === 'impFile' && el.files && el.files[0]) { readImportFile(el.files[0]); return; }
+  if (el.dataset.draft && el.tagName === 'SELECT') { UI.draft[el.dataset.draft] = el.value; if (el.id === 'sigType') render(); return; }
   if (el.dataset.filter && el.type !== 'text') { FILTER[el.dataset.filter](el.value, el); UI.page.wo = 1; render(); }
 });
 

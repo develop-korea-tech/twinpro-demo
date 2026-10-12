@@ -2,8 +2,9 @@
 
 조선 블록 제작 운영 모니터링 시연 시스템입니다. 화면 5개(01H 확정안)와 Supabase(Postgres) 서버 함수로 구성되어 있으며, 받은 엑셀(`02 가상데이터.xlsx`) 15개 시트를 그대로 DB에 올려 사용합니다.
 
-- 화면: `twinpro.html` 한 파일. 브라우저로 열면 바로 동작하며 설치할 것이 없습니다.
-- 서버: Supabase 프로젝트 `twinpro-demo`(서울 리전). 테이블 20개, 서버 함수(RPC) 14개, 뷰 2개로 구성됩니다.
+- 화면 주소: **https://develop-korea-tech.github.io/twinpro-demo/** (GitHub Pages, 저장소 develop-korea-tech/twinpro-demo)
+- 화면 파일: `twinpro.html` 한 파일. 더블클릭해도 같은 서버에 붙습니다.
+- 서버: Supabase 프로젝트 `twinpro-demo`(서울 리전). 테이블 23개, 화면에서 부르는 서버 함수(RPC) 16개, 뷰 2개, Edge Function 1개(AI 요약)로 구성됩니다.
   - 주소: `https://rrgvqgphhwzkeuvdwndu.supabase.co` (완성 파일 `twinpro.html`에 이미 들어 있습니다)
   - 시연 코드: 팀 단톡방에서 따로 공유합니다.
 - 기준시점: 2026-09-16(수) 12:00. 시연 시계는 [+10분] 버튼으로만 진행되며 16:00에 멈춥니다.
@@ -17,9 +18,12 @@
 | `twinpro.html` | 시연 화면. 더블클릭하면 크롬에서 열립니다. |
 | `supabase_setup.sql` | Supabase 설치 SQL(새 프로젝트용 전체). 테이블·함수·엑셀 원본·보안 설정이 한 파일에 들어 있습니다. |
 | `supabase_step2.sql` | 현재 프로젝트 설치 때 쓴 2단계 SQL(초기화 함수·원본 적재·보안). 다시 실행할 필요는 없습니다. |
+| `supabase_step3.sql` | 3단계 확장 SQL(AI 운영 요약·가상 설비 신호·실적 가져오기). 기존 데이터는 바꾸지 않고 추가만 합니다. |
+| `supabase/functions/tp-ai-summary/index.ts` | AI 운영 요약 서버 코드(Supabase Edge Function). Claude API를 부릅니다. |
+| `docs/AI_운영요약_프롬프트.md` | AI 운영 요약 프롬프트·입력·출력 규격(산출물) |
 | `README.md` | 이 문서 |
 | `src/` | 화면 소스. `model.js`(계산), `api.js`(서버 연결), `ui.js`(화면), `style.css` |
-| `sql/` | 서버 소스. `01_schema.sql`, `02_functions.sql`, `03_seed.sql`(엑셀 원본), `04_security.sql` |
+| `sql/` | 서버 소스. `01_schema.sql`, `02_functions.sql`, `03_seed.sql`(엑셀 원본), `04_security.sql`, `05_extend.sql`(확장 기능), `06_extend_security.sql` |
 | `extract.py`, `sql/make_seed.py`, `build.py` | 엑셀 → JSON → SQL, 소스 → 완성 HTML을 만드는 스크립트 |
 | `e2e.js`, `lib_local.js` | 자동 테스트. 같은 SQL을 로컬 Postgres에 올려 실제 화면을 클릭으로 검증합니다. |
 
@@ -32,6 +36,21 @@
 3. 관제 대시보드가 뜨면 연결된 것입니다. 왼쪽 아래 상자에 `Supabase Postgres · 실시간 연결`이 표시됩니다.
 4. 처음에는 **보기 전용**입니다. 오른쪽 위 [보기 전용 · 시연 코드]를 누르고 팀에서 공유한 시연 코드를 입력해야 조작할 수 있습니다. 해커톤이 끝나면 아래 5장의 방법으로 코드를 바꿔 쓰기를 막으세요.
    - 보기만 하는 사람(심사위원 화면, 두 번째 모니터)은 코드 없이 열어 두면 됩니다. 다른 PC에서 조작하면 이 화면도 자동으로 바뀝니다.
+
+### 2-1. 확장 기능 켜기 (처음 한 번)
+
+AI 운영 요약·가상 설비 신호·실적 가져오기는 아래 두 가지를 해야 동작합니다. 하지 않아도 기존 화면은 그대로 열립니다.
+
+1. **확장 SQL 실행**
+   1. Supabase 대시보드 → `twinpro-demo` 프로젝트 → 왼쪽 메뉴 **SQL Editor** → **New query**를 엽니다.
+   2. `supabase_step3.sql` 내용 전체를 붙여 넣고 **Run**을 누릅니다.
+   3. `Success. No rows returned`가 나오면 성공입니다.
+2. **Claude API 키 등록** (AI 운영 요약에만 필요)
+   1. https://console.anthropic.com → **API Keys** → **Create Key**로 키를 만듭니다. 키는 한 번만 보이니 바로 복사합니다.
+   2. Supabase 대시보드 → **Edge Functions** → **Secrets**(또는 Project Settings → Edge Functions)로 갑니다.
+   3. Name에 `ANTHROPIC_API_KEY`, Value에 복사한 키를 넣고 저장합니다.
+   4. 키는 Supabase 서버에만 저장됩니다. 화면 파일이나 GitHub 저장소에는 들어가지 않습니다.
+3. 화면을 새로고침합니다. 관제 대시보드 오른쪽 아래 **운영 요약** 패널에 [✦ AI 요약 생성 · 오늘 5/5] 버튼이 보이면 준비된 것입니다.
 
 ---
 
@@ -49,6 +68,20 @@
 | 8 | 작업 관리 | WO008-03 → 작업 상태 [진행] → [저장] | B008 재개, EQ03 가동. 관제 가동 2→3, 고장 1→0 |
 | 9 | 관제·생산 현황 | 확인 | 공정 흐름 카드, 블록별 진행, KPI가 같은 사실로 바뀌어 있음 |
 | 10 | (선택) 설비 상태 | EQ05 선택 → [고장 등록…] | 반대 방향 확인: 새 사건 INC006, WO006-05 보류, 관제 경고 |
+| 11 | 관제 대시보드 | 운영 요약 → [✦ AI 요약 생성] | 약 5~15초 뒤 AI가 쓴 [현황 요약]·[이상 상황 설명]·[보고용 한 문단]이 **모든 화면**에 뜹니다. 남은 횟수 1 감소 |
+
+### 3-1. 확장 시연 (선택, 각 30초)
+
+| 기능 | 화면 | 조작 | 보여 줄 점 |
+|---|---|---|---|
+| 가상 설비 신호 | 설비 상태 → 맨 아래 **가상 설비 신호** | EQ05 · 생산 카운트 · 30 → [신호 보내기] | 현장 신호가 들어오면 실적·진행률이 바로 바뀜 |
+| 신호 거부 | 같은 곳 | EQ03 · 가동 → [신호 보내기] | 고장 설비의 가동 신호는 서버 규칙이 **거부**(결과 열 '거부') |
+| 자동 재생 | 같은 곳 | [▶ 자동 재생] → 10초 후 [■ 정지] | 4초마다 시각 +5분, 가동 설비 실적이 자동으로 쌓임. 관제·생산 현황이 따라 움직임 |
+| 실적 가져오기 | 작업 관리 → [⭱ 실적 가져오기] | [양식 내려받기] → 인정수량만 고쳐 저장 → 파일 선택 → [서버에 반영] | 엑셀/MES 파일도 같은 규칙으로 반영. 한 줄이라도 틀리면 **전체 취소** |
+
+- **AI 요약은 하루 5회**(전체 합산, 한국 시간 0시 초기화)입니다. 리허설에서도 줄어드니 발표 당일에는 아껴 쓰세요. 다 쓰면 버튼이 비활성되고 규칙 기반 요약이 그대로 보입니다.
+- AI 요약을 만든 뒤 시각이 바뀌거나 조작을 하면 "이후 변경 있음"이 표시됩니다. 다시 생성하면 최신이 됩니다.
+- 자동 재생은 누른 화면(탭)에서만 돕니다. 탭을 닫거나 16:00이 되면 멈춥니다.
 
 시연이 끝나면 헤더의 [데이터 초기화]를 두 번 누릅니다. 09/16 12:00 원본으로 돌아갑니다. 서버가 하나라서 초기화하면 **같은 서버를 보고 있는 모든 화면**이 함께 되돌아갑니다. 팀원이 연습 중일 때는 미리 알리고 누르세요.
 
@@ -94,6 +127,28 @@
 | `tp_rename_process` | 공정명 변경 (모든 화면 반영) |
 | `tp_reset_demo` | 엑셀 원본으로 초기화 |
 | `tp_check_code` | 시연 코드 확인 |
+| `tp_ingest_signal` | 가상 설비 신호 입구. RUN(가동)→R5, STOP(정지)→보류, COUNT(생산 카운트)→R6, FAULT(이상 정지)→R1을 그대로 거칩니다. 받은 신호는 결과와 함께 `tp_signal_log`에 남습니다 |
+| `tp_import_progress` | 실적 가져오기: 행마다 R6 검사, 한 행이라도 거부되면 전체 취소(최대 200행) |
+| Edge Function `tp-ai-summary` | AI 운영 요약: 시연 코드 확인·하루 5회 차감(`tp_ai_claim`) → DB 사실 JSON(`tp_ai_facts`) → Claude → 저장(`tp_ai_save`), 실패 시 횟수 복구. 이 4개 함수는 화면에서 직접 부를 수 없습니다 |
+
+### 외부 시스템 연동 지점 (확장 구조)
+
+과제 범위(실시간 IoT·MES 연동 제외)에 따라 실제 연결은 하지 않았습니다. 대신 연결할 **입구**를 서버에 만들어 두었습니다.
+
+| 외부 시스템 | 들어오는 입구 | 지금 시연에서 대신하는 것 |
+|---|---|---|
+| 설비 PLC·IoT 게이트웨이 | `POST /rest/v1/rpc/tp_ingest_signal` | 설비 상태 화면의 가상 설비 신호(수동·자동 재생) |
+| MES·ERP 실적 | `tp_import_progress` (엑셀·CSV) | 작업 관리의 실적 가져오기 |
+| 3D 뷰어(향후) | 같은 `tp_` 테이블을 읽기만 하면 됨 | 2D 공정 흐름(관제 대시보드) |
+
+게이트웨이에서 신호를 보내는 예시(시연 코드는 단톡방 공유값):
+
+```bash
+curl -X POST "https://rrgvqgphhwzkeuvdwndu.supabase.co/rest/v1/rpc/tp_ingest_signal" \
+  -H "apikey: <anon 키>" -H "Authorization: Bearer <anon 키>" -H "Content-Type: application/json" \
+  -H "x-demo-code: <시연 코드>" \
+  -d '{"p_eq":"EQ05","p_signal":"COUNT","p_value":30}'
+```
 
 ### 지표 계산식
 
@@ -115,6 +170,7 @@
 - 초기화는 전체 삭제가 아니라 시연 중 생긴 행(출처 demo, 12:00 이후 조치·기록, 원본에 없는 설비 구간)만 지우고 원본 행의 값을 엑셀 값으로 되돌립니다.
 - 상태 변경은 서버 함수로만 가능하고, 모든 서버 함수는 요청 헤더 `x-demo-code`의 시연 코드가 맞아야 실행됩니다. 코드는 DB에 SHA-256 해시로만 저장됩니다.
 - 서버 함수는 `search_path`가 고정되어 있습니다.
+- AI 사용량 차감·결과 저장 함수는 Edge Function(service_role)만 호출할 수 있어, 시연 코드를 알아도 횟수를 되돌리거나 요약을 직접 써 넣을 수 없습니다.
 - 시연 코드를 바꾸려면 SQL Editor에서 실행합니다:
   `update tp_config set value = encode(sha256(convert_to('새코드', 'UTF8')), 'hex') where key = 'demo_code_sha256';`
 
@@ -123,11 +179,12 @@
 ## 5. 서버 새로 설치하기 (팀원이 자기 Supabase에 올릴 때)
 
 1. https://supabase.com 에서 새 프로젝트를 만듭니다(무료 플랜 가능).
-2. 왼쪽 메뉴 **SQL Editor** → New query → `supabase_setup.sql` 내용 전체를 붙여 넣고 **Run**.
+2. 왼쪽 메뉴 **SQL Editor** → New query → `supabase_setup.sql` 내용 전체를 붙여 넣고 **Run**. (확장 기능까지 들어 있습니다)
    - 끝에 `{"ok": true, "msg": "09/16 12:00 원본 데이터로 초기화했습니다."}`가 나오면 성공입니다.
    - 이 파일에 든 시연 코드 해시는 현재 배포 코드입니다. 새 프로젝트에서는 위 4장의 update 문으로 반드시 새 코드로 바꾸세요.
 3. **Project Settings → API**에서 Project URL과 `anon` `public` 키를 복사합니다.
 4. `twinpro.html`을 열고 연결 설정 화면에 붙여 넣습니다.
+5. AI 요약을 쓰려면 Edge Function을 배포합니다: Supabase CLI 설치 후 `supabase functions deploy tp-ai-summary --project-ref <프로젝트 ID>` → 2-1의 API 키 등록.
 
 ---
 
@@ -148,12 +205,14 @@ node e2e.js                              # 결과: e2e_result.json, 스크린샷
 
 ## 7. 검증 결과
 
-- 로컬 Postgres(같은 SQL) + 실제 화면 클릭 자동 테스트: 57/57 통과 (`e2e_result.json`)
+- 로컬 Postgres(같은 SQL) + 실제 화면 클릭 자동 테스트: 70/70 통과 (`e2e_result.json`). 확장 13건 포함(AI 5회 제한·신호 규칙·자동 재생·가져오기 전체 취소). AI는 테스트에서 Claude 대신 고정 문장을 씁니다.
 - 실제 Supabase(twinpro-demo) 실브라우저 테스트: 보안·동시성·실시간 16/16 통과, 화면 2개(조작 1, 보기 1) 시나리오 통과 (`supabase_live_result.txt`)
 
 ## 8. 알려진 제약
 
 - 신규 작업지시 등록·삭제, 공정 순서 변경은 해커톤 이후 범위입니다(버튼 비활성).
-- 파일을 더블클릭해 여는 방식이라 주소(URL)로 공유하려면 GitHub Pages 같은 호스팅이 따로 필요합니다.
+- 실적 가져오기는 진행 중 작업의 누적 인정수량만 받습니다. 엑셀(.xlsx)은 첫 시트만 읽습니다(읽기 도구를 인터넷에서 불러오므로 오프라인이면 CSV를 쓰세요).
+- AI 요약 결과와 신호 기록은 [데이터 초기화]로 지워지지 않습니다(기록으로 남김).
+- 호스팅 화면을 고치려면 저장소의 `index.html`을 새 빌드로 교체합니다(Pages가 1분 안에 다시 배포).
 - 시연 계정 구분(누가 바꿨는지)은 없습니다. 시연 코드를 아는 사람은 모두 조작할 수 있습니다.
 - 시연 시계는 서버에 하나입니다. 한 PC에서 [+10분]을 누르면 모든 화면의 시각이 함께 바뀝니다.
