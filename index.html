@@ -213,6 +213,41 @@ td.c, th.c { text-align: center; }
 .ai-h .btn { margin-left: auto; }
 .ai-h .btn small { opacity: .8; font-weight: 400; margin-left: 4px; }
 .ai-text { white-space: pre-wrap; font-size: 12.5px; line-height: 1.6; max-height: 260px; overflow: auto; color: var(--fg); }
+
+/* 패널 안 탭(운영 요약 AI/규칙, 설비 이력/신호) */
+.ptabs { display: inline-flex; border: 1px solid var(--line2); border-radius: 4px; overflow: hidden; }
+.ptabs button { border: 0; background: var(--card); padding: 4px 12px; font-size: 13px; font-weight: 600; color: var(--fg3); border-left: 1px solid var(--line2); }
+.ptabs button:first-child { border-left: 0; }
+.ptabs button.on { background: var(--pri); color: #fff; }
+.ptabs small { font-weight: 400; opacity: .85; }
+
+/* 한 화면 맞춤(1920×1080 등 큰 화면): 페이지는 스크롤 없이 화면 높이에 맞추고, 긴 표·패널만 안에서 스크롤 */
+@media (min-width: 1501px) and (min-height: 760px) {
+  .app, .main { height: 100vh; }
+  .main { min-height: 0; }
+  .top { padding: 8px 24px; }
+  .tab { padding: 6px 16px; }
+  .content { flex: 1; min-height: 0; overflow: hidden; margin: 10px 20px 12px; padding: 12px 20px 14px; gap: 10px; }
+  .ptitle h1 { font-size: 18px; }
+  .search { padding: 8px 14px; }
+  .kpi { padding: 8px 16px; } .kpi b { font-size: 26px; }
+  .panel { padding: 12px 16px; gap: 8px; } .pa { gap: 2px; }
+  th { padding: 6px 10px; } td { padding: 6px 10px; }
+  .ico { height: 64px; } .ico svg { height: 54px; }
+  .step { gap: 3px; padding: 8px 10px; }
+  .chk { padding: 8px 12px; }
+  .det-ico svg { height: 70px; }
+  .content > .grid:last-child, .content > .panel:last-child { flex: 1; min-height: 0; grid-auto-rows: minmax(0, 1fr); }
+  .content > .grid:last-child > .grid { min-height: 0; grid-template-rows: auto minmax(0, 1fr); grid-auto-rows: auto; }
+  .content > .grid:last-child .panel, .content > .panel:last-child { min-height: 0; overflow: auto; }
+  .content > .g-dash:last-child { grid-template-rows: auto minmax(0, 1fr); }
+  .ai-text { max-height: none; }
+  .content > .grid:last-child .panel > *, .content > .panel:last-child > * { flex-shrink: 0; }
+  .tl { gap: 4px 10px; } .tl .lane { height: 16px; }
+  .det-top { grid-template-columns: 150px minmax(0, 1fr); } .info > * { padding: 6px 10px; }
+  .alertbox { padding: 10px 12px; gap: 6px; } .alertbox textarea { min-height: 40px; }
+  .frow > span { padding: 8px 12px; } .frow > div { padding: 4px 10px; }
+}
 </style></head>
 <body><div id="app" class="app"><div class="content" style="margin:40px">서버에서 데이터를 읽는 중…</div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -376,7 +411,7 @@ const API = NEEDS_SETUP ? null : window.__TP_TEST_API ? {
 
 // TWIN PRO 화면 — 상태 S(서버에서 읽은 값)로 5개 화면을 그리고, 사용자 조작은 서버 함수(RPC)로 보낸 뒤 다시 읽는다.
 const UI = {
-  view: 'dash', busy: false, conn: '연결 중', draft: {}, page: { wo: 1, his: 1 }, sub: { wo: 'list', base: 'proc' },
+  view: 'dash', busy: false, conn: '연결 중', draft: {}, page: { wo: 1, his: 1 }, sub: { wo: 'list', base: 'proc', eq: 'his', sum: '' },
   sel: { eq: 'EQ03', block: 'B008', wo: 'WO009-02', proc: 'P03', inc: null },
   f: { eq: { proc: '', st: '', q: '', kind: '' }, prod: { vessel: '', proc: '', st: '', q: '' }, wo: { proc: '', st: '', date: '16-17', q: '', overdue: false }, base: { q: '', zone: '' } },
   faultForm: false, resetArm: false, codeOpen: false, canWrite: false,
@@ -488,17 +523,13 @@ function viewDash() {
       ${items.join('') || '<div class="empty">확인할 사건이 없습니다.</div>'}</section>
     <section class="panel"><div class="ph"><h2>기준일 작업지시 현황</h2><span class="sub">09/16 · ${todayWos().length}건</span><button class="btn line" data-act="goWoAll">전체 작업지시 ›</button></div>
       <div class="tw"><table><thead><tr><th>작업지시</th><th>블록 · 공정</th><th>설비</th><th>계획</th><th>작업 상태</th><th>지연</th><th>진행률</th><th>최근 이력</th></tr></thead><tbody>${rows}</tbody></table></div></section>
-    <section class="panel"><div class="ph"><h2>운영 요약</h2><span class="sub">${hm(nowS())} 기준 · AI 요약 + 규칙 기반 요약</span></div>
-      ${aiBox()}
-      <b style="font-size:13px">규칙 기반 요약 <span class="small">(항상 최신 · 서버 값으로 즉시 계산)</span></b>
-      <div id="summaryText">${esc(summaryText(k))}</div>
-      <div class="tw"><table><thead><tr><th>항목</th><th class="num">값</th></tr></thead><tbody>
-        <tr><td>이송 완료 블록</td><td class="num">${k.transferred} / ${k.blocks}</td></tr><tr><td>기한 도래 작업 완료</td><td class="num">${k.dueDone} / ${k.dueTotal}</td></tr>
-        <tr><td>검사 합격률</td><td class="num">${k.inspPass} / ${k.inspTotal} 차수</td></tr><tr><td>미해소 사건</td><td class="num">${k.open}건</td></tr></tbody></table></div>
-      <div class="row"><button class="btn" data-act="copySummary">${S.ai ? 'AI 요약 복사' : '요약 복사'}</button><span class="small">서버 기록 ${S.events.length}건</span></div>
+    <section class="panel"><div class="ph"><h2>운영 요약</h2><span class="ptabs"><button class="${sumTab() === 'ai' ? 'on' : ''}" data-act="sub" data-arg="sum:ai">AI 요약</button><button class="${sumTab() === 'rule' ? 'on' : ''}" data-act="sub" data-arg="sum:rule">규칙 기반</button></span><span class="sub">${hm(nowS())} 기준</span></div>
+      ${sumTab() === 'ai' ? aiBox() : `<div id="summaryText">${esc(summaryText(k))}</div><span class="small">서버 값으로 즉시 계산 · 항상 최신</span>`}
+      <div class="row"><button class="btn" data-act="copySummary">${sumTab() === 'ai' && S.ai ? 'AI 요약 복사' : '요약 복사'}</button><span class="small">서버 기록 ${S.events.length}건</span></div>
       <div class="events">${S.events.slice(0, 4).map(e => `<span>${hm(e.at)} ${esc(e.text)}</span>`).join('') || '<span class="small">시연 중 서버에 기록된 변경이 여기에 표시됩니다.</span>'}</div></section>
   </div>`;
 }
+const sumTab = () => UI.sub.sum || 'ai';
 function aiBox() {
   const left = Math.max(0, AI_LIMIT - S.aiUsed);
   const fresh = S.ai && S.ai.sim_at === nowS() && S.events[0] && S.events[0].text === 'AI 운영 요약 생성';   // 생성 뒤 시각 진행·서버 변경이 없으면 최신
@@ -536,7 +567,7 @@ function viewEq() {
   const rows = list.map((x, n) => { const o = occupancy(x.equipment_id); return `<tr data-act="selEq" data-arg="${x.equipment_id}" class="${x.equipment_id === id ? 'sel' : ''}">
     <td class="c">${n + 1}</td><td>${x.equipment_id}</td><td>${esc(x.equipment_name)}</td><td>${x.process_id.slice(1)} ${esc(proc(x.process_id).process_name)}</td><td class="c">${esc(x.resource_kind)}</td>
     <td class="c">${badge('eq', x.status)}</td><td>${bar(o.pct / 100, STATUS.eq[x.status][1])}</td><td class="c">${x.work_order_id || '-'}</td></tr>`; }).join('');
-  const segs = segments(id).filter(s => s.status !== 'OFFSHIFT').reverse().slice(0, 8);
+  const segs = segments(id).filter(s => s.status !== 'OFFSHIFT').reverse().slice(0, 7);
   const his = segs.map(s => { const inc = s.inc && incById(s.inc); const w = s.wo && S.wo[s.wo];
     const note = inc ? `${inc.incident_id} ${inc.summary}` : s.status === 'RUNNING' && w ? `${w.block_id} ${proc(w.process_id).process_name}` : s.status === 'IDLE' ? '대기' : STATUS.eq[s.status][0];
     return `<tr><td>${md(fromM(s.s))} ${hm(fromM(s.s))}</td><td class="c">${badge('eq', s.status)}</td><td>${s.wo || '-'}</td><td>${esc(note)}</td></tr>`; }).join('');
@@ -578,8 +609,8 @@ function viewEq() {
     <div class="grid">
       <section class="panel"><div class="ph"><h2>설비 목록</h2><span class="sub">총 ${list.length}대 · 점유율 = 가동시간 ÷ 운영시간 ${(occ.den / 60).toFixed(1).replace('.0', '')}h(09/07 08:00~${hm(nowS())})</span><button class="btn line" data-act="csv" data-arg="eq">⭳ 엑셀(CSV)</button></div>
         <div class="tw"><table><thead><tr><th class="c">No.</th><th>설비코드</th><th>설비명</th><th>공정</th><th class="c">자원</th><th class="c">상태</th><th>점유율</th><th class="c">연관 작업</th></tr></thead><tbody>${rows || '<tr><td colspan="8" class="c small">조건에 맞는 설비가 없습니다.</td></tr>'}</tbody></table></div></section>
-      <section class="panel"><div class="ph"><h2>상태 변경 이력</h2><span class="sub">${id} · 최근 순 · 설비 구간(equipment_intervals)</span></div>
-        <div class="tw"><table><thead><tr><th>시각</th><th class="c">상태</th><th>연관 작업</th><th>사건 · 메모</th></tr></thead><tbody>${his}</tbody></table></div></section>
+      ${UI.sub.eq === 'sig' ? signalPanel(id) : `<section class="panel"><div class="ph">${eqSubTabs()}<span class="sub">${id} · 최근 순 · 설비 구간(equipment_intervals)</span></div>
+        <div class="tw"><table><thead><tr><th>시각</th><th class="c">상태</th><th>연관 작업</th><th>사건 · 메모</th></tr></thead><tbody>${his}</tbody></table></div></section>`}
     </div>
     <section class="panel"><div class="ph"><h2>설비 상세</h2><span class="sub">${id} · 점유율·가동·고장 누계 = 09/07~시연 시각</span>${badge('eq', e.status)}</div>
       <div class="det-top"><div class="det-ico">${icon(e.process_id)}</div>
@@ -596,22 +627,22 @@ function viewEq() {
       ${action}
       <div class="row">${eqBtns}</div>
     </section>
-  </div>
-  ${signalPanel(id)}`;
+  </div>`;
 }
+const eqSubTabs = () => `<span class="ptabs"><button class="${UI.sub.eq !== 'sig' ? 'on' : ''}" data-act="sub" data-arg="eq:his">상태 변경 이력</button><button class="${UI.sub.eq === 'sig' ? 'on' : ''}" data-act="sub" data-arg="eq:sig">가상 설비 신호${S.signals.length ? ` <small>${S.signals.length}</small>` : ''}</button></span>`;
 const SIGNALS = [['COUNT', '생산 카운트'], ['RUN', '가동'], ['STOP', '정지'], ['FAULT', '이상 정지']];
 function signalPanel(id) {
   const sig = draft('sigType', 'COUNT'), eq = draft('sigEq', id);
   const rows = S.signals.map(g => `<tr><td>${hm(g.sim_at)}</td><td>${g.equipment_id}</td><td>${(SIGNALS.find(x => x[0] === g.signal) || [, g.signal])[1]}${g.value != null ? ' ' + g.value : ''}</td>
     <td class="c">${g.ok ? '<span class="badge g">반영</span>' : '<span class="badge r">거부</span>'}</td><td class="clip" title="${esc(g.msg)}">${esc(g.msg)}</td></tr>`).join('');
-  return `<section class="panel"><div class="ph"><h2>가상 설비 신호</h2><span class="sub">IoT 입구 시뮬레이터 · 현장 PLC·게이트웨이가 보낼 신호를 같은 서버 입구(tp_ingest_signal)로 넣습니다 · 신호도 R1~R7 규칙을 거칩니다</span></div>
+  return `<section class="panel"><div class="ph">${eqSubTabs()}<span class="sub">IoT 입구 시뮬레이터 · PLC·게이트웨이 신호와 같은 서버 입구(tp_ingest_signal) · R1~R7 규칙 적용</span></div>
     <div class="row">${selectBox('sigEq', Object.values(S.equipment).map(e => [e.equipment_id, `${e.equipment_id} ${e.equipment_name} (${STATUS.eq[e.status][0]})`]), eq, 'data-draft')}
       ${selectBox('sigType', SIGNALS, sig, 'data-draft')}
       <input type="number" id="sigVal" data-draft="sigVal" min="1" step="1" style="width:90px" placeholder="수량" value="${esc(draft('sigVal', ''))}" ${sig === 'COUNT' ? '' : 'disabled'}>
       <button class="btn pri" data-act="sendSignal" ${UI.canWrite ? '' : 'disabled title="시연 코드를 입력해야 신호를 보낼 수 있습니다"'}>신호 보내기</button>
       <span class="grow"></span>
       <button class="btn ${UI.simOn ? 'danger' : 'line'}" data-act="simToggle" ${UI.canWrite ? '' : 'disabled title="시연 코드를 입력해야 자동 재생할 수 있습니다"'}>${UI.simOn ? '■ 자동 재생 정지' : '▶ 자동 재생'}</button>
-      <span class="small">자동 재생 = ${SIM_SEC}초마다 시연 시각 +5분, 가동 중인 설비가 계획수량의 10%씩 생산 카운트 전송</span></div>
+</div><span class="small">자동 재생 = ${SIM_SEC}초마다 시연 시각 +5분, 가동 중인 설비가 계획수량의 10%씩 생산 카운트 전송</span>
     <div class="tw"><table><thead><tr><th>시연 시각</th><th>설비</th><th>신호</th><th class="c">결과</th><th>서버 응답</th></tr></thead><tbody>${rows || '<tr><td colspan="5" class="c small">아직 받은 신호가 없습니다.</td></tr>'}</tbody></table></div></section>`;
 }
 
@@ -778,10 +809,10 @@ function woEditor(w) {
       <div class="frow"><span>보류 사유</span><div>${st === 'BLOCKED' && w.status !== 'BLOCKED' ? selectBox('woHold', holdOpts, draft('woHold', ''), 'data-draft') : `<input readonly value="${h ? `${h.incident_id} · ${esc(h.summary)} (${STATUS.inc[h.status][0]})` : '-'}">`}</div></div>
       <div class="frow"><span>메모</span><div><input type="text" id="woMemo" data-draft="woMemo" value="${esc(draft('woMemo', w.memo || ''))}" placeholder="메모(보류 사유를 직접 적을 때도 사용)"></div></div>
     </div>
+    <div class="row"><span class="grow small">수정자·수정 시각은 서버 이력에 자동 기록</span><button class="btn" data-act="woCancel">취소</button><button class="btn pri" data-act="woSave" data-arg="${id}">저장</button></div>
     <div class="note"><b>저장하면 서버가 한 번에 처리합니다</b>① 규칙 검사(설비 고장·미해소 사건·선행 작업·수량 범위) ② 작업 이력 자동 기록 ③ 설비 상태·구간 갱신 → 관제·설비·생산 화면 동시 반영. 하나라도 실패하면 전부 취소됩니다.</div>
     <b style="font-size:13px">이 작업의 이력</b>
     <div class="tw"><table><thead><tr><th>시각</th><th>구분</th><th>내용</th></tr></thead><tbody>${his || '<tr><td colspan="3" class="small c">이력 없음</td></tr>'}</tbody></table></div>
-    <div class="row"><span class="grow small">수정자·수정 시각은 서버 이력에 자동 기록</span><button class="btn" data-act="woCancel">취소</button><button class="btn pri" data-act="woSave" data-arg="${id}">저장</button></div>
   </section>`;
 }
 function viewHistory() {
@@ -929,7 +960,7 @@ const ACT = {
     try { const r = await API.ai(); toast(r.msg || (r.ok ? '완료' : '실패'), !r.ok); if (!r.ok && /시연 코드가 필요/.test(r.msg || '')) { UI.canWrite = false; UI.codeOpen = true; } }
     catch (e) { toast('AI 서버 호출 실패: ' + (e.message || e), true); }
     finally { UI.aiBusy = false; await reload().catch(() => render()); } },
-  copySummary() { const t = S.ai ? S.ai.text : summaryText(kpis()); navigator.clipboard?.writeText(t).then(() => toast('운영 요약을 복사했습니다.'), () => { const r = document.createRange(); r.selectNodeContents(document.getElementById('summaryText')); getSelection().removeAllRanges(); getSelection().addRange(r); toast('복사가 막혀 있어 요약 문장을 선택해 두었습니다. Ctrl+C로 복사하세요.'); }); },
+  copySummary() { const t = sumTab() === 'ai' && S.ai ? S.ai.text : summaryText(kpis()); navigator.clipboard?.writeText(t).then(() => toast('운영 요약을 복사했습니다.'), () => { const r = document.createRange(); r.selectNodeContents(document.getElementById('summaryText') || document.getElementById('aiText')); getSelection().removeAllRanges(); getSelection().addRange(r); toast('복사가 막혀 있어 요약 문장을 선택해 두었습니다. Ctrl+C로 복사하세요.'); }); },
 };
 // 자동 재생: 이 탭에서만 돈다(탭을 닫으면 멈춤). 신호는 전부 서버 규칙을 거친다.
 const SIM_SEC = 4; let simTimer = null, simBusy = false;
