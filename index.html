@@ -1647,7 +1647,7 @@ async function t3Init() {
     const scene = new THREE.Scene(); scene.background = new THREE.Color(0xa9bccb); scene.fog = new THREE.Fog(0xa9bccb, 360, 900);
     const pm = new THREE.PMREMGenerator(r); scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture;
     scene.add(new THREE.HemisphereLight(0xdfe8f2, 0x6b6b66, 0.9));
-    const sun = new THREE.DirectionalLight(0xfff4e6, 2.6); sun.position.set(-90, -120, 160);
+    const sun = new THREE.DirectionalLight(0xffe9d2, 2.7); sun.position.set(-90, -120, 160);
     sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left: -200, right: 200, top: 120, bottom: -120, near: 10, far: 600 }); sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.3;
     scene.add(sun); scene.add(sun.target);
     const cam = new THREE.PerspectiveCamera(32, 16 / 9, 1, 2000); cam.up.set(0, 0, 1);
@@ -1655,7 +1655,7 @@ async function t3Init() {
     cam.position.set(-215, -150, 105); ctl.target.set(-10, 6, 0); ctl.update(); ctl.addEventListener('change', () => { T3.dirty = true; });
     const gltf = await new GLTFLoader().loadAsync(t3Url());
     const root = gltf.scene; root.rotation.x = Math.PI / 2;   // glTF(Y-up) → Z-up
-    root.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; if (o.material && /sea|ground|far/.test(o.material.name)) o.castShadow = false; } });
+    root.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; if (o.material && /sea|ground|far|hill|tree|trunk/.test(o.material.name)) o.castShadow = false; } });
     scene.add(root);
     const find = n => root.getObjectByName(n);
     T3.THREE = THREE; T3.r = r; T3.scene = scene; T3.cam = cam; T3.ctl = ctl; T3.parts = {}; T3.find = find;
@@ -1744,6 +1744,36 @@ function t3Loop() {
 Object.assign(ACT, { t3tog(k) { T3[k] = !T3[k]; T3.dirty = true; render(); } });
 document.addEventListener('change', e => { if (e.target.dataset && e.target.dataset.t3 === 'view') { const v = e.target.value; if (v === 'blk') ACT.bkOpen(''); else ACT.go(v); } });
 
+// ---------- 평블록 디테일 공용(블록 제조 화면·공정 시뮬레이션): 구멍 뚫린 판(경감공·맨홀), 블록 번호 스텐실, 인양 러그 ----------
+// size = [x, y, z] 판 치수(m). 가장 얇은 축이 판의 두께 방향. holes = [[u, v, 가로반지름, 세로반지름]] (판 중심 기준, 판 평면 좌표)
+function plateGeo(T, size, holes) {
+  if (!holes || !holes.length) return new T.BoxGeometry(...size);
+  const ax = size.indexOf(Math.min(...size)), [a, b] = ax === 0 ? [1, 2] : ax === 1 ? [0, 2] : [0, 1];
+  const w = size[a], h = size[b], t = size[ax], sh = new T.Shape();
+  sh.moveTo(-w / 2, -h / 2); sh.lineTo(w / 2, -h / 2); sh.lineTo(w / 2, h / 2); sh.lineTo(-w / 2, h / 2); sh.lineTo(-w / 2, -h / 2);
+  for (const [u, v, rw, rh] of holes) { const p = new T.Path(); p.absellipse(u, v, rw, rh, 0, Math.PI * 2, true); sh.holes.push(p); }
+  const g = new T.ExtrudeGeometry(sh, { depth: t, bevelEnabled: false, curveSegments: 20 }); g.translate(0, 0, -t / 2);
+  const M = new T.Matrix4();
+  if (ax === 0) M.set(0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1);        // 판 평면 (u,v) = (y,z), 두께 = x  (늑판)
+  else if (ax === 1) M.set(1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1);  // 판 평면 (u,v) = (x,z), 두께 = y  (거더·측판)
+  g.applyMatrix4(M); return g;
+}
+function flatHoles(type, size, ctx) {   // 평블록 부재별 구멍: 늑판 = 거더 사이 경감공, 거더 = 늑판 사이 타원 경감공, 내저판 = 맨홀
+  const H = size[2];
+  if (type === 'FL') return ctx.bays.map(y => [y, 0, Math.min(.4, H * .17), Math.min(.4, H * .17)]);
+  if (type === 'GD') return ctx.fx.slice(1).map((x, i) => [(x + ctx.fx[i]) / 2 - ctx.cx, 0, .45, Math.min(.32, H * .13)]);
+  if (type === 'IB' && ctx.manhole) return [[-size[0] * .3, 0, .36, .24], [size[0] * .22, 0, .36, .24]];
+  return null;
+}
+const STENCIL = {};
+function stencilMesh(T, id, w = 2.8) {   // 외판에 칠한 흰 글자: 블록 번호 + TWIN PRO (투명 배경)
+  if (!STENCIL[id]) { const c = document.createElement('canvas'); c.width = 512; c.height = 256; const g = c.getContext('2d');
+    g.fillStyle = '#f3f1ea'; g.textAlign = 'center'; g.font = 'bold 120px Arial, sans-serif'; g.fillText(id, 256, 120); g.font = 'bold 54px Arial, sans-serif'; g.fillText('TWIN PRO', 256, 200);
+    const tx = new T.CanvasTexture(c); tx.colorSpace = T.SRGBColorSpace; STENCIL[id] = new T.MeshStandardMaterial({ map: tx, transparent: true, roughness: .7, depthWrite: false }); }
+  const m = new T.Mesh(new T.PlaneGeometry(w, w / 2), STENCIL[id]); m.rotation.x = Math.PI / 2; m.renderOrder = 2; return m;   // 평면 법선 = -y(앞쪽)
+}
+function lugMesh(T, mat) { const m = new T.Mesh(new T.BoxGeometry(.3, .06, .36), mat); m.castShadow = true; return m; }
+
 // ---------- 공정 시뮬레이션(조선소 3D): 블록 하나가 강재 절단 → 소조립 → 블록 용접 → 검사 → 도장 → 이송·탑재 되는 정상 흐름 ----------
 // 서버의 고장·멈춤 데이터와 분리된 시연용 재생. 수량(piece·set·m·point·m²)은 엑셀 데이터(다음 착공 블록) 값을 쓴다.
 // 모든 위치는 시간 t의 함수로 계산한다(일시정지·단계 이동·배속이 자연스럽게 됨).
@@ -1795,15 +1825,17 @@ function simBuild() {   // 시뮬레이션 전용 물체(운반차·부재·세�
     for (const y of [-0.8, 0, 0.8]) g.add(mesh(new T.BoxGeometry(3.1, 0.07, 0.3), orange, 0, y, 0.2)); g.visible = false; sc.add(g); O.panels.push(g); }
   // 블록(바닥판 → 거더 → 늑판 → 측판 → 내저판 순서로 나타남): 12.5 × 5.2 × 3.4 m
   const L = 12.5, B = 5.2, H = 3.4; O.blk = new T.Group(); O.bparts = [];
-  const bp = (sx, sy, sz, x, y, z) => { const m = mesh(new T.BoxGeometry(sx, sy, sz), O.blockMat, x, y, z); O.blk.add(m); O.bparts.push(m); };
-  bp(L, B, 0.08, 0, 0, 0.04);
-  for (const y of [-B / 4, 0, B / 4]) bp(L, 0.08, H, 0, y, H / 2);
-  for (let i = 0; i < 6; i++) bp(0.08, B, H, -L / 2 + 0.2 + (L - 0.4) * i / 5, 0, H / 2);
-  for (const s of [-1, 1]) bp(L, 0.08, H, 0, s * B / 2, H / 2);
-  for (let i = 0; i < 4; i++) bp(L, B / 4 - 0.02, 0.08, 0, -B / 2 + B / 4 * (i + 0.5), H + 0.04);
+  const fx = Array.from({ length: 6 }, (_, i) => -L / 2 + 0.2 + (L - 0.4) * i / 5), ctx = { bays: [-3 * B / 8, -B / 8, B / 8, 3 * B / 8], fx, cx: 0 };
+  const bp = (type, sx, sy, sz, x, y, z, man) => { const m = mesh(plateGeo(T, [sx, sy, sz], flatHoles(type, [sx, sy, sz], { ...ctx, manhole: man })), O.blockMat, x, y, z); O.blk.add(m); O.bparts.push(m); return m; };
+  bp('BP', L, B, 0.08, 0, 0, 0.04);   // 바닥판 → 거더 → 늑판(경감공) → 측판 → 내저판(맨홀) 순서로 나타남
+  for (const y of [-B / 4, 0, B / 4]) bp('GD', L, 0.08, H, 0, y, H / 2);
+  for (const x of fx) bp('FL', 0.08, B, H, x, 0, H / 2);
+  for (const s of [-1, 1]) { const m = bp('SS', L, 0.08, H, 0, s * B / 2, H / 2);
+    if (s < 0) { O.stencil = m; for (const x of [-L / 3, 0, L / 3]) { const l = lugMesh(T, yel); l.position.set(x, 0, H / 2 + 0.18); m.add(l); } } }
+  for (let i = 0; i < 4; i++) bp('IB', L, B / 4 - 0.02, 0.08, 0, -B / 2 + B / 4 * (i + 0.5), H + 0.04, i % 2 === 0);
   O.blk.visible = false; sc.add(O.blk); O.L = L; O.B = B; O.H = H;
   O.marks = []; for (let i = 0; i < 10; i++) { const m = mesh(new T.SphereGeometry(0.28, 14, 10), M(0x9ca3af)); m.material = m.material.clone(); O.blk.add(m);
-    m.position.set(-L / 2 + L * ((i % 5) + 0.5) / 5, i < 5 ? -B / 2 - 0.3 : B / 2 + 0.3, H * 0.65); O.marks.push(m); }
+    m.position.set(-L / 2 + L * ((i % 5) + 0.5) / 5, i < 5 ? -B / 2 - 0.3 : B / 2 + 0.3, H * 0.9); O.marks.push(m); }
   // 골리앗 크레인 훅(트롤리 + 와이어). 거더는 x=52, z≈41
   O.gtrol = mesh(new T.BoxGeometry(7.6, 5, 1.6), yel); sc.add(O.gtrol);
   O.cable = new T.Line(new T.BufferGeometry().setFromPoints([new T.Vector3(), new T.Vector3()]), new T.LineBasicMaterial({ color: 0x30343a })); sc.add(O.cable);
@@ -1881,7 +1913,9 @@ function simApply(dt) {
   const bar = document.getElementById('simBar'); if (bar) bar.style.width = `${SIM.t / SIM_TOTAL * 100}%`;
   if (ph !== SIM.phase) { SIM.phase = ph; render(); }
 }
-function simStart() { if (!T3.ready) return; simBuild(); SIM.block = simBlockId(); SIM.on = true; SIM.play = true; SIM.t = 0; SIM.phase = -1; SIM.camT = SIM.camP = null;
+function simStart() { if (!T3.ready) return; simBuild(); SIM.block = simBlockId();
+  if (SIM.obj.stencilFor !== SIM.block) { const O = SIM.obj; O.stencil.children.filter(c => c.geometry && c.geometry.type === 'PlaneGeometry').forEach(c => O.stencil.remove(c));
+    const st = stencilMesh(T3.THREE, SIM.block, 3.0); st.position.set(-O.L * .2, -0.06, 0); O.stencil.add(st); O.stencilFor = SIM.block; } SIM.on = true; SIM.play = true; SIM.t = 0; SIM.phase = -1; SIM.camT = SIM.camP = null;
   T3.ctl.enabled = false; SIM.obj.hide.forEach(o => { o.visible = false; }); SIM.obj.spmt.visible = true; T3.dirty = true; render(); }
 function simStop(quiet) { if (!SIM.on) return; SIM.on = false; SIM.play = false; const O = SIM.obj;
   [O.spmt, O.blk, O.gtrol, O.cable, ...O.pieces, ...O.panels].forEach(o => { o.visible = false; }); O.spark.intensity = 0; O.hide.forEach(o => { o.visible = true; });
@@ -2068,7 +2102,7 @@ async function bkInit() {
     BK.mat = { stl: M(0x9aa3ad, { metalness: 0.55, roughness: 0.45 }), cut: M(0xc2c9d1, { metalness: 0.4, roughness: 0.5, transparent: true, opacity: 0.85 }),
       pri: M(0x8c2f1c, { metalness: 0.3, roughness: 0.55 }), pnt: M(0xb9c2cc, { metalness: 0.25, roughness: 0.4 }),
       cur: M(0x22c55e, { emissive: 0x16a34a, emissiveIntensity: 0.9 }), sel: M(0x60a5fa, { emissive: 0x2563eb, emissiveIntensity: 0.6 }),
-      ghost: new THREE.LineBasicMaterial({ color: 0x5aa9ff, transparent: true, opacity: 0.35 }) };
+      ghost: new THREE.LineBasicMaterial({ color: 0x5aa9ff, transparent: true, opacity: 0.35 }), lug: M(0xe8a317, { metalness: 0.3, roughness: 0.45 }) };
     BK.stools = []; for (const x of [-5, 0, 5]) for (const y of [-2.5, 2.5]) BK.stools.push(box(0.9, 0.9, 1.0, x, y, 0.5, yel));
     BK.spmt = new THREE.Group(); const sd = new THREE.Mesh(new THREE.BoxGeometry(18, 6, 0.8), yel); sd.position.z = 0.6; sd.castShadow = true;
     const cab = new THREE.Mesh(new THREE.BoxGeometry(2, 6, 2), yel); cab.position.set(10, 0, 1.4); BK.spmt.add(sd, cab);
@@ -2086,8 +2120,13 @@ function bkBuild() {   // 선택한 블록의 부재 메시(최종 위치 + 윤�
   const half = Math.ceil(bom.M / 2);
   const stage = (k) => { const side = k < half ? -1 : 1, idx = k % half, row = Math.floor(idx / 2) + 1, col = idx % 2;   // 세트 적치 위치(블록 앞·뒤 바닥, 2열)
     return new T.Vector3((col - 0.5) * (bom.L + 1.5), side * row * (bom.B + 2.5), 0); };
+  const gys = [-bom.B / 4, 0, bom.B / 4], ctx = { bays: [-3 * bom.B / 8, -bom.B / 8, bom.B / 8, 3 * bom.B / 8], fx: bom.parts.filter(q => q.type === 'FL').map(q => q.pos[0]).sort((a, b) => a - b), cx: 0 };
+  let ibn = 0;
   BK.meshes = bom.parts.map(p => {
-    const g = new T.BoxGeometry(...p.size), m = new T.Mesh(g, BK.mat.stl); m.castShadow = m.receiveShadow = true;
+    const hs = flatHoles(p.type, p.size, { ...ctx, manhole: p.type === 'IB' && ibn++ % 2 === 0 });
+    const g = plateGeo(T, p.size, hs), m = new T.Mesh(g, BK.mat.stl); m.castShadow = m.receiveShadow = true;
+    if (p.type === 'SS' && p.pos[1] < 0) { const st = stencilMesh(T, bom.bid, 3.2); st.position.set(-bom.L * .18, -.04, 0); m.add(st);
+      for (const x of [-bom.L / 3, 0, bom.L / 3]) { const l = lugMesh(T, BK.mat.lug); l.position.set(x, 0, p.size[2] / 2 + .18); m.add(l); } }
     const fin = new T.Vector3(...p.pos), set = bom.sets[p.set], c = set.parts.reduce((a, q) => a.add(new T.Vector3(...q.pos)), new T.Vector3()).multiplyScalar(1 / set.parts.length);
     const minz = Math.min(...set.parts.map(q => q.pos[2] - q.size[2] / 2));
     const stg = fin.clone().sub(c).add(stage(p.set)).add(new T.Vector3(0, 0, c.z - minz + 0.05));
@@ -2116,7 +2155,7 @@ function bkApply() {   // s 시점 상태를 3D에 반영
   // 검사 지점
   const insp = S.inspections.filter(q => q.work_order_id === bkWos(BK.block)[3]?.work_order_id).pop(), fail = insp ? insp.failed_points : 0;
   BK.marks.forEach((m, i) => { const vis = s >= 3 && s < 4.5; m.visible = vis; const x = -bom.L / 2 + bom.L * (i % 5 + 0.5) / 5, y = i < 5 ? -bom.B / 2 - 0.3 : bom.B / 2 + 0.3;
-    m.position.set(x + move, y, bom.z0 + bom.H * 0.7); const chk = s >= 4 || i < (s - 3) * 10; m.material.color.setHex(!chk ? 0x9ca3af : i >= 10 - fail && s < 4 ? 0xef4444 : 0x22c55e); });
+    m.position.set(x + move, y, bom.z0 + bom.H * 0.9); const chk = s >= 4 || i < (s - 3) * 10; m.material.color.setHex(!chk ? 0x9ca3af : i >= 10 - fail && s < 4 ? 0xef4444 : 0x22c55e); });
   // 천장 크레인: 내려오는 세트 위로
   if (hook) { BK.crane.position.x = hook.x; BK.trolley.position.y = hook.y; BK.cable.geometry.setFromPoints([new T.Vector3(hook.x, hook.y, 17.2), new T.Vector3(hook.x, hook.y, hook.z + 1.5)]); BK.cable.visible = true; }
   else BK.cable.visible = false;
