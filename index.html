@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>TWIN PRO 운영 모니터링</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap">
 <style>/* Layout: 왼쪽 220px 남색 사이드바 + 상단 상태칩 헤더 + 탭 + 흰 콘텐츠 카드(패널 그리드). 01H Figma 확정안과 같은 단일 라이트 테마(관제 화면 고정 톤). */
 :root {
@@ -415,6 +416,33 @@ td .small { line-height: 18px; }
 .etop .grow, .es > .grow { flex: 1; min-width: 0; }
 .es .l2 .eb { flex: 1 1 auto; min-width: 80px; }
 .eflow { align-items: start; }
+/* 3D 확장 데모 */
+.t3page { height: 100vh; }
+.t3main { position: relative; flex: 1; min-height: 520px; }
+#t3host, .t3wrap { position: absolute; inset: 0; }
+.t3wrap canvas { display: block; width: 100%; height: 100%; }
+.t3labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.t3lab { position: absolute; left: 0; top: 0; pointer-events: auto; display: flex; flex-direction: column; gap: 3px; min-width: 112px; padding: 6px 10px; border-radius: 8px; border: 0; border-left: 5px solid var(--n); background: rgba(255,255,255,.92); box-shadow: 0 2px 8px rgba(0,0,0,.18); text-align: left; font-size: 12px; }
+.t3lab b { font-size: 13px; } .t3lab span { font-weight: 700; }
+.t3lab i { display: block; height: 5px; background: var(--line); border-radius: 3px; overflow: hidden; } .t3lab i em { display: block; height: 100%; background: currentColor; }
+.t3lab.g { border-left-color: var(--g); color: var(--g); } .t3lab.r { border-left-color: var(--r); color: var(--r); background: #FFF1EF; } .t3lab.o { border-left-color: var(--o); color: var(--o); } .t3lab.b { border-left-color: var(--b); color: var(--b); } .t3lab.n { color: var(--fg3); }
+.t3lab b { color: var(--fg); } .t3lab.sel { outline: 3px solid var(--pri); }
+.t3lab.r { animation: tpBlink 1.6s ease-in-out infinite; }
+.t3panel { position: absolute; left: 16px; top: 16px; width: 300px; display: flex; flex-direction: column; gap: 10px; padding: 14px; background: rgba(255,255,255,.94); border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,.15); }
+.t3legend { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 12.5px; } .t3legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
+.t3prob { display: flex; flex-direction: column; gap: 8px; padding: 10px; border-radius: 8px; font-size: 14px; }
+.t3prob.bad { background: var(--r-bg); color: var(--r); } .t3prob.ok { background: var(--g-bg); color: var(--g); }
+.t3prob .btn.big { width: 100%; }
+.t3dots { display: flex; flex-wrap: wrap; gap: 4px; font-size: 11.5px; color: var(--fg2); } .t3dots span { padding: 2px 6px; border-radius: 10px; background: rgba(255,255,255,.7); }
+.t3dots span.done { color: var(--g); font-weight: 700; } .t3dots span.on { background: var(--pri); color: #fff; }
+.t3info { position: absolute; right: 16px; top: 16px; width: 260px; padding: 12px 14px; background: rgba(255,255,255,.95); border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,.15); display: flex; flex-direction: column; gap: 6px; }
+.t3info .ph { display: flex; gap: 8px; align-items: baseline; } .t3info .grow { flex: 1; }
+.t3row { display: flex; justify-content: space-between; font-size: 13px; } .t3row span { color: var(--fg3); }
+.c-g { color: var(--g); } .c-r { color: var(--r); } .c-o { color: var(--o); } .c-b { color: var(--b); } .c-n { color: var(--fg3); }
+.t3msg { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 16px 22px; background: rgba(255,255,255,.95); border-radius: 10px; font-size: 15px; display: flex; flex-direction: column; gap: 4px; }
+.t3msg small { color: var(--fg3); }
+.eh .grow { flex: 1; }
+@media (max-width: 1000px) { .t3panel { position: static; width: auto; margin: 10px; } .t3main { display: flex; flex-direction: column-reverse; } #t3host { position: relative; height: 60vh; } .t3info { position: static; width: auto; margin: 10px; } }
 </style></head>
 <body><div id="app" class="app"><div class="content" style="margin:40px">서버에서 데이터를 읽는 중…</div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -812,7 +840,7 @@ function easyFactory() {
     return `<li class="es ${c}"><b class="n">${p.sequence_no}</b><div class="grow"><div class="l1"><b>${EASY_NAME[p.process_id] || esc(p.process_name)}</b> <small>${esc(p.process_name)} · 블록 ${w.block_id}</small></div>
       <div class="l2"><span class="eb"><em style="width:${Math.min(100, w.progress_ratio * 100)}%"></em></span><span class="w">${word}</span></div></div></li>`; }).join('');
   const end = S.now >= toM(SHIFT_END);
-  return `<section class="ecol"><div class="eh"><span class="num">1</span><h2>공장</h2></div>
+  return `<section class="ecol"><div class="eh"><span class="num">1</span><h2>공장</h2><span class="grow"></span><button class="btn line" data-act="go" data-arg="3d">3D로 보기 ›</button></div>
     <p class="lead">배는 '블록'이라는 큰 철 덩어리로 나눠 만듭니다. 블록은 아래 6단계를 거칩니다. 지금은 단계마다 서로 다른 블록을 작업하고 있습니다.</p>
     <ol class="elist ${isLive() ? 'live' : ''}">${rows}</ol>
     <div class="eclock">${isLive() ? '▶' : '⏸'} 가상 시각 <b>${hm(nowS())}</b> <small>(12:00 → 16:00)</small></div>
@@ -858,7 +886,7 @@ function easyResult() {
 }
 function easyShell() {
   return `<div class="easy"><header class="etop"><b class="logo2">TWIN PRO</b><span>배 블록 공장 운영 화면 · <span class="chip warn">교육용 가상 데이터</span></span><span class="grow"></span>
-      ${UI.canWrite ? '<span class="chip">🔑 조작 가능 (저장됨)</span>' : ''}<button class="btn line" data-act="go" data-arg="dash">자세히 보기 ›</button></header>
+      ${UI.canWrite ? '<span class="chip">🔑 조작 가능 (저장됨)</span>' : ''}<button class="btn line" data-act="go" data-arg="3d" title="과제 제외범위(3D)를 팀이 시연용으로 구현한 화면">3D로 보기 (확장 데모) ›</button><button class="btn line" data-act="go" data-arg="dash">자세히 보기 ›</button></header>
     ${UI.trial ? `<div class="trialbar">🧪 <b>체험 중</b> · 저장되지 않고 내 화면에만 보입니다.<span class="grow"></span><button class="btn" data-act="endTrial">처음 상태로</button></div>` : ''}
     <div class="eflow">${easyFactory()}<i class="arr">→</i>${easyFix()}<i class="arr">→</i>${easyResult()}</div></div>`;
 }
@@ -1240,7 +1268,8 @@ async function call(fn, args, after) {
 function render() {
   const app = document.getElementById('app'); const sx = window.scrollX, sy = window.scrollY;
   const focus = document.activeElement && document.activeElement.id;
-  app.innerHTML = UI.view === 'easy' ? easyShell() : shell();
+  app.innerHTML = UI.view === 'easy' ? easyShell() : UI.view === '3d' ? t3Shell() : shell();
+  if (UI.view === '3d') t3Mount();
   if (focus) { const el = document.getElementById(focus); if (el && el.focus) { el.focus(); if (el.setSelectionRange && el.type === 'text') { const n = el.value.length; el.setSelectionRange(n, n); } } }
   window.scrollTo(sx, sy);
 }
@@ -1293,6 +1322,7 @@ const ACT = {
     if (k === 'act' && !UI.draft.wizNote) UI.draft.wizNote = { EQUIPMENT: '전원장치 점검 후 부품 교체', MATERIAL: '부재 긴급 공급 요청', QUALITY: '불합격 부위 보수 용접' }[inc.category] || '현장 조치';
     return stepDo(inc, k); },
   easyNext() { UI.easyInc = null; render(); },
+  t3sel(p) { T3.sel = p || null; render(); },
 };
 async function stepDo(inc, k) { if (!inc) return; const cs = caseSteps(inc);
     if (!UI.canWrite) {          // 체험: 코드 없이 실행해 보고 결과만 화면에 보여 줌
@@ -1406,12 +1436,138 @@ function setupScreen() {
   document.getElementById('sSave').onclick = () => { try { localStorage.setItem('tpSupabaseUrl', document.getElementById('sUrl').value.trim()); localStorage.setItem('tpSupabaseKey', document.getElementById('sKey').value.trim()); } catch (e) { /* 저장 불가 */ } location.reload(); };
 }
 async function boot() {
-  const hv = location.hash.slice(1); if (VIEW_RENDER[hv]) UI.view = hv;   // 새로고침해도 보던 화면 유지(#dash 등)
+  const hv = location.hash.slice(1); if (VIEW_RENDER[hv] || hv === '3d') UI.view = hv;   // 새로고침해도 보던 화면 유지(#dash 등)
   UI.intro = false;   // 첫 화면은 쉬운 화면이 안내를 대신한다. 대시보드의 [? 안내]로 볼 수 있음
   if (NEEDS_SETUP) return setupScreen();
   try { await reload(); UI.conn = '실시간 연결';
     if (DEMO_CODE) { const r = await API.rpc('tp_check_code', {}).catch(() => ({ ok: false })); UI.canWrite = !!r.ok; } API.subscribe(scheduleReload, s => { UI.conn = s; render(); }); render(); }
   catch (e) { document.getElementById('app').innerHTML = `<div class="content"><h1>서버에 연결하지 못했습니다</h1><p>${esc(e.message || e)}</p><p class="small">설정의 Supabase 주소와 공개 키를 확인하세요.</p></div>`; }
+}
+
+// ---------- 3D 확장 데모(과제 제외범위 · 팀 자체 시연 구현) ----------
+// Blender 코드로 만든 조선소 모델(twinpro_shipyard.glb)을 Three.js로 띄우고, 서버 데이터(공정별 작업·설비 상태)로 경광등·바닥 링·라벨·움직임을 바꾼다.
+// 화면을 다시 그려도(render) 3D 캔버스는 그대로 두고 자리만 옮긴다.
+const T3_PROC = ['P01', 'P02', 'P03', 'P04', 'P05', 'P06'];
+const T3_X = { P01: -115, P02: -69, P03: -23, P04: 23, P05: 69, P06: 115 };
+const T3_LZ = { P01: 17, P02: 9, P03: 23, P04: 10, P05: 21, P06: 8 };   // 라벨 높이(m)
+const T3_COLOR = { g: 0x16a34a, r: 0xdc2626, o: 0xf59e0b, b: 0x3b82f6, n: 0x9ca3af };
+const T3 = { wrap: null, ready: false, err: null, sel: null, st: {}, t0: performance.now() };
+
+function t3Url() { return window.TP_GLB || 'twinpro_shipyard.glb'; }
+function t3State() {   // 공정별 상태(쉬운 화면과 같은 기준)
+  const out = {};
+  for (const w of todayWos()) { const [c, word] = easyState(w); out[w.process_id] = { c, word, w, e: eqOf(w.equipment_id) }; }
+  return out;
+}
+function t3Shell() {
+  const inc = easyCase(), cs = inc && caseSteps(inc), a = cs && cs.active;
+  const st = T3.sel && t3State()[T3.sel];
+  const prob = !inc ? '<div class="t3prob ok">✓ 지금 멈춘 공정이 없습니다</div>'
+    : `<div class="t3prob ${a ? 'bad' : 'ok'}"><div>${a ? '⚠' : '✓'} <b>${esc(EASY_NAME[proc(cs.w ? cs.w.process_id : eqOf(cs.eqId).process_id).process_id] || '')}</b> ${a ? (inc.category === 'EQUIPMENT' ? '기계 고장' : inc.category === 'MATERIAL' ? '재료 기다림' : '검사 불합격') + ` · 블록 ${cs.w ? cs.w.block_id : ''} 멈춤` : '처리 완료'}</div>
+      <div class="t3dots">${cs.st.map((x, n) => `<span class="${x.done ? 'done' : x === a ? 'on' : ''}">${x.done ? '✓' : n + 1} ${x.title}</span>`).join('')}</div>
+      ${a ? `<button class="btn pri big" data-act="easyDo" data-arg="${a.key}" ${UI.busy ? 'disabled' : ''}>다음: ${a.title} ›</button>` : focusCase().some(i => i.incident_id !== inc.incident_id) ? '<button class="btn big" data-act="easyNext">다음 문제 ›</button>' : ''}</div>`;
+  const info = st ? `<div class="t3info"><div class="ph"><b>${proc(T3.sel).sequence_no}. ${EASY_NAME[T3.sel]}</b><span class="small">${esc(proc(T3.sel).process_name)}</span><span class="grow"></span><button class="btn" data-act="t3sel" data-arg="">✕</button></div>
+      <div class="t3row"><span>상태</span><b class="c-${st.c}">${st.word}</b></div><div class="t3row"><span>블록</span><b>${st.w.block_id}</b></div>
+      <div class="t3row"><span>진행</span><b>${pct(st.w.progress_ratio * 100)}</b></div><div class="t3row"><span>기계</span><b>${esc(eqName(st.e.equipment_id))}</b></div>
+      <div class="t3row"><span>작업지시</span><b>${st.w.work_order_id}</b></div></div>` : '';
+  return `<div class="easy t3page"><header class="etop"><b class="logo2">TWIN PRO</b><span>조선소 3D 보기 · <span class="chip warn">확장 데모 · 과제 제외범위를 팀이 시연용으로 구현</span></span><span class="grow"></span>
+      <button class="btn line" data-act="go" data-arg="easy">← 쉬운 화면</button><button class="btn line" data-act="go" data-arg="dash">관리자 화면 ›</button></header>
+    ${UI.trial ? `<div class="trialbar">🧪 <b>체험 중</b> · 저장되지 않고 내 화면에만 보입니다.<span class="grow"></span><button class="btn" data-act="endTrial">처음 상태로</button></div>` : ''}
+    <div class="t3main"><div id="t3host"></div>
+      <div class="t3panel"><div class="eclock">${isLive() ? '▶' : '⏸'} 가상 시각 <b>${hm(nowS())}</b> <small>(12:00 → 16:00)</small></div>
+        <div class="ebtn">${playCtl().replace('class="btn ', 'class="btn big ')}</div>
+        <div class="t3legend">${[['g', '작업 중'], ['r', '고장'], ['o', '멈춤·대기'], ['b', '오늘 몫 끝남']].map(([c, l]) => `<span><i style="background:#${T3_COLOR[c].toString(16).padStart(6, '0')}"></i>${l}</span>`).join('')}</div>
+        <p class="hint2">드래그: 회전 · 휠: 확대 · 공정을 누르면 정보</p>${prob}</div>
+      ${info}${T3.err ? `<div class="t3msg">3D 모델을 불러오지 못했습니다. 인터넷 연결을 확인하세요.<small>${esc(T3.err)}</small></div>` : !T3.ready ? '<div class="t3msg">3D 조선소 모델을 불러오는 중… (약 3MB)</div>' : ''}</div></div>`;
+}
+async function t3Init() {
+  if (T3.wrap) return;
+  T3.wrap = document.createElement('div'); T3.wrap.className = 't3wrap';
+  T3.labels = document.createElement('div'); T3.labels.className = 't3labels'; T3.wrap.appendChild(T3.labels);
+  try {
+    const THREE = await import('three');
+    const [{ GLTFLoader }, { OrbitControls }, { RoomEnvironment }] = await Promise.all([import('three/addons/loaders/GLTFLoader.js'), import('three/addons/controls/OrbitControls.js'), import('three/addons/environments/RoomEnvironment.js')]);
+    const r = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+    r.setPixelRatio(Math.min(2, window.devicePixelRatio || 1)); r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap;
+    r.toneMapping = THREE.AgXToneMapping; r.toneMappingExposure = 1.15;
+    T3.wrap.insertBefore(r.domElement, T3.labels);
+    const scene = new THREE.Scene(); scene.background = new THREE.Color(0xc3ccd6); scene.fog = new THREE.Fog(0xc3ccd6, 380, 900);
+    const pm = new THREE.PMREMGenerator(r); scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture;
+    scene.add(new THREE.HemisphereLight(0xdfe8f2, 0x6b6b66, 0.9));
+    const sun = new THREE.DirectionalLight(0xfff4e6, 2.6); sun.position.set(-90, -120, 160).multiplyScalar(1);
+    sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left: -200, right: 200, top: 120, bottom: -120, near: 10, far: 600 }); sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.3;
+    scene.add(sun); scene.add(sun.target);
+    const cam = new THREE.PerspectiveCamera(32, 16 / 9, 1, 2000); cam.up.set(0, 0, 1);
+    const ctl = new OrbitControls(cam, r.domElement); ctl.enableDamping = true; ctl.maxPolarAngle = Math.PI * 0.47; ctl.minDistance = 25; ctl.maxDistance = 520;
+    cam.position.set(-215, -150, 105); ctl.target.set(-10, 6, 0); ctl.update(); ctl.addEventListener('change', () => { T3.dirty = true; });
+    const gltf = await new GLTFLoader().loadAsync(t3Url());
+    const root = gltf.scene; root.rotation.x = Math.PI / 2;   // glTF(Y-up) → Z-up
+    root.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; if (o.material && /sea|ground|far/.test(o.material.name)) o.castShadow = false; } });
+    scene.add(root);
+    const find = n => root.getObjectByName(n);
+    T3.THREE = THREE; T3.r = r; T3.scene = scene; T3.cam = cam; T3.ctl = ctl; T3.parts = {};
+    for (const p of T3_PROC) {
+      const beaconMat = []; find(`${p}_beacon`)?.traverse(o => { if (o.isMesh && /beacon/.test(o.material.name)) { o.material = o.material.clone(); beaconMat.push(o.material); } });
+      const ring = new THREE.Mesh(new THREE.RingGeometry(21, 22.6, 64), new THREE.MeshBasicMaterial({ color: 0x9ca3af, transparent: true, opacity: 0.5, depthWrite: false }));
+      ring.position.set(T3_X[p], 0, 0.35); scene.add(ring);
+      const lab = document.createElement('button'); lab.className = 't3lab'; lab.dataset.act = 't3sel'; lab.dataset.arg = p; T3.labels.appendChild(lab);
+      const lamp = new THREE.PointLight(0xff0000, 0, 30); lamp.position.set(T3_X[p] + 16.5, -19, 9); scene.add(lamp);
+      T3.parts[p] = { beaconMat, ring, lab, lamp };
+    }
+    T3.anim = { crane: find('P01_crane'), trolley: find('P01_trolley'), gantry: find('P02_gantry'), bridge: find('P03_crane'), spark: find('P03_spark'), trans: find('P06_transporter') };
+    for (const k in T3.anim) if (T3.anim[k]) T3.anim[k].userData.p0 = T3.anim[k].position.clone();
+    T3.sparkLight = new THREE.PointLight(0x9fd0ff, 0, 18); T3.sparkLight.position.set(-19.5, -8.5, 6.5); scene.add(T3.sparkLight);
+    const ray = new THREE.Raycaster(), v2 = new THREE.Vector2(); let down = null;
+    r.domElement.addEventListener('pointerdown', e => { down = [e.clientX, e.clientY]; });
+    r.domElement.addEventListener('pointerup', e => {   // 클릭(드래그 아님) → 가장 가까운 공정 선택
+      if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 5) return;
+      const b = r.domElement.getBoundingClientRect(); v2.set((e.clientX - b.left) / b.width * 2 - 1, -(e.clientY - b.top) / b.height * 2 + 1);
+      ray.setFromCamera(v2, cam); const hit = ray.intersectObject(root, true)[0]; if (!hit) return;
+      const pt = hit.point; if (pt.y > 26 || pt.y < -40) return;
+      const p = T3_PROC.reduce((a, b2) => Math.abs(T3_X[b2] - pt.x) < Math.abs(T3_X[a] - pt.x) ? b2 : a); ACT.t3sel(p);
+    });
+    T3.ready = true; t3Sync(); render(); t3Loop();
+  } catch (e) { T3.err = e.message || String(e); render(); }
+}
+function t3Mount() {   // 화면을 다시 그린 뒤 캔버스를 새 자리로 옮긴다
+  const host = document.getElementById('t3host'); if (!host) return;
+  if (!T3.wrap) { t3Init(); }
+  if (T3.wrap && T3.wrap.parentNode !== host) host.appendChild(T3.wrap);
+  if (T3.ready) { t3Sync(); t3Resize(); if (!T3.looping) t3Loop(); }
+}
+function t3Resize() { const h = document.getElementById('t3host'); if (!h || !T3.r) return; const w = h.clientWidth, ht = h.clientHeight; if (!w || !ht) return;
+  const c = T3.r.domElement; if (c.width !== Math.round(w * T3.r.getPixelRatio()) || c.height !== Math.round(ht * T3.r.getPixelRatio())) { T3.r.setSize(w, ht); T3.cam.aspect = w / ht; T3.cam.updateProjectionMatrix(); T3.dirty = true; } }
+function t3Sync() { if (!T3.ready) return; T3.st = t3State(); T3.dirty = true;
+  for (const p of T3_PROC) { const s = T3.st[p], part = T3.parts[p]; if (!s) continue;
+    const col = T3_COLOR[s.c]; part.ring.material.color.setHex(col);
+    for (const m of part.beaconMat) { m.color.setHex(col); m.emissive.setHex(col); }
+    part.lab.className = `t3lab ${s.c} ${T3.sel === p ? 'sel' : ''}`;
+    part.lab.innerHTML = `<b>${proc(p).sequence_no}. ${EASY_NAME[p]}</b><span>${s.word}</span><i><em style="width:${Math.min(100, s.w.progress_ratio * 100)}%"></em></i>`; } }
+function t3Loop() {
+  if (!T3.ready || UI.view !== '3d' || !T3.wrap.isConnected) { T3.looping = false; return; }
+  T3.looping = true; requestAnimationFrame(t3Loop); t3Resize();
+  const now = performance.now(), t = (now - T3.t0) / 1000, live = isLive(), V = T3.THREE.Vector3;
+  T3.ctl.update();
+  // 필요할 때만 그린다: 카메라 이동·데이터 변경·경광등 깜빡임 전환, 재생 중에는 초당 30장까지(저사양 노트북 배려)
+  const blinkKey = T3_PROC.map(p => T3.st[p] && T3.st[p].c === 'r' ? (Math.sin(t * 6) > 0 ? 1 : 0) : T3.st[p] && T3.st[p].c === 'o' ? Math.round(Math.sin(t * 2) * 3) : '').join();
+  const anim = live && T3_PROC.some(p => T3.st[p] && T3.st[p].c === 'g');
+  if (!T3.dirty && blinkKey === T3.blinkKey && !(anim && now - (T3.last || 0) > 33)) return;
+  T3.dirty = false; T3.blinkKey = blinkKey; T3.last = now;
+  for (const p of T3_PROC) { const s = T3.st[p], part = T3.parts[p]; if (!s) continue;
+    const blink = s.c === 'r' ? (Math.sin(t * 6) > 0 ? 1 : 0.15) : s.c === 'o' ? 0.55 + 0.35 * Math.sin(t * 2) : 1;
+    for (const m of part.beaconMat) m.emissiveIntensity = 4 * blink;
+    part.ring.material.opacity = s.c === 'r' ? 0.35 + 0.35 * blink : 0.45;
+    part.lamp.color.setHex(T3_COLOR[s.c]); part.lamp.intensity = s.c === 'r' ? 600 * blink : 0;
+    const pr = new V(T3_X[p], 4, T3_LZ[p]).project(T3.cam), w = T3.r.domElement.clientWidth, h = T3.r.domElement.clientHeight;
+    part.lab.style.transform = `translate(${(pr.x + 1) / 2 * w}px, ${(1 - pr.y) / 2 * h}px) translate(-50%, -100%)`; part.lab.style.display = pr.z < 1 ? '' : 'none'; }
+  const run = p => live && T3.st[p] && T3.st[p].c === 'g', A = T3.anim;
+  if (A.trolley && run('P01')) A.trolley.position.x = A.trolley.userData.p0.x + Math.sin(t * 0.5) * 9;
+  if (A.crane && run('P01')) A.crane.position.y = A.crane.userData.p0.y + Math.sin(t * 0.23) * 6;
+  if (A.gantry && run('P02')) A.gantry.position.x = A.gantry.userData.p0.x + Math.sin(t * 0.4) * 9;
+  if (A.bridge && run('P03')) A.bridge.position.y = A.bridge.userData.p0.y + Math.sin(t * 0.3) * 6;
+  if (A.trans && run('P06')) A.trans.position.x = A.trans.userData.p0.x + Math.sin(t * 0.15) * 22;
+  const weld = run('P03'); if (A.spark) A.spark.visible = weld && Math.random() > 0.3; T3.sparkLight.intensity = weld ? 300 + Math.random() * 500 : 0;
+  T3.r.render(T3.scene, T3.cam);
 }
 
 boot();</script></body></html>
