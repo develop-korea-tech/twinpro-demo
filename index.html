@@ -498,7 +498,8 @@ function shell() {
   <div class="main">
     <header class="top">
       <span class="chip clock ${isLive() ? 'live' : ''}">${isLive() ? '▶ 재생 중' : '⏸ 정지'} · 시연 시각 ${nowTxt}</span>
-      <button class="btn ${UI.simOn ? 'danger' : 'pri'}" data-act="simToggle" ${UI.canWrite ? '' : 'disabled title="시연 코드를 입력해야 재생할 수 있습니다"'}>${UI.simOn ? '■ 정지' : '▶ 자동 재생'}</button>
+      ${S.now >= toM(SHIFT_END) && !UI.simOn ? '<button class="btn" disabled title="16:00 운영 종료. [데이터 초기화]를 두 번 누르면 12:00으로 돌아갑니다">16:00 종료</button>'
+        : `<button class="btn ${UI.simOn ? 'danger' : 'pri'}" data-act="simToggle" ${UI.canWrite ? '' : 'disabled title="시연 코드를 입력해야 재생할 수 있습니다"'}>${UI.simOn ? '■ 정지' : '▶ 자동 재생'}</button>`}
       <button class="btn" data-act="clock" data-arg="10" ${S.now >= toM(SHIFT_END) ? 'disabled' : ''} title="시연 시계를 10분 진행 (16:00까지)">+10분</button>
       <span class="chip warn">제공 샘플 · 가상 데이터</span>
       <button class="chip alert" data-act="go" data-arg="dash" style="border:0">미해소 사건 ${k.open}</button>
@@ -592,6 +593,7 @@ function nowLine() {
       : `<b class="c-r">${esc(p)}</b> 공정은 검사 불합격으로 재검사를 기다립니다${b}.`; });
   const head = running.length ? `지금 작업 중인 공정: <b class="c-g">${running.map(esc).join(', ')}</b>.` : '지금 작업 중인 공정이 없습니다.';
   const hint = isLive() ? `<span class="hint">${SIM_SEC}초마다 5분씩 흐르는 중</span>`
+    : S.now >= toM(SHIFT_END) ? '<span class="hint">16:00 운영 종료 · 오른쪽 위 <b>[데이터 초기화]</b>를 두 번 누르면 12:00으로 돌아갑니다</span>'
     : `<span class="hint">시간이 멈춰 있습니다 · 위쪽 <b>[▶ 자동 재생]</b>을 누르면 공정이 흘러갑니다${UI.canWrite ? '' : '(시연 코드 필요)'}</span>`;
   return `<div class="nowline"><span class="st ${isLive() ? 'live' : ''}">${isLive() ? '▶ 재생 중' : '⏸ 정지'}</span><span class="msg">${head} ${issues.join(' ') || '이상 없이 진행 중입니다.'}</span>${hint}</div>`;
 }
@@ -1034,7 +1036,7 @@ function stopSim(msg, ng) { clearInterval(simTimer); simTimer = null; UI.simOn =
 async function simTick() {
   if (simBusy || UI.busy) return; simBusy = true;
   try {
-    const c = await API.rpc('tp_advance_clock', { p_min: 5 }); if (!c.ok) return stopSim('자동 재생 종료: ' + c.msg, !/16:00/.test(c.msg));
+    const c = await API.rpc('tp_advance_clock', { p_min: 5 }); if (!c.ok) return stopSim(/16:00/.test(c.msg) ? '16:00 운영 종료로 재생을 멈췄습니다. [데이터 초기화]를 두 번 누르면 12:00으로 돌아갑니다.' : '자동 재생 종료: ' + c.msg, !/16:00/.test(c.msg));
     let n = 0;
     for (const e of Object.values(S.equipment).filter(x => x.status === 'RUNNING')) { const w = S.wo[e.work_order_id]; if (!w || w.status !== 'IN_PROGRESS') continue;
       const r = await API.rpc('tp_ingest_signal', { p_eq: e.equipment_id, p_signal: 'COUNT', p_value: Math.max(1, Math.round(w.planned_qty * 0.1)) }); if (r.ok) n++; }
