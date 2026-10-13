@@ -1779,7 +1779,7 @@ function lugMesh(T, mat) { const m = new T.Mesh(new T.BoxGeometry(.3, .06, .36),
 // 모든 위치는 시간 t의 함수로 계산한다(일시정지·단계 이동·배속이 자연스럽게 됨).
 const SIM = { on: false, play: false, t: 0, speed: 1, phase: -1 };
 const SIM_PH = [   // [키, 길이(초), 단계 번호(칩), 제목, 설명]
-  ['w1', 14, 0, '01 강재 절단', '강판을 크레인으로 옮겨 잘라 부재를 만듭니다. 잘린 부재는 운반차에 실립니다.'],
+  ['w1', 42, 0, '01 강재 절단', '마그넷 크레인이 강판을 절단기로 옮기고, 절단기가 부재 모양대로 자른 뒤, 잘린 판을 운반차에 싣습니다.'],
   ['m12', 9, 0, '부재 운반', '운반차가 잘린 부재를 소조립장(판넬 라인)으로 옮깁니다.'],
   ['w2', 14, 1, '02 소조립·취부', '부재를 판넬 라인에서 붙여 소조립 세트를 만듭니다. 갠트리가 지나가며 절단·용접합니다.'],
   ['m23', 9, 1, '세트 운반', '완성된 세트를 블록 조립 공장으로 옮깁니다.'],
@@ -1798,8 +1798,21 @@ const SIM_PATH = {
   m12: [[-112, -17.5], [-115, -24], [-115, -31], [-69, -31], [-69, -14]], m23: [[-69, -14], [-69, -31], [-23, -31], [-23, -10]],
   m34: [[-23, -10], [-23, -31], [22, -31], [22, 0]], m45: [[22, 0], [22, -31], [66, -31], [66, -6]], m56: [[66, -6], [66, -31], [46, -31], [46, 19]],
 };
-const SIM_CAM = { w1: [-30, -42, 26], m12: [-40, -50, 38], w2: [-28, -40, 24], m23: [-40, -50, 38], w3: [-12, -58, 22], m34: [-40, -50, 38], w4: [-30, -40, 24], m45: [-40, -50, 38], w5: [-8, -54, 17], m56: [-45, -55, 42], er: [-55, -60, 48] };
+const SIM_CAM = { w1: [-22, -30, 17], m12: [-40, -50, 38], w2: [-28, -40, 24], m23: [-40, -50, 38], w3: [-12, -58, 22], m34: [-40, -50, 38], w4: [-30, -40, 24], m45: [-40, -50, 38], w5: [-8, -54, 17], m56: [-45, -55, 42], er: [-55, -60, 48] };
 
+// 01 강재 절단 동작표: [초, 크레인 거더 y, 트롤리 x, 마그넷 내림 깊이 d] (공정 01 기준 좌표, 공정 중심 x = -115)
+// 더미(x -4, y 2) → 절단기 테이블(x 4, y 16.2) → 절단 → 다시 테이블 → 운반차(x 3, y -17.5)
+const P1X = -115, P1_KEY = [[0, -2, -4, 0], [3, 2, -4, 0], [5, 2, -4, 4.73], [5.6, 2, -4, 4.73], [7, 2, -4, 2], [12, 16.2, 4, 2], [14, 16.2, 4, 4.655], [14.6, 16.2, 4, 4.655],
+  [16, 16.2, 4, 0], [17.5, 4, 4, 0], [27, 4, 4, 0], [29, 16.2, 4, 0], [31, 16.2, 4, 4.655], [31.6, 16.2, 4, 4.655], [33, 16.2, 4, 2], [38.5, -17.5, 3, 2], [40.2, -17.5, 3, 4.58], [40.8, -17.5, 3, 4.58], [42, -17.5, 3, 0]];
+const P1_EV = { pick1: 5.6, place1: 14.6, cut0: 17.5, cut1: 27, pick2: 31.6, drop: 40.8 };
+const P1_TXT = [[5.6, '크레인이 강판 더미 위로 가서 마그넷으로 맨 윗장을 붙잡습니다.'], [14.6, '강판을 들어 CNC 플라즈마 절단기 테이블에 내려놓습니다.'], [17.5, '크레인이 비켜 서고 절단기가 준비합니다.'],
+  [27, '절단기가 강판 위를 지나가며 도면대로 부재 모양을 잘라 냅니다(강판 1장 = 부재 여러 개).'], [33, '다 잘린 강판을 크레인이 다시 붙잡아 들어 올립니다.'], [40.8, '운반차 위로 옮겨 내려놓습니다.'], [99, '잘린 부재가 운반차에 실렸습니다. 다음 공정으로 출발합니다.']];
+function p1Pose(s) {   // 초 s에서 크레인 y · 트롤리 x · 마그넷 깊이
+  const K = P1_KEY; if (s <= K[0][0]) return K[0].slice(1); if (s >= K[K.length - 1][0]) return K[K.length - 1].slice(1);
+  let i = 0; while (s > K[i + 1][0]) i++; const a = K[i], b = K[i + 1], f = ease((s - a[0]) / (b[0] - a[0]));
+  return [1, 2, 3].map(j => a[j] + (b[j] - a[j]) * f);
+}
+const P1_PX = [0, 1, 2, 3].map(c => 4.0 - 2.06 + c * 1.375);   // 부재 4열 × 2행의 열 중심(공정 01 x)
 function simBlockId() { const w = woList().filter(x => x.process_id === 'P01' && x.status === 'PLANNED').sort((a, b) => a.block_id.localeCompare(b.block_id))[0]; return w ? w.block_id : bkBlockDefault(); }
 function simQty() { const ws = bkWos(SIM.block); return ws.map(w => w ? +w.planned_qty : 0); }
 function simPhaseAt(t) { let a = 0; for (let i = 0; i < SIM_PH.length; i++) { if (t < a + SIM_PH[i][1] || i === SIM_PH.length - 1) return { i, u: Math.max(0, Math.min(1, (t - a) / SIM_PH[i][1])), start: a }; a += SIM_PH[i][1]; } }
@@ -1840,6 +1853,15 @@ function simBuild() {   // 시뮬레이션 전용 물체(운반차·부재·세�
   O.gtrol = mesh(new T.BoxGeometry(7.6, 5, 1.6), yel); sc.add(O.gtrol);
   O.cable = new T.Line(new T.BufferGeometry().setFromPoints([new T.Vector3(), new T.Vector3()]), new T.LineBasicMaterial({ color: 0x30343a })); sc.add(O.cable);
   O.spark = new T.PointLight(0xffb060, 0, 22); sc.add(O.spark);
+  // 01: 시뮬레이션 강판(마그넷에 붙거나 테이블 위) + 부재 윤곽선 8개
+  O.cp = new T.Group(); O.cp.add(mesh(new T.BoxGeometry(5.5, 2.2, 0.12), M(0x5c3322, { metalness: 0.5, roughness: 0.7 })));
+  const lm = M(0x0e0f11, { metalness: 0 }); O.cpLines = [];
+  for (let c = 0; c < 4; c++) for (let r = 0; r < 2; r++) { const g = new T.Group(), w = 1.2, d = 0.9, px = -2.06 + c * 1.375, py = -0.52 + r * 1.04;
+    for (const [sx, sy, sw, sd] of [[0, -d / 2, w, 0.03], [0, d / 2, w, 0.03], [-w / 2, 0, 0.03, d], [w / 2, 0, 0.03, d]]) g.add(mesh(new T.BoxGeometry(sw, sd, 0.012), lm, px + sx, py + sy, 0.066));
+    g.userData.col = c; O.cp.add(g); O.cpLines.push(g); }
+  O.cp.visible = false; sc.add(O.cp);
+  const n1 = ['hook', 'wires', 'mplate', 'topplate', 'cutplate', 'cnc', 'torch'].map(k => [k, T3.find('P01_' + k)]);
+  O.p1 = Object.fromEntries(n1); for (const [, o] of n1) if (o) o.userData.p0 = { pos: o.position.clone(), sc: o.scale.clone() };
   O.hide = ['P02_block', 'P03_block', 'P04_block', 'P05_block', 'P06_transporter'].map(n => T3.find(n)).filter(Boolean);
 }
 function simSpmtPose(ph, u) {   // 운반차 위치·방향
@@ -1862,8 +1884,10 @@ function simApply(dt) {
   const k01 = Math.max(0, SIM_PH.findIndex(p => p[0] === key));
   const before = k => k01 < SIM_PH.findIndex(p => p[0] === k), after = k => k01 > SIM_PH.findIndex(p => p[0] === k);
   // 부재: w1에서 늘어나고 w2에서 줄어듦
-  const NP = Math.min(O.pieces.length, q[0] || 72), shown = key === 'w1' ? Math.floor(NP * clamp01(u / 0.9)) : before('w2') ? NP : key === 'w2' ? Math.round(NP * (1 - clamp01(u / 0.8))) : 0;
+  const NP = Math.min(O.pieces.length, q[0] || 72), s1 = key === 'w1' ? u * SIM_PH[0][1] : after('w1') ? 99 : 0, shown = key === 'w1' ? (s1 >= P1_EV.drop ? NP : 0) : before('w2') ? NP : key === 'w2' ? Math.round(NP * (1 - clamp01(u / 0.8))) : 0;
   const layers = Math.ceil(NP / 12);
+  const P = O.p1, [cy, tx, dd] = p1Pose(s1), cut = clamp01((s1 - P1_EV.cut0) / (P1_EV.cut1 - P1_EV.cut0));
+  const tX = 1.4 + cut * 5.2, tY = 16.2 + 0.95 * Math.sin(cut * Math.PI * 14);   // 토치 끝 위치(공정 01 좌표)
   O.pieces.forEach((m, k) => { m.visible = k < shown; if (!m.visible) return; const st = k % 12, ly = Math.floor(k / 12);
     m.position.copy(deck(-5.6 + (st % 6) * 2.2 - 0.0, st < 6 ? -1.2 : 1.2, 0.05 + ly * 0.09)); m.rotation.z = hd; });
   // 세트(판넬): w2에서 라인 위에 생기고 → 운반차 → w3에서 공장 바닥 → 블록으로
@@ -1893,23 +1917,36 @@ function simApply(dt) {
   // 골리앗 훅
   O.gtrol.visible = O.cable.visible = er; if (er) { const hy = O.blk.position.y; O.gtrol.position.set(52, hy, 44); O.cable.geometry.setFromPoints([new T.Vector3(52, hy, 43.2), new T.Vector3(O.blk.position.x, hy, O.blk.position.z + O.H + 0.3)]); }
   // 용접 불꽃(w3)
-  if (key === 'w3' && fBlk > 0 && fBlk < 1) { O.spark.position.copy(deck(-4 + 8 * ((fBlk * 5) % 1), 0, O.H + 1.2)); O.spark.intensity = 200 + Math.random() * 600; } else O.spark.intensity = 0;
+  if (key === 'w1' && s1 > P1_EV.cut0 && s1 < P1_EV.cut1) { O.spark.position.set(P1X + tX, tY, 1.5); O.spark.intensity = 150 + Math.random() * 450; }
+  else if (key === 'w3' && fBlk > 0 && fBlk < 1) { O.spark.position.copy(deck(-4 + 8 * ((fBlk * 5) % 1), 0, O.H + 1.2)); O.spark.intensity = 200 + Math.random() * 600; } else O.spark.intensity = 0;
   // 공정 장비 동작: 시뮬레이션 중에는 모든 공정이 정상 가동
   const t = SIM.t, A = T3.anim;
-  if (A.trolley) A.trolley.position.x = A.trolley.userData.p0.x + Math.sin(t * 0.6) * 9;
-  if (A.crane) A.crane.position.z = A.crane.userData.p0.z - Math.sin(t * 0.25) * 6;
+  if (A.crane) A.crane.position.z = A.crane.userData.p0.z - (cy + 2);   // glTF 축: 블렌더 y = -z
+  if (A.trolley) A.trolley.position.x = A.trolley.userData.p0.x + (tx + 4);
+  if (P.hook) P.hook.position.y = P.hook.userData.p0.pos.y - dd;
+  if (P.wires) P.wires.scale.y = (8.05 + dd) / 8.05;
+  if (P.cnc) P.cnc.position.x = P.cnc.userData.p0.pos.x + (tX - 3.9);
+  if (P.torch) P.torch.position.z = P.torch.userData.p0.pos.z - (s1 > P1_EV.cut0 && s1 < P1_EV.cut1 ? tY - 15.4 : 0);
+  ['mplate', 'cutplate'].forEach(k => { if (P[k]) P[k].visible = false; }); if (P.topplate) P.topplate.visible = s1 < P1_EV.pick1;
+  const hookW = () => { P.hook.updateWorldMatrix(true, false); return P.hook.getWorldPosition(new T.Vector3()); };
+  const carried = (s1 >= P1_EV.pick1 && s1 < P1_EV.place1) || (s1 >= P1_EV.pick2 && s1 < P1_EV.drop), onTable = s1 >= P1_EV.place1 && s1 < P1_EV.pick2;
+  O.cp.visible = !!P.hook && (carried || onTable);
+  if (O.cp.visible) O.cp.position.copy(onTable ? new T.Vector3(P1X + 4.0, 16.2, 1.185) : hookW().add(new T.Vector3(0, 0, -0.81)));
+  O.cpLines.forEach(g => { g.visible = s1 >= P1_EV.pick2 || (onTable && tX > P1_PX[g.userData.col] + 0.6); });
   if (A.gantry) A.gantry.position.x = A.gantry.userData.p0.x + Math.sin(t * 0.5) * 9;
   if (A.bridge) A.bridge.position.z = A.bridge.userData.p0.z - (key === 'w3' ? Math.sin(t * 0.8) * 5 : Math.sin(t * 0.3) * 5);
   // 카메라: 블록(또는 운반차)을 따라감
-  const tgt = O.blk.visible ? O.blk.position.clone().add(new T.Vector3(0, 0, 2)) : new T.Vector3(x, y, 2);
-  const off = new T.Vector3(...SIM_CAM[key]); const k = 1 - Math.exp(-dt * 2.2);
+  let tgt = O.blk.visible ? O.blk.position.clone().add(new T.Vector3(0, 0, 2)) : new T.Vector3(x, y, 2);
+  if (key === 'w1' && P.hook) { if (s1 > P1_EV.cut0 - 0.5 && s1 < P1_EV.cut1 + 0.5) tgt = new T.Vector3(P1X + 4, 16.2, 1.5); else { const h = hookW(); tgt = new T.Vector3(h.x, h.y, Math.max(2, h.z - 3)); } }
+  const off = new T.Vector3(...(key === 'w1' && s1 > P1_EV.cut0 - 0.5 && s1 < P1_EV.cut1 + 0.5 ? [-9, -13, 8] : SIM_CAM[key]));
+  const k = 1 - Math.exp(-dt * 2.2);   // 절단 중에는 테이블을 가까이 본다
   SIM.camT = SIM.camT ? SIM.camT.lerp(tgt, k) : tgt.clone(); SIM.camP = SIM.camP ? SIM.camP.lerp(tgt.clone().add(off), k) : tgt.clone().add(off);
   T3.cam.position.copy(SIM.camP); T3.ctl.target.copy(SIM.camT); T3.cam.lookAt(SIM.camT);
   // 자막
-  const cnt = { w1: `부재 ${Math.min(NP, shown)} / ${q[0]} piece`, w2: `세트 ${Math.floor(clamp01(u / 0.8) * 8)} / ${q[1]} set`, w3: `용접 ${(q[2] * fBlk).toFixed(1)} / ${q[2]} m`,
+  const cnt = { w1: s1 < P1_EV.cut0 ? `강판 준비 · 부재 0 / ${q[0]} piece` : `부재 ${Math.floor(q[0] * cut)} / ${q[0]} piece${s1 >= P1_EV.drop ? ' · 운반차 적재' : ''}`, w2: `세트 ${Math.floor(clamp01(u / 0.8) * 8)} / ${q[1]} set`, w3: `용접 ${(q[2] * fBlk).toFixed(1)} / ${q[2]} m`,
     w4: `합격 ${Math.min(10, Math.floor(u * 10.5))} / ${q[3]} point`, w5: `도장 ${Math.round(q[4] * paint)} / ${q[4]} m²`, m56: `이송 ${u >= 1 ? 1 : 0} / ${q[5]} block`, er: u >= 1 ? '탑재 완료' : '탑재 중' }[key] || '';
   const set = (id, v) => { const e = document.getElementById(id); if (e && e.textContent !== v) e.textContent = v; };
-  set('simT', SIM_PH[ph][3]); set('simD', SIM_PH[ph][4]); set('simQ', cnt);
+  set('simT', SIM_PH[ph][3]); set('simD', key === 'w1' ? P1_TXT.find(e => s1 < e[0])[1] : SIM_PH[ph][4]); set('simQ', cnt);
   const bar = document.getElementById('simBar'); if (bar) bar.style.width = `${SIM.t / SIM_TOTAL * 100}%`;
   if (ph !== SIM.phase) { SIM.phase = ph; render(); }
 }
@@ -1920,6 +1957,7 @@ function simStart() { if (!T3.ready) return; simBuild(); SIM.block = simBlockId(
 function simStop(quiet) { if (!SIM.on) return; SIM.on = false; SIM.play = false; const O = SIM.obj;
   [O.spmt, O.blk, O.gtrol, O.cable, ...O.pieces, ...O.panels].forEach(o => { o.visible = false; }); O.spark.intensity = 0; O.hide.forEach(o => { o.visible = true; });
   for (const k in T3.anim) { const a = T3.anim[k]; if (a && a.userData.p0) a.position.copy(a.userData.p0); }
+  O.cp.visible = false; for (const o of Object.values(O.p1)) if (o) { o.position.copy(o.userData.p0.pos); o.scale.copy(o.userData.p0.sc); o.visible = true; }
   T3.ctl.enabled = true; T3.ctl.update(); T3.dirty = true; if (!quiet) render(); }
 function simStep() { return SIM_PH[simPhaseAt(SIM.t).i][2]; }
 function simSide() {   // 오른쪽 패널: 시뮬레이션 블록의 공정별 수량과 재생 조작
