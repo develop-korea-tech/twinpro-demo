@@ -256,7 +256,7 @@ td.c, th.c { text-align: center; }
   body { font-size: 12px; }
   .kpis { grid-template-columns: repeat(5, 1fr) 1.35fr 1.35fr 1.35fr; } .kpi:nth-child(n) { border-top: 0; } .kpi:nth-child(5) { border-left: 1px solid var(--line); }
   .kpi { padding: 6px 10px; } .kpi b { font-size: 22px; } .kpi span { font-size: 11px; }
-  .flow { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; } .step:nth-child(3n+1)::before { content: '›'; }
+  .flow { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; } .step:nth-child(3n+1)::before { content: '›'; } .step:first-child::before { content: none; }
   .ico { height: 48px; } .ico svg { height: 40px; }
   .g-dash { grid-template-columns: minmax(0, 1fr) minmax(300px, 0.42fr); }
   .g-eq { grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr); } .g-eq > .grid { grid-template-columns: minmax(0, 1fr); }
@@ -282,6 +282,22 @@ td .small { line-height: 18px; }
 .warn-t { line-height: 18px; display: inline-block; }
 .ell { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (max-width: 1500px) { .ell { max-width: 160px; } }
+
+/* 지금 상황 한 줄 + 재생 상태 */
+.chip.live { background: var(--g-bg); color: var(--g); font-weight: 600; }
+.nowline { display: flex; align-items: center; gap: 12px; border: 1px solid var(--line); border-radius: 6px; padding: 8px 14px; background: var(--label); font-size: 13px; }
+.nowline .st { font-weight: 700; white-space: nowrap; padding: 2px 10px; border-radius: 999px; background: var(--n-bg); color: var(--fg2); }
+.nowline .st.live { background: var(--g-bg); color: var(--g); }
+.nowline .msg { flex: 1; min-width: 0; }
+.nowline .hint { font-size: 12px; color: var(--fg3); white-space: nowrap; }
+/* 재생 중일 때만 공정이 움직인다(시간이 멈추면 정지) */
+@keyframes tpStripe { to { background-position: 24px 0; } }
+@keyframes tpBob { 50% { transform: translateY(-3px); } }
+.flow.live .step.run { border-color: var(--g); box-shadow: 0 0 0 2px var(--g-bg); }
+.flow.live .step.run .bar em { background-image: linear-gradient(45deg, rgba(255,255,255,.5) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.5) 50%, rgba(255,255,255,.5) 75%, transparent 75%) !important; background-size: 12px 12px !important; animation: tpStripe .8s linear infinite; }
+.flow.live .step.run .ico svg { animation: tpBob 1.2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .flow.live .step.run .bar em, .flow.live .step.run .ico svg { animation: none; } }
+@media (max-width: 1100px) { .nowline { flex-wrap: wrap; } .nowline .hint { white-space: normal; } }
 </style></head>
 <body><div id="app" class="app"><div class="content" style="margin:40px">서버에서 데이터를 읽는 중…</div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -481,7 +497,8 @@ function shell() {
   </aside>
   <div class="main">
     <header class="top">
-      <span class="chip clock">시연 시각 ${nowTxt}</span>
+      <span class="chip clock ${isLive() ? 'live' : ''}">${isLive() ? '▶ 재생 중' : '⏸ 정지'} · 시연 시각 ${nowTxt}</span>
+      <button class="btn ${UI.simOn ? 'danger' : 'pri'}" data-act="simToggle" ${UI.canWrite ? '' : 'disabled title="시연 코드를 입력해야 재생할 수 있습니다"'}>${UI.simOn ? '■ 정지' : '▶ 자동 재생'}</button>
       <button class="btn" data-act="clock" data-arg="10" ${S.now >= toM(SHIFT_END) ? 'disabled' : ''} title="시연 시계를 10분 진행 (16:00까지)">+10분</button>
       <span class="chip warn">제공 샘플 · 가상 데이터</span>
       <button class="chip alert" data-act="go" data-arg="dash" style="border:0">미해소 사건 ${k.open}</button>
@@ -520,7 +537,8 @@ function viewDash() {
   const kpi = (l, v, cls, u) => `<div class="kpi"><span>${l}</span><b class="${cls}">${v}<small>${u}</small></b></div>`;
   const steps = todayWos().map(w => {
     const p = proc(w.process_id), ci = cardInfo(w), occ = occupancy(ci.e.equipment_id);
-    return `<button class="step ${ci.e.status === 'FAULT' ? 'fault' : ''}" data-act="goEq" data-arg="${ci.e.equipment_id}" title="${esc(eqName(ci.e.equipment_id))} 설비 상태로 이동">
+    const run = ci.e.status === 'RUNNING' && w.status === 'IN_PROGRESS';
+    return `<button class="step ${ci.e.status === 'FAULT' ? 'fault' : ''} ${run ? 'run' : ''}" data-act="goEq" data-arg="${ci.e.equipment_id}" title="${esc(eqName(ci.e.equipment_id))} 설비 상태로 이동">
       <span class="t"><small>${p2(p.sequence_no)}</small>${esc(p.process_name)}</span>
       <span>${badge(...ci.b)}</span>
       <span class="ico">${icon(p.process_id)}</span>
@@ -549,9 +567,10 @@ function viewDash() {
   return `${title('관제 대시보드', '모니터링')}
   <div class="kpis">${kpi('전체 설비', k.total, '', '대')}${kpi('가동', k.running, 'c-g', '대')}${kpi('대기', k.idle, 'c-o', '대')}${kpi('고장', k.fault, 'c-r', '대')}${kpi('점검', k.maint, 'c-p', '대')}
     ${kpi('기준일 계획 완료', `${k.todayDone} / ${k.todayTotal}`, 'c-b', '건')}${kpi('계획 종료시각 도래·미완료', k.overdue.length, 'c-o', '건')}${kpi('미해소 사건', k.open, 'c-r', '건')}</div>
+  ${nowLine()}
   <div class="grid g-dash">
     <section class="panel"><div class="ph"><h2>공정 흐름 현황</h2><span class="sub">2D 공정도 · 기준일 작업지시 6 · 설비 8</span>${['RUNNING', 'IDLE', 'FAULT', 'MAINTENANCE'].map(s => badge('eq', s)).join('')}</div>
-      <div class="flow">${steps}</div>
+      <div class="flow ${isLive() ? 'live' : ''}">${steps}</div>
       <div class="legend">카드 배지 = 작업지시에 배정된 설비 상태 · 그 밖의 설비 ${alt}<span class="small">· 진행률 = 인정수량 ÷ 계획수량 · 점유율 = 가동시간 ÷ 운영시간 ${(opMinutes(OP_START, S.now) / 60).toFixed(1).replace('.0', '')}h(09/07 08:00~${hm(nowS())})</span></div></section>
     <section class="panel"><div class="ph"><h2>지금 확인할 것</h2><span class="sub">미해소 사건 ${k.open} + 기한 도래 ${k.overdue.length ? 1 : 0}</span></div>
       ${items.join('') || '<div class="empty">확인할 사건이 없습니다.</div>'}</section>
@@ -564,6 +583,18 @@ function viewDash() {
   </div>`;
 }
 const sumTab = () => UI.sub.sum || 'ai';
+// 지금 상황 한 줄: 처음 보는 사람도 "어디가 돌고, 어디가 왜 멈췄는지"를 문장으로 읽게 한다
+function nowLine() {
+  const running = todayWos().filter(w => w.status === 'IN_PROGRESS' && eqOf(w.equipment_id).status === 'RUNNING').map(w => proc(w.process_id).process_name);
+  const issues = openIncidents().map(i => { const w = i.work_order_id && S.wo[i.work_order_id]; const p = proc(w ? w.process_id : eqOf(incEquipment(i)).process_id).process_name; const b = w ? ` (블록 ${w.block_id})` : '';
+    return i.category === 'EQUIPMENT' ? `<b class="c-r">${esc(p)}</b> 공정이 설비 고장으로 ${S.now - toM(i.opened_at)}분째 멈춰 있습니다${b}.`
+      : i.category === 'MATERIAL' ? `<b class="c-o">${esc(p)}</b> 공정은 자재가 오지 않아 기다리는 중입니다${b}.`
+      : `<b class="c-r">${esc(p)}</b> 공정은 검사 불합격으로 재검사를 기다립니다${b}.`; });
+  const head = running.length ? `지금 작업 중인 공정: <b class="c-g">${running.map(esc).join(', ')}</b>.` : '지금 작업 중인 공정이 없습니다.';
+  const hint = isLive() ? `<span class="hint">${SIM_SEC}초마다 5분씩 흐르는 중</span>`
+    : `<span class="hint">시간이 멈춰 있습니다 · 위쪽 <b>[▶ 자동 재생]</b>을 누르면 공정이 흘러갑니다${UI.canWrite ? '' : '(시연 코드 필요)'}</span>`;
+  return `<div class="nowline"><span class="st ${isLive() ? 'live' : ''}">${isLive() ? '▶ 재생 중' : '⏸ 정지'}</span><span class="msg">${head} ${issues.join(' ') || '이상 없이 진행 중입니다.'}</span>${hint}</div>`;
+}
 function aiBox() {
   const left = Math.max(0, AI_LIMIT - S.aiUsed);
   const fresh = S.ai && S.ai.sim_at === nowS() && S.events[0] && S.events[0].text === 'AI 운영 요약 생성';   // 생성 뒤 시각 진행·서버 변경이 없으면 최신
@@ -989,7 +1020,7 @@ const ACT = {
   impSend() { const rows = (UI.imp?.rows || []).map(r => ({ work_order_id: r.wo, accepted_qty: Number(r.qty) }));
     call('tp_import_progress', { p_rows: rows }, () => { UI.imp = { rows: [] }; }); },
   sendSignal() { const t = draft('sigType', 'COUNT'); call('tp_ingest_signal', { p_eq: draft('sigEq', UI.sel.eq), p_signal: t, p_value: t === 'COUNT' ? Number(UI.draft.sigVal || 0) : null }); },
-  simToggle() { if (UI.simOn) return stopSim('자동 재생을 멈췄습니다.'); UI.simOn = true; simTimer = setInterval(simTick, SIM_SEC * 1000); toast(`자동 재생 시작 · ${SIM_SEC}초마다 +5분`); render(); simTick(); },
+  simToggle() { if (UI.simOn) return stopSim('자동 재생을 멈췄습니다.'); UI.simOn = true; simTimer = setInterval(simTick, SIM_SEC * 1000); toast(`자동 재생 시작 · ${SIM_SEC}초마다 5분씩 흐릅니다. 다른 사람 화면도 같이 움직입니다.`); render(); simTick(); },
   async aiGen() { if (UI.aiBusy) return; UI.aiBusy = true; render();
     try { const r = await API.ai(); toast(r.msg || (r.ok ? '완료' : '실패'), !r.ok); if (!r.ok && /시연 코드가 필요/.test(r.msg || '')) { UI.canWrite = false; UI.codeOpen = true; } }
     catch (e) { toast('AI 서버 호출 실패: ' + (e.message || e), true); }
@@ -998,6 +1029,7 @@ const ACT = {
 };
 // 자동 재생: 이 탭에서만 돈다(탭을 닫으면 멈춤). 신호는 전부 서버 규칙을 거친다.
 const SIM_SEC = 4; let simTimer = null, simBusy = false;
+const isLive = () => UI.simOn || Date.now() - (UI.clockAt || 0) < 7000;   // 이 화면이 재생 중이거나, 다른 화면의 재생으로 시각이 방금 바뀜
 function stopSim(msg, ng) { clearInterval(simTimer); simTimer = null; UI.simOn = false; if (msg) toast(msg, ng); render(); }
 async function simTick() {
   if (simBusy || UI.busy) return; simBusy = true;
@@ -1006,7 +1038,7 @@ async function simTick() {
     let n = 0;
     for (const e of Object.values(S.equipment).filter(x => x.status === 'RUNNING')) { const w = S.wo[e.work_order_id]; if (!w || w.status !== 'IN_PROGRESS') continue;
       const r = await API.rpc('tp_ingest_signal', { p_eq: e.equipment_id, p_signal: 'COUNT', p_value: Math.max(1, Math.round(w.planned_qty * 0.1)) }); if (r.ok) n++; }
-    await reload(); toast(`자동 신호 · 시연 시각 ${hm(nowS())} · 생산 카운트 ${n}건 반영`);
+    await reload();
   } catch (e) { stopSim('자동 재생 오류: ' + (e.message || e), true); }
   finally { simBusy = false; }
 }
@@ -1036,7 +1068,10 @@ document.addEventListener('change', e => {
 
 // ---------- 서버 연결 ----------
 let reloadTimer = null;
-async function reload() { const rows = await API.load(); S = buildState(rows); render(); }
+async function reload() { const prev = S && S.now; const rows = await API.load(); S = buildState(rows);
+  if (prev != null && S.now > prev) { UI.clockAt = Date.now(); clearTimeout(liveTimer); liveTimer = setTimeout(render, 7200); }
+  render(); }
+let liveTimer = null;
 function scheduleReload() { clearTimeout(reloadTimer); reloadTimer = setTimeout(() => reload().catch(e => toast('다시 읽기 실패: ' + e.message, true)), 250); }
 function setupScreen() {
   document.getElementById('app').innerHTML = `<div class="content" style="max-width:640px;margin:48px auto"><div class="ptitle"><h1>서버 연결 설정</h1></div>
