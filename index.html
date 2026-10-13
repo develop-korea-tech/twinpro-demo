@@ -222,7 +222,7 @@ td.c, th.c { text-align: center; }
 .ptabs small { font-weight: 400; opacity: .85; }
 
 /* 한 화면 맞춤(1920×1080 등 큰 화면): 페이지는 스크롤 없이 화면 높이에 맞추고, 긴 표·패널만 안에서 스크롤 */
-@media (min-width: 1501px) and (min-height: 760px) {
+@media (min-width: 1100px) and (min-height: 640px) {
   .app, .main { height: 100vh; }
   .main { min-height: 0; }
   .top { padding: 8px 24px; }
@@ -248,6 +248,40 @@ td.c, th.c { text-align: center; }
   .alertbox { padding: 10px 12px; gap: 6px; } .alertbox textarea { min-height: 40px; }
   .frow > span { padding: 8px 12px; } .frow > div { padding: 4px 10px; }
 }
+
+/* 한 화면 맞춤 · 중간 크기(노트북·창 모드 1100~1500px): 사이드바 대신 위 탭 사용, 글자·간격 축소, 열 배치는 큰 화면과 같게 */
+@media (min-width: 1100px) and (max-width: 1500px) and (min-height: 640px) {
+  .app { grid-template-columns: minmax(0, 1fr); background: var(--bg); }
+  .side { display: none; }
+  body { font-size: 12px; }
+  .kpis { grid-template-columns: repeat(5, 1fr) 1.35fr 1.35fr 1.35fr; } .kpi:nth-child(n) { border-top: 0; } .kpi:nth-child(5) { border-left: 1px solid var(--line); }
+  .kpi { padding: 6px 10px; } .kpi b { font-size: 22px; } .kpi span { font-size: 11px; }
+  .flow { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; } .step:nth-child(3n+1)::before { content: '›'; }
+  .ico { height: 48px; } .ico svg { height: 40px; }
+  .g-dash { grid-template-columns: minmax(0, 1fr) minmax(300px, 0.42fr); }
+  .g-eq { grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr); } .g-eq > .grid { grid-template-columns: minmax(0, 1fr); }
+  .g-prod { grid-template-columns: minmax(0, 1fr) minmax(320px, 0.5fr); }
+  .g-wo { grid-template-columns: minmax(0, 1fr) minmax(380px, 0.6fr); }
+  th, td { padding: 5px 8px; } th { font-size: 11px; }
+  .content { margin: 8px 12px 10px; padding: 10px 14px; }
+  .top { padding: 6px 12px; } .tabs { padding: 0 12px; }
+  .ph h2 { font-size: 14px; } .ptitle h1 { font-size: 16px; }
+  .bar i { width: 56px; } .clip { max-width: 180px; }
+  .det-top { grid-template-columns: 110px minmax(0, 1fr); } .det-ico svg { height: 56px; }
+  .info { grid-template-columns: 80px 1fr 80px 1fr; }
+  .search { gap: 8px; padding: 6px 10px; } .field > span.lb { min-width: 64px; padding: 5px 8px; } .field { min-height: 30px; }
+}
+
+/* 표 행 높이 일정하게: 배지·진행 막대가 들어가도 줄 높이가 같도록 */
+td { vertical-align: middle; }
+.badge { line-height: 18px; }
+.badge.delay { line-height: 16px; }
+.bar { height: 18px; vertical-align: middle; }
+.bar small { line-height: 18px; }
+td .small { line-height: 18px; }
+.warn-t { line-height: 18px; display: inline-block; }
+.ell { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 1500px) { .ell { max-width: 160px; } }
 </style></head>
 <body><div id="app" class="app"><div class="content" style="margin:40px">서버에서 데이터를 읽는 중…</div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -716,7 +750,7 @@ function viewWo() {
       <td>${x.work_order_id}</td><td>${x.block_id} · ${esc(proc(x.process_id).process_name)}</td><td>${esc(e.equipment_name)} ${badge('eq', e.status)}</td>
       <td>${md(x.planned_start_at)}<div class="small">${hm(x.planned_start_at)}~${hm(x.planned_end_at)}</div></td><td class="c">${badge('wo', x.status)}</td><td class="c">${delayBadge(x)}</td>
       <td>${bar(x.progress_ratio, x.status === 'BLOCKED' ? 'r' : x.status === 'COMPLETED' ? 'g' : 'b', 60)}</td>
-      <td style="white-space:normal;min-width:150px">${warn ? '<span class="warn-t">⚠ 지정 설비 고장 — 확인 필요</span>' : `<span class="small">${esc(histText(lastHistory(x.work_order_id)))}</span>`}</td></tr>`; }).join('');
+      <td><div class="ell" title="${warn ? '지정 설비 고장 — 확인 필요' : esc(histText(lastHistory(x.work_order_id)))}">${warn ? '<span class="warn-t">⚠ 지정 설비 고장 — 확인 필요</span>' : `<span class="small">${esc(histText(lastHistory(x.work_order_id)))}</span>`}</div></td></tr>`; }).join('');
   return `${title('작업 관리', '관리')}${tabs}
   <div class="search">
     <div class="field"><span class="lb">공정</span><div class="in">${selectBox('woProc', procOpts(), f.proc)}</div></div>
