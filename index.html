@@ -298,6 +298,68 @@ td .small { line-height: 18px; }
 .flow.live .step.run .ico svg { animation: tpBob 1.2s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .flow.live .step.run .bar em, .flow.live .step.run .ico svg { animation: none; } }
 @media (max-width: 1100px) { .nowline { flex-wrap: wrap; } .nowline .hint { white-space: normal; } }
+
+/* ===== 재설계: 문제 카드 · KPI 4칸 · 처리 안내 · 첫 안내 ===== */
+.chip.share { background: var(--b-bg); color: var(--b); }
+.chip.share.flash { background: var(--o-bg); color: var(--o); font-weight: 600; }
+.hero-row { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 16px; }
+.hero { border: 1px solid var(--line); border-left: 6px solid var(--g); border-radius: 6px; padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; background: var(--card); min-width: 0; }
+.hero.bad { border-left-color: var(--r); background: #FFF8F7; }
+.hero.mid { border-left-color: var(--o); background: #FFFBF3; }
+.hero-main { display: flex; gap: 16px; align-items: center; }
+.hero-main > div { flex: 1; min-width: 0; }
+.hero-t { font-size: 18px; font-weight: 700; }
+.hero.bad .hero-t { color: var(--r); }
+.hero-s { color: var(--fg2); font-size: 13px; margin-top: 2px; }
+.dots { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin-top: 6px; font-size: 12px; }
+.dots i { color: var(--fg3); font-style: normal; }
+.dot { padding: 1px 8px; border-radius: 999px; background: var(--n-bg); color: var(--fg3); }
+.dot.done { background: var(--g-bg); color: var(--g); }
+.dot.on { background: var(--pri); color: #fff; font-weight: 600; }
+.btn.big { padding: 10px 18px; font-size: 14px; }
+.hero-foot { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-size: 12px; color: var(--fg2); border-top: 1px dashed var(--line2); padding-top: 6px; }
+.hero-foot .hint { margin-left: auto; color: var(--fg3); }
+.hero-foot .hint.live { color: var(--g); font-weight: 600; }
+.kgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 6px; align-content: stretch; position: relative; }
+.kgrid .kpi { border-left: 1px solid var(--line); border-top: 1px solid var(--line); padding: 8px 14px; }
+.kgrid .kpi:nth-child(odd) { border-left: 0; } .kgrid .kpi:nth-child(-n+2) { border-top: 0; }
+.kgrid .kpi.more { display: none; }
+.kgrid.open .kpi.more { display: block; }
+.kgrid.open { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.kgrid.open .kpi:nth-child(odd) { border-left: 1px solid var(--line); } .kgrid.open .kpi:nth-child(4n+1) { border-left: 0; } .kgrid.open .kpi:nth-child(-n+4) { border-top: 0; }
+.kgrid.open .kpi:nth-child(n+5) { border-top: 1px solid var(--line); }
+.kmore { position: absolute; right: 6px; bottom: 4px; border: 0; background: none; color: var(--pri); font-size: 11px; }
+.chk .btns { display: flex; gap: 4px; flex: none; }
+/* 모달 */
+.modal-bg { position: fixed; inset: 0; background: rgba(15, 23, 42, .45); display: grid; place-items: center; z-index: 20; padding: 16px; }
+.modal { background: var(--card); border-radius: 8px; width: min(720px, 100%); max-height: calc(100vh - 32px); overflow: auto; padding: 18px 22px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 20px 60px rgba(0,0,0,.25); }
+.ctx { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 6px; }
+.ctx > div, .ctx > button { padding: 6px 10px; border: 0; border-left: 1px solid var(--line); display: flex; flex-direction: column; gap: 2px; min-width: 0; background: none; text-align: left; }
+.ctx > :first-child { border-left: 0; }
+.ctx > button:hover { background: var(--pri-tint); } .ctx > button span { color: var(--pri); }
+.ctx span { font-size: 11px; color: var(--fg3); } .ctx b { font-size: 13px; display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+.wsteps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.ws { display: flex; gap: 12px; border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; }
+.ws .n { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--n-bg); color: var(--fg3); flex: none; }
+.ws.on { border-color: var(--pri); box-shadow: 0 0 0 2px var(--pri-tint); }
+.ws.on .n { background: var(--pri); color: #fff; }
+.ws.done .n { background: var(--g-bg); color: var(--g); }
+.ws.lock { opacity: .6; }
+.ws .wb { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.ws .wb textarea, .ws .wb .row { align-self: stretch; }
+.ws .wt { font-weight: 700; }
+.ws textarea { width: 100%; min-height: 54px; border: 1px solid var(--line2); border-radius: 4px; padding: 8px 10px; resize: vertical; }
+.note.ok { background: var(--g-bg); } .note.ok b { color: var(--g); }
+.note input { border: 1px solid var(--line2); border-radius: 4px; padding: 5px 8px; width: 140px; }
+.intro h2 { margin: 0; font-size: 20px; }
+.facts { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.facts li { background: var(--label); border-radius: 6px; padding: 10px 14px; }
+.facts li > b:first-child { display: block; margin-bottom: 2px; }
+.intro-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.intro-btns .btn { white-space: normal; text-align: left; display: flex; flex-direction: column; gap: 2px; }
+.intro-btns small { font-weight: 400; opacity: .85; font-size: 12px; }
+.admin { display: flex; gap: 10px; align-items: center; border: 1px dashed var(--r-line); border-radius: 6px; padding: 6px 12px; }
+@media (max-width: 1100px) { .hero-row { grid-template-columns: minmax(0, 1fr); } .ctx { grid-template-columns: repeat(2, minmax(0, 1fr)); } .intro-btns { grid-template-columns: 1fr; } .hero-main { flex-direction: column; align-items: stretch; } }
 </style></head>
 <body><div id="app" class="app"><div class="content" style="margin:40px">서버에서 데이터를 읽는 중…</div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -353,6 +415,7 @@ function buildState(rows) {
   st.ai = ai ? { sim_at: ts(ai.sim_at), text: ai.text, model: ai.model } : null;
   const today = new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 10);       // 한국 날짜
   st.aiUsed = num((rows.ai_usage || []).find(u => String(u.day).slice(0, 10) === today)?.used) || 0;
+  st.simLock = (rows.sim_lock || [])[0] || null;
   st.signals = (rows.signal_log || []).slice().sort((a, b) => b.id - a.id).slice(0, 8).map(g => ({ ...g, sim_at: ts(g.sim_at), value: num(g.value) }));
   return st;
 }
@@ -421,8 +484,8 @@ if (false) module.exports = { buildState, setS: s => { S = s; }, kpis, processAc
 
 // 서버 연결 계층. 기본은 Supabase(supabase-js). 자동 테스트에서는 window.__TP_TEST_API(같은 SQL을 올린 로컬 Postgres)를 쓴다.
 const TABLES = ['vessels', 'zones', 'processes', 'equipment', 'equipment_snapshot', 'blocks', 'status_codes', 'work_orders', 'production_plan', 'production_actual',
-  'equipment_intervals', 'incidents', 'incident_actions', 'work_history', 'inspections', 'rework', 'sim_clock', 'event_log', 'ai_summary', 'ai_usage', 'signal_log'];
-const OPTIONAL = new Set(['ai_summary', 'ai_usage', 'signal_log']);   // 확장 SQL(3단계) 적용 전에도 화면이 열리도록: 없으면 빈 표
+  'equipment_intervals', 'incidents', 'incident_actions', 'work_history', 'inspections', 'rework', 'sim_clock', 'event_log', 'ai_summary', 'ai_usage', 'signal_log', 'sim_lock'];
+const OPTIONAL = new Set(['ai_summary', 'ai_usage', 'signal_log', 'sim_lock']);   // 확장 SQL(3단계) 적용 전에도 화면이 열리도록: 없으면 빈 표
 const LS = k => { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } };
 const BUILT_URL = 'https://rrgvqgphhwzkeuvdwndu.supabase.co', BUILT_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZ3ZxZ3BoaHd6a2V1dmR3bmR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE4MDA3OTAsImV4cCI6MjEwNzM3Njc5MH0.6dnywttjbB77nPBOAPNY-SSPDH1onNmdgx80QRJ1mPU';
 const SUPABASE_URL = LS('tpSupabaseUrl') || BUILT_URL, SUPABASE_ANON_KEY = LS('tpSupabaseKey') || BUILT_KEY;
@@ -464,7 +527,7 @@ const UI = {
   view: 'dash', busy: false, conn: '연결 중', draft: {}, page: { wo: 1, his: 1 }, sub: { wo: 'list', base: 'proc', eq: 'his', sum: '' },
   sel: { eq: 'EQ03', block: 'B008', wo: 'WO009-02', proc: 'P03', inc: null },
   f: { eq: { proc: '', st: '', q: '', kind: '' }, prod: { vessel: '', proc: '', st: '', q: '' }, wo: { proc: '', st: '', date: '16-17', q: '', overdue: false }, base: { q: '', zone: '' } },
-  faultForm: false, resetArm: false, codeOpen: false, canWrite: false,
+  faultForm: false, resetArm: false, codeOpen: false, canWrite: false, wiz: null, kpiMore: false, intro: false,
 };
 const VIEWS = [['dash', '관제 대시보드', '모니터링'], ['eq', '설비 상태', '모니터링'], ['prod', '생산 현황', '모니터링'], ['wo', '작업 관리', '관리'], ['base', '기준정보', '관리']];
 const OWNERS = ['정비조-A', '정비조-B', '자재조-A', '품질조-A'];
@@ -497,20 +560,27 @@ function shell() {
   </aside>
   <div class="main">
     <header class="top">
-      <span class="chip clock ${isLive() ? 'live' : ''}">${isLive() ? '▶ 재생 중' : '⏸ 정지'} · 시연 시각 ${nowTxt}</span>
-      ${S.now >= toM(SHIFT_END) && !UI.simOn ? '<button class="btn" disabled title="16:00 운영 종료. [데이터 초기화]를 두 번 누르면 12:00으로 돌아갑니다">16:00 종료</button>'
-        : `<button class="btn ${UI.simOn ? 'danger' : 'pri'}" data-act="simToggle" ${UI.canWrite ? '' : 'disabled title="시연 코드를 입력해야 재생할 수 있습니다"'}>${UI.simOn ? '■ 정지' : '▶ 자동 재생'}</button>`}
+      <span class="chip clock ${isLive() ? 'live' : ''}" title="가상 데이터의 시각입니다(실제 현재 시각 아님). 12:00에서 시작해 16:00에 끝납니다">${isLive() ? '▶ 재생 중' : '⏸ 정지'} · 시연 시각 ${nowTxt}</span>
+      ${playCtl()}
       <button class="btn" data-act="clock" data-arg="10" ${S.now >= toM(SHIFT_END) ? 'disabled' : ''} title="시연 시계를 10분 진행 (16:00까지)">+10분</button>
-      <span class="chip warn">제공 샘플 · 가상 데이터</span>
+      <span class="chip share ${Date.now() - (UI.extAt || 0) < 5000 ? 'flash' : ''}" title="서버가 하나라서 다른 사람이 조작한 결과도 이 화면에 바로 나타납니다">${Date.now() - (UI.extAt || 0) < 5000 ? '👥 다른 화면에서 변경됨' : '👥 팀 공용 시연'}</span>
+      <span class="chip warn" title="교육용 가상 데이터입니다. 실제 공장과 연결되어 있지 않습니다">가상 데이터</span>
       <button class="chip alert" data-act="go" data-arg="dash" style="border:0">미해소 사건 ${k.open}</button>
-      ${UI.canWrite ? '<span class="chip" title="상태 변경 가능">조작 가능</span>' : UI.codeOpen
+      ${UI.canWrite ? '<span class="chip" title="상태를 바꿀 수 있습니다">🔑 조작 가능</span>' : UI.codeOpen
         ? `<span class="row"><input type="password" id="codeIn" data-draft="codeIn" value="${esc(draft('codeIn', ''))}" placeholder="시연 코드" style="width:110px;border:1px solid var(--line2);border-radius:4px;padding:5px 8px" autocomplete="off"><button class="btn pri" data-act="codeSave">확인</button></span>`
-        : '<button class="btn line" data-act="codeOpen" title="보기 전용입니다. 조작하려면 시연 코드를 입력하세요">보기 전용 · 시연 코드</button>'}
-      <button class="btn ${UI.resetArm ? 'danger' : ''}" data-act="reset">${UI.resetArm ? '한 번 더 누르면 초기화' : '데이터 초기화'}</button>
+        : '<button class="btn line" data-act="codeOpen" title="지금은 보기만 됩니다. 팀에서 받은 시연 코드를 넣으면 조작할 수 있습니다">읽기 전용 · 조작 권한 받기</button>'}
+      <button class="btn" data-act="intro" title="처음 안내 다시 보기">? 안내</button>
     </header>
     <nav class="tabs">${VIEWS.map(([v, l]) => `<button class="tab ${UI.view === v ? 'on' : ''}" data-act="go" data-arg="${v}">${l}</button>`).join('')}</nav>
     <main class="content" id="content">${VIEW_RENDER[UI.view]()}</main>
-  </div>`;
+  </div>${UI.wiz ? wizard() : ''}${UI.intro ? introBox() : ''}`;
+}
+// 재생 버튼: 16:00이면 '처음부터', 다른 화면이 재생 중이면 잠금, 아니면 재생/정지
+function playCtl() {
+  const no = UI.canWrite ? '' : 'disabled title="조작 권한(시연 코드)이 있어야 합니다"';
+  if (S.now >= toM(SHIFT_END) && !UI.simOn) return `<button class="btn ${UI.resetArm ? 'danger' : 'pri'}" data-act="reset" ${no}>${UI.resetArm ? '한 번 더 누르면 12:00으로' : '↺ 처음부터 다시 보기'}</button>`;
+  if (othersPlaying()) return '<button class="btn" disabled title="다른 화면에서 자동 재생 중입니다. 시간이 같이 흐릅니다">다른 화면에서 재생 중</button>';
+  return `<button class="btn ${UI.simOn ? 'danger' : 'pri'}" data-act="simToggle" ${no}>${UI.simOn ? '■ 정지' : '▶ 자동 재생'}</button>`;
 }
 function navBtn([v, l]) { return `<button class="nav ${UI.view === v ? 'on' : ''}" data-act="go" data-arg="${v}">${l}</button>`; }
 function title(name, group) { return `<div class="ptitle"><h1>${name}</h1><span class="crumb">⌂ &gt; ${group} &gt; ${name}</span></div>`; }
@@ -557,7 +627,7 @@ function viewDash() {
     const [act, arg, lbl] = i.category === 'EQUIPMENT' ? ['goEq', eq, '설비 상태'] : i.category === 'MATERIAL' ? ['goWo', w?.work_order_id, '작업 관리'] : ['goBlock', w?.block_id, '생산 현황'];
     return `<div class="chk"><div class="grow"><div class="l1">${badge('cat', i.category)} ${p2(p.sequence_no)} ${esc(p.process_name)} · ${esc(eqOf(eq)?.equipment_name || '')}</div>
       <div class="l2">${i.incident_id} · ${hm(i.opened_at)} · ${esc(detail)}${w ? ' · ' + w.block_id : ''}</div></div>
-      <button class="btn line" data-act="${act}" data-arg="${arg}">${lbl} ›</button></div>`;
+      <button class="btn pri" data-act="wizOpen" data-arg="${i.incident_id}" title="${lbl}에서 보려면 처리 안내의 링크를 누르세요">처리 안내 ›</button></div>`;
   });
   if (k.overdue.length) items.push(`<div class="chk"><div class="grow"><div class="l1"><span class="badge o">기한 도래</span> 계획 종료 지남 ${k.overdue.length}건</div>
     <div class="l2">${[...new Set(k.overdue.map(w => w.block_id))].join(' · ')}</div></div><button class="btn line" data-act="goOverdue">작업 관리 ›</button></div>`);
@@ -565,10 +635,12 @@ function viewDash() {
     <td>${w.work_order_id}</td><td>${w.block_id} · ${esc(proc(w.process_id).process_name)}</td><td>${esc(eqName(w.equipment_id))}</td>
     <td>${md(w.planned_start_at)} ${hm(w.planned_start_at)}~${hm(w.planned_end_at)}</td><td>${badge('wo', w.status)}</td><td>${delayBadge(w)}</td>
     <td>${bar(w.progress_ratio, STATUS.wo[w.status][1] === 'r' ? 'r' : w.status === 'COMPLETED' ? 'g' : 'b')}</td><td class="clip" title="${esc(histText(lastHistory(w.work_order_id)))}">${esc(histText(lastHistory(w.work_order_id)))}</td></tr>`).join('');
+  const more = (l, v, cls, u) => kpi(l, v, cls, u).replace('class="kpi"', 'class="kpi more"');
   return `${title('관제 대시보드', '모니터링')}
-  <div class="kpis">${kpi('전체 설비', k.total, '', '대')}${kpi('가동', k.running, 'c-g', '대')}${kpi('대기', k.idle, 'c-o', '대')}${kpi('고장', k.fault, 'c-r', '대')}${kpi('점검', k.maint, 'c-p', '대')}
-    ${kpi('기준일 계획 완료', `${k.todayDone} / ${k.todayTotal}`, 'c-b', '건')}${kpi('계획 종료시각 도래·미완료', k.overdue.length, 'c-o', '건')}${kpi('미해소 사건', k.open, 'c-r', '건')}</div>
-  ${nowLine()}
+  <div class="hero-row">${heroCard()}
+    <div class="kgrid ${UI.kpiMore ? 'open' : ''}">${kpi('가동', k.running, 'c-g', `/ ${k.total}대`)}${kpi('고장', k.fault, 'c-r', '대')}${kpi('기준일 계획 완료', `${k.todayDone} / ${k.todayTotal}`, 'c-b', '건')}${kpi('미해소 사건', k.open, 'c-r', '건')}
+      ${more('전체 설비', k.total, '', '대')}${more('대기', k.idle, 'c-o', '대')}${more('점검', k.maint, 'c-p', '대')}${more('계획 종료시각 도래·미완료', k.overdue.length, 'c-o', '건')}
+      <button class="kmore" data-act="kpiMore">${UI.kpiMore ? '지표 접기 ▲' : '지표 더 보기 ▼'}</button></div></div>
   <div class="grid g-dash">
     <section class="panel"><div class="ph"><h2>공정 흐름 현황</h2><span class="sub">2D 공정도 · 기준일 작업지시 6 · 설비 8</span>${['RUNNING', 'IDLE', 'FAULT', 'MAINTENANCE'].map(s => badge('eq', s)).join('')}</div>
       <div class="flow ${isLive() ? 'live' : ''}">${steps}</div>
@@ -584,18 +656,78 @@ function viewDash() {
   </div>`;
 }
 const sumTab = () => UI.sub.sum || 'ai';
-// 지금 상황 한 줄: 처음 보는 사람도 "어디가 돌고, 어디가 왜 멈췄는지"를 문장으로 읽게 한다
-function nowLine() {
+// ---------- 처리 단계(사건 하나를 끝까지): 조치 기록 → 사건 해소 → 설비 복구 → 작업 재개 ----------
+function caseSteps(inc) {
+  const w = inc.work_order_id ? S.wo[inc.work_order_id] : null, eqId = incEquipment(inc), e = eqOf(eqId);
+  const res = inc.status === 'RESOLVED', eqCase = inc.category === 'EQUIPMENT';
+  const st = [
+    { key: 'act', title: '조치 기록', desc: '무엇을 했는지 남깁니다. 기록만 하고 상태는 바뀌지 않습니다.', done: inc.actions.length > 0 || res },
+    { key: 'resolve', title: '사건 해소', desc: inc.category === 'QUALITY' ? '재검사 합격으로 사건을 닫습니다.' : '원인이 처리됐다고 확정하고 사건을 닫습니다.', done: res, lock: '조치를 1건 이상 기록해야 해소할 수 있습니다.' },
+  ];
+  if (eqCase) st.push({ key: 'restore', title: '설비 복구', desc: `${eqName(eqId)}를 고장 → 대기로 되돌립니다.`, done: e.status !== 'FAULT', lock: '사건을 해소해야 설비를 복구할 수 있습니다.' });
+  if (w && inc.category !== 'QUALITY') st.push({ key: 'resume', title: '작업 재개', desc: `${w.work_order_id}(블록 ${w.block_id}) 작업을 다시 시작합니다. 설비가 가동으로 바뀝니다.`, done: w.status !== 'BLOCKED', lock: eqCase ? '설비를 복구해야 작업을 재개할 수 있습니다.' : '사건을 해소해야 작업을 재개할 수 있습니다.' });
+  const active = st.find(x => !x.done);
+  return { st, active, w, eqId, e };
+}
+function focusCase() {   // 처리할 일이 남은 사건: 미해소 + 시연 중 해소됐지만 복구·재개가 남은 것
+  const c = S.incidents.filter(i => (i.status === 'OPEN' || (i.resolved_at && toM(i.resolved_at) >= toM(BASE))) && caseSteps(i).active)
+    .sort((a, b) => CAT_ORDER[a.category] - CAT_ORDER[b.category] || toM(a.opened_at) - toM(b.opened_at));
+  return c;
+}
+function heroCard() {
+  const list = focusCase(), inc = list[0];
   const running = todayWos().filter(w => w.status === 'IN_PROGRESS' && eqOf(w.equipment_id).status === 'RUNNING').map(w => proc(w.process_id).process_name);
-  const issues = openIncidents().map(i => { const w = i.work_order_id && S.wo[i.work_order_id]; const p = proc(w ? w.process_id : eqOf(incEquipment(i)).process_id).process_name; const b = w ? ` (블록 ${w.block_id})` : '';
-    return i.category === 'EQUIPMENT' ? `<b class="c-r">${esc(p)}</b> 공정이 설비 고장으로 ${S.now - toM(i.opened_at)}분째 멈춰 있습니다${b}.`
-      : i.category === 'MATERIAL' ? `<b class="c-o">${esc(p)}</b> 공정은 자재가 오지 않아 기다리는 중입니다${b}.`
-      : `<b class="c-r">${esc(p)}</b> 공정은 검사 불합격으로 재검사를 기다립니다${b}.`; });
-  const head = running.length ? `지금 작업 중인 공정: <b class="c-g">${running.map(esc).join(', ')}</b>.` : '지금 작업 중인 공정이 없습니다.';
-  const hint = isLive() ? `<span class="hint">${SIM_SEC}초마다 5분씩 흐르는 중</span>`
-    : S.now >= toM(SHIFT_END) ? '<span class="hint">16:00 운영 종료 · 오른쪽 위 <b>[데이터 초기화]</b>를 두 번 누르면 12:00으로 돌아갑니다</span>'
-    : `<span class="hint">시간이 멈춰 있습니다 · 위쪽 <b>[▶ 자동 재생]</b>을 누르면 공정이 흘러갑니다${UI.canWrite ? '' : '(시연 코드 필요)'}</span>`;
-  return `<div class="nowline"><span class="st ${isLive() ? 'live' : ''}">${isLive() ? '▶ 재생 중' : '⏸ 정지'}</span><span class="msg">${head} ${issues.join(' ') || '이상 없이 진행 중입니다.'}</span>${hint}</div>`;
+  const live = isLive() ? `<span class="hint live">▶ 재생 중 · ${SIM_SEC}초마다 5분</span>`
+    : S.now >= toM(SHIFT_END) ? '<span class="hint">16:00 운영 종료 · 위쪽 [↺ 처음부터 다시 보기]</span>'
+    : '<span class="hint">⏸ 시간이 멈춰 있습니다 · 위쪽 [▶ 자동 재생]으로 흘려 보기</span>';
+  const foot = `<div class="hero-foot"><span>작업 중: <b class="c-g">${running.map(esc).join(', ') || '없음'}</b></span>${list.length > 1 ? `<span>그 밖에 처리할 사건 ${list.length - 1}건</span>` : ''}${live}</div>`;
+  if (!inc) return `<section class="hero ok"><div class="hero-t">✓ 지금 멈춘 공정은 없습니다</div><div class="hero-s">계획 종료가 지난 미완료 작업 ${kpis().overdue.length}건 · 자동 재생으로 공정이 끝까지 흐르는지 볼 수 있습니다.</div>${foot}</section>`;
+  const cs = caseSteps(inc), w = cs.w, p = proc(w ? w.process_id : eqOf(cs.eqId).process_id).process_name, a = cs.active.key;
+  const min = S.now - toM(inc.opened_at);
+  const t = a === 'act' ? (inc.category === 'EQUIPMENT' ? `⚠ ${p} 설비 고장으로 작업이 멈췄습니다` : inc.category === 'MATERIAL' ? `⚠ ${p} 공정이 자재를 기다리며 멈춰 있습니다` : `⚠ ${p} 공정에서 검사 불합격이 나와 재검사를 기다립니다`)
+    : a === 'resolve' ? `조치가 기록됐습니다 · 사건 해소를 확정하세요` : a === 'restore' ? `사건이 해소됐습니다 · ${cs.eqId} 설비를 복구하세요` : `${inc.category === 'EQUIPMENT' ? '설비가 복구됐습니다' : '사건이 해소됐습니다'} · ${w.work_order_id} 작업을 재개할 수 있습니다`;
+  const sub = `${esc(eqName(cs.eqId))} · ${hm(inc.opened_at)}부터 ${min >= 60 ? minLabel(min) : min + '분'}${inc.status === 'OPEN' ? '째' : ''} · ${w ? `블록 ${w.block_id} 작업 ${w.work_order_id} ${STATUS.wo[w.status][0]}` : esc(inc.summary)} · 사건 ${inc.incident_id}`;
+  const dots = cs.st.map((x, n) => `<span class="dot ${x.done ? 'done' : x === cs.active ? 'on' : ''}">${x.done ? '✓' : n + 1} ${x.title}</span>`).join('<i>›</i>');
+  return `<section class="hero ${a === 'act' ? 'bad' : 'mid'}"><div class="hero-main"><div><div class="hero-t">${t}</div><div class="hero-s">${sub}</div><div class="dots">${dots}</div></div>
+    <button class="btn pri big" data-act="wizOpen" data-arg="${inc.incident_id}">처리 안내 ›</button></div>${foot}</section>`;
+}
+function wizard() {
+  const inc = incById(UI.wiz); if (!inc) return '';
+  const cs = caseSteps(inc), w = cs.w, e = cs.e, lockedAll = !UI.canWrite;
+  const ctrl = k => {
+    const dis = lockedAll ? 'disabled' : '';
+    if (k === 'act') return `<textarea id="wizNote" data-draft="wizNote" placeholder="예: 전원장치 퓨즈 교체 후 시운전" ${lockedAll ? 'disabled' : ''}>${esc(draft('wizNote', ''))}</textarea>
+      <div class="row">${selectBox('wizOwner', OWNERS.map(o => [o, o]), draft('wizOwner', inc.owner_team || OWNERS[0]), 'data-draft')}<button class="btn pri" data-act="wizDo" data-arg="act" ${dis}>조치 기록</button></div>`;
+    const lbl = { resolve: '사건 해소', restore: '설비 복구', resume: '작업 재개' }[k];
+    return `<button class="btn pri" data-act="wizDo" data-arg="${k}" ${dis}>${lbl}</button>`;
+  };
+  const rows = cs.st.map((x, n) => { const state = x.done ? 'done' : x === cs.active ? 'on' : 'lock';
+    return `<li class="ws ${state}"><b class="n">${x.done ? '✓' : n + 1}</b><div class="wb"><div class="wt">${x.title}${x.done ? ' <span class="badge g">완료</span>' : ''}</div><div class="small">${x.desc}</div>
+      ${state === 'on' ? ctrl(x.key) : state === 'lock' ? `<div class="small">🔒 ${x.lock}</div>` : ''}</div></li>`; }).join('');
+  const ctx = [['블록', w ? w.block_id : '-', w && 'goBlock', w?.block_id], ['공정', esc(proc(w ? w.process_id : e.process_id).process_name)], ['설비', `${cs.eqId} ${badge('eq', e.status)}`, 'goEq', cs.eqId],
+    ['사건', `${inc.incident_id} ${badge('inc', inc.status)}`, 'goInc', inc.incident_id], ['작업', w ? `${w.work_order_id} ${badge('wo', w.status)}` : '-', w && 'goWo', w?.work_order_id]]
+    .map(([a, b, act, arg]) => act ? `<button data-act="${act}" data-arg="${arg}" title="${a} 화면으로 이동"><span>${a} ›</span><b>${b}</b></button>` : `<div><span>${a}</span><b>${b}</b></div>`).join('');
+  const done = !cs.active;
+  return `<div class="modal-bg" data-act="wizClose"><div class="modal" data-act="stay" role="dialog" aria-label="처리 안내">
+    <div class="ph"><h2>처리 안내 · ${inc.incident_id} ${STATUS.cat[inc.category][0]}</h2><span class="sub">${esc(inc.summary)}</span><span class="grow"></span><button class="btn" data-act="wizClose">닫기 ✕</button></div>
+    <div class="ctx">${ctx}</div>
+    ${lockedAll ? `<div class="note"><b>조작 권한이 필요합니다</b>팀에서 받은 시연 코드를 넣으면 아래 단계를 진행할 수 있습니다. <span class="row" style="margin-top:6px"><input type="password" id="codeIn2" data-draft="codeIn" placeholder="시연 코드" autocomplete="off"><button class="btn pri" data-act="codeSave">확인</button></span></div>` : ''}
+    <ol class="wsteps">${rows}</ol>
+    ${done ? `<div class="note ok"><b>처리 완료</b>${inc.category === 'EQUIPMENT' ? `${cs.eqId} 설비가 ${STATUS.eq[e.status][0]} 상태가 되었고 ` : ''}${w ? `${w.work_order_id} 작업이 ${STATUS.wo[w.status][0]} 상태입니다. ` : ''}대시보드의 공정 카드·KPI·생산 현황이 함께 바뀐 것을 확인하세요.<div class="row" style="margin-top:8px"><button class="btn pri" data-act="wizClose">대시보드에서 확인</button></div></div>`
+      : '<div class="small">한 단계씩만 진행할 수 있습니다. 순서를 건너뛰면 서버가 거부합니다(현장 규칙).</div>'}
+  </div></div>`;
+}
+function introBox() {
+  return `<div class="modal-bg" data-act="introClose"><div class="modal intro" data-act="stay" role="dialog" aria-label="처음 안내">
+    <h2>TWIN PRO · 조선 블록 공장 운영 관제 시연</h2>
+    <ul class="facts">
+      <li><b>📅 2026-09-16 12:00의 가상 공장</b>교육용 가상 데이터입니다. 시간은 멈춰 있고, 위쪽 <b>[▶ 자동 재생]</b>을 눌러야 공정이 흐릅니다(16:00에 끝).</li>
+      <li><b>👥 팀 공용 시연</b>서버가 하나라서 누군가 조작하면 모든 사람 화면이 같이 바뀝니다.</li>
+      <li><b>🔑 보기는 누구나, 조작은 권한이 있는 사람만</b>위쪽 [조작 권한 받기]에 팀에서 받은 시연 코드를 넣으면 조작할 수 있습니다.</li>
+    </ul>
+    <div class="intro-btns"><button class="btn big" data-act="introClose">운영 현황 보기<small>지금 상태를 자유롭게 둘러보기</small></button>
+      <button class="btn pri big" data-act="introTry">고장 해결 체험 ›<small>멈춘 공정을 순서대로 살려 보기 (약 90초)</small></button></div>
+  </div></div>`;
 }
 function aiBox() {
   const left = Math.max(0, AI_LIMIT - S.aiUsed);
@@ -649,7 +781,7 @@ function viewEq() {
   if (inc) {
     const w = inc.work_order_id && S.wo[inc.work_order_id];
     action = `<div class="alertbox">
-      <div class="row"><b>${inc.incident_id} · ${STATUS.cat[inc.category][0]} · ${inc.severity}</b>${badge('inc', inc.status)}${incs.length > 1 ? incs.filter(x => x !== inc).map(x => `<button class="btn" data-act="selInc" data-arg="${x.incident_id}">${x.incident_id}</button>`).join('') : ''}</div>
+      <div class="row"><b>${inc.incident_id} · ${STATUS.cat[inc.category][0]} · ${inc.severity}</b>${badge('inc', inc.status)}${incs.length > 1 ? incs.filter(x => x !== inc).map(x => `<button class="btn" data-act="selInc" data-arg="${x.incident_id}">${x.incident_id}</button>`).join('') : ''}<span class="grow"></span><button class="btn pri" data-act="wizOpen" data-arg="${inc.incident_id}">단계별 처리 안내 ›</button></div>
       <div class="small">${md(inc.opened_at)} ${hm(inc.opened_at)} 발생 · ${esc(inc.summary)}${w ? ` · ${w.work_order_id} (${w.block_id}) ${STATUS.wo[w.status][0]}` : ''}</div>
       ${inc.action_note ? `<div><b style="font-size:12px">엑셀 기록 조치 메모:</b> <span style="font-size:12px">${esc(inc.action_note)} · 담당 ${esc(inc.owner_team)}</span></div>` : ''}
       ${inc.actions.length ? `<div class="tw"><table><thead><tr><th>시각</th><th>담당</th><th>조치 내용(서버 기록)</th></tr></thead><tbody>${inc.actions.map(a => `<tr><td>${hm(a.at)}</td><td>${esc(a.owner)}</td><td>${esc(a.note)}</td></tr>`).join('')}</tbody></table></div>` : ''}
@@ -708,7 +840,7 @@ function signalPanel(id) {
       <input type="number" id="sigVal" data-draft="sigVal" min="1" step="1" style="width:90px" placeholder="수량" value="${esc(draft('sigVal', ''))}" ${sig === 'COUNT' ? '' : 'disabled'}>
       <button class="btn pri" data-act="sendSignal" ${UI.canWrite ? '' : 'disabled title="시연 코드를 입력해야 신호를 보낼 수 있습니다"'}>신호 보내기</button>
       <span class="grow"></span>
-      <button class="btn ${UI.simOn ? 'danger' : 'line'}" data-act="simToggle" ${UI.canWrite ? '' : 'disabled title="시연 코드를 입력해야 자동 재생할 수 있습니다"'}>${UI.simOn ? '■ 자동 재생 정지' : '▶ 자동 재생'}</button>
+      <button class="btn ${UI.simOn ? 'danger' : 'line'}" data-act="simToggle" ${!UI.canWrite ? 'disabled title="시연 코드를 입력해야 자동 재생할 수 있습니다"' : othersPlaying() ? 'disabled title="다른 화면에서 재생 중입니다"' : ''}>${UI.simOn ? '■ 자동 재생 정지' : '▶ 자동 재생'}</button>
 </div><span class="small">자동 재생 = ${SIM_SEC}초마다 시연 시각 +5분, 가동 중인 설비가 계획수량의 10%씩 생산 카운트 전송</span>
     <div class="tw"><table><thead><tr><th>시연 시각</th><th>설비</th><th>신호</th><th class="c">결과</th><th>서버 응답</th></tr></thead><tbody>${rows || '<tr><td colspan="5" class="c small">아직 받은 신호가 없습니다.</td></tr>'}</tbody></table></div></section>`;
 }
@@ -900,7 +1032,7 @@ function viewBase() {
   const procs = Object.values(S.processes).sort((a, b) => a.sequence_no - b.sequence_no);
   if (UI.sub.base === 'eq') {
     const rows = Object.values(S.equipment).map(e => `<tr data-act="goEq" data-arg="${e.equipment_id}"><td>${e.equipment_id}</td><td>${esc(e.equipment_name)}</td><td>${e.process_id} ${esc(proc(e.process_id).process_name)}</td><td>${e.zone_id} ${esc(S.zones[e.zone_id].zone_name)}</td><td>${esc(e.resource_kind)}</td><td>${esc(e.capacity_note)}</td><td class="c">${badge('eq', e.status)}</td></tr>`).join('');
-    return `${title('기준정보', '관리')}${tabs}<section class="panel"><div class="ph"><h2>설비 목록</h2><span class="sub">받은 엑셀 equipment 시트 · 상태는 서버 현재값</span><button class="btn line" data-act="csv" data-arg="baseEq">⭳ 엑셀(CSV)</button></div>
+    return `${title('기준정보', '관리')}${adminRow()}${tabs}<section class="panel"><div class="ph"><h2>설비 목록</h2><span class="sub">받은 엑셀 equipment 시트 · 상태는 서버 현재값</span><button class="btn line" data-act="csv" data-arg="baseEq">⭳ 엑셀(CSV)</button></div>
       <div class="tw"><table><thead><tr><th>설비코드</th><th>설비명</th><th>공정</th><th>작업구역</th><th>자원</th><th>비고</th><th class="c">상태</th></tr></thead><tbody>${rows}</tbody></table></div></section>`;
   }
   const sel = S.processes[UI.sel.proc] || procs[0];
@@ -911,7 +1043,7 @@ function viewBase() {
     <span style="height:4px;border-radius:2px;background:${procColor(p.process_id)}"></span><span class="small" style="color:${procColor(p.process_id)};font-weight:700">${p.zone_id} · ${p.process_id}</span><span class="t">${esc(p.process_name)}</span>
     <span class="ico">${icon(p.process_id)}</span><span class="small">${Object.values(S.equipment).filter(e => e.process_id === p.process_id).map(e => e.equipment_id).join(' · ')}</span></button>`).join('');
   const woCount = woList().filter(w => w.process_id === sel.process_id).length;
-  return `${title('기준정보', '관리')}${tabs}
+  return `${title('기준정보', '관리')}${adminRow()}${tabs}
   <div class="grid g-wo">
     <div class="grid">
       <section class="panel"><div class="ph"><h2>공정 목록</h2><span class="sub">총 ${procs.length}건 · 순서·색은 고정, 공정명은 수정 가능</span><button class="btn line" data-act="csv" data-arg="baseProc">⭳ 엑셀(CSV)</button></div>
@@ -937,6 +1069,10 @@ function viewBase() {
 }
 const VIEW_RENDER = { dash: viewDash, eq: viewEq, prod: viewProd, wo: viewWo, base: viewBase };
 
+function adminRow() {
+  return `<div class="admin"><b>관리</b><span class="small">공용 데이터를 09/16 12:00 엑셀 원본으로 되돌립니다. 같은 서버를 보는 모든 화면에 적용됩니다.</span><span class="grow"></span>
+    <button class="btn ${UI.resetArm ? 'danger' : ''}" data-act="reset" ${UI.canWrite ? '' : 'disabled title="조작 권한(시연 코드)이 필요합니다"'}>${UI.resetArm ? '한 번 더 누르면 초기화' : '데이터 초기화'}</button></div>`;
+}
 // ---------- CSV ----------
 function csvData(kind) {
   if (kind === 'eq') return [['설비코드', '설비명', '공정', '자원', '상태', '점유율(%)', '연관 작업'], ...eqRows().map(e => [e.equipment_id, e.equipment_name, proc(e.process_id).process_name, e.resource_kind, STATUS.eq[e.status][0], occupancy(e.equipment_id).pct.toFixed(1), e.work_order_id || ''])];
@@ -961,7 +1097,7 @@ let toastTimer;
 function toast(msg, ng) { let t = document.getElementById('toast'); if (!t) { t = document.createElement('div'); t.id = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
   t.className = 'toast' + (ng ? ' ng' : ''); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 5200); }
 async function call(fn, args, after) {
-  if (UI.busy) return; UI.busy = true; document.body.style.cursor = 'progress';
+  if (UI.busy) return; UI.busy = true; UI.selfAt = Date.now(); document.body.style.cursor = 'progress';
   try { const r = await API.rpc(fn, args); toast(r.msg || (r.ok ? '완료' : '실패'), !r.ok);
     if (!r.ok && /시연 코드/.test(r.msg)) { UI.canWrite = false; UI.codeOpen = true; }
     if (r.ok && after) after(); await reload(); return r; }
@@ -977,7 +1113,7 @@ function render() {
 }
 const ACT = {
   noop() { render(); },
-  go(v) { UI.view = v; UI.resetArm = false; render(); window.scrollTo(0, 0); },
+  go(v) { UI.view = v; UI.resetArm = false; UI.wiz = null; render(); window.scrollTo(0, 0); },
   goEq(id) { UI.sel.eq = id; UI.sel.inc = null; UI.faultForm = false; UI.f.eq = { proc: '', st: '', q: '', kind: '' }; delete UI.draft.actNote; ACT.go('eq'); },
   goWo(id) { if (!id) return; UI.sel.wo = id; clearWoDraft(); UI.f.wo = { proc: '', st: '', date: '', q: '', overdue: false }; const i = woRows().findIndex(w => w.work_order_id === id); UI.page.wo = Math.floor(i / 10) + 1; UI.sub.wo = 'list'; ACT.go('wo'); },
   goWoAll() { UI.f.wo = { proc: '', st: '', date: '16-17', q: '', overdue: false }; UI.page.wo = 1; UI.sub.wo = 'list'; ACT.go('wo'); },
@@ -1014,6 +1150,19 @@ const ACT = {
   },
   procSave(pid) { call('tp_rename_process', { p_pid: pid, p_name: draft('procName', S.processes[pid].process_name) }, () => delete UI.draft.procName); },
   csv(k) { exportCsv(k); },
+  stay() {},
+  kpiMore() { UI.kpiMore = !UI.kpiMore; render(); },
+  wizOpen(id) { UI.wiz = id; render(); document.getElementById('wizNote')?.focus(); },
+  wizClose() { UI.wiz = null; render(); },
+  wizDo(k) { const inc = incById(UI.wiz); if (!inc) return; const cs = caseSteps(inc);
+    if (k === 'act') return call('tp_record_action', { p_inc: inc.incident_id, p_note: UI.draft.wizNote || '', p_owner: UI.draft.wizOwner || inc.owner_team || null }, () => { delete UI.draft.wizNote; });
+    if (k === 'resolve') return call('tp_resolve_incident', { p_inc: inc.incident_id });
+    if (k === 'restore') return call('tp_restore_equipment', { p_eq: cs.eqId });
+    if (k === 'resume') return call('tp_resume_work', { p_wo: cs.w.work_order_id }); },
+  intro() { UI.intro = true; render(); },
+  introClose() { UI.intro = false; try { localStorage.setItem('tpIntroSeen', '1'); } catch (e) { /* 저장 불가 */ } render(); },
+  introTry() { ACT.introClose(); const inc = focusCase().find(i => i.category === 'EQUIPMENT') || focusCase()[0];
+    if (!inc) return toast('지금은 처리할 고장이 없습니다. 기준정보의 [데이터 초기화] 뒤 다시 해 보세요.'); UI.view = 'dash'; ACT.wizOpen(inc.incident_id); },
   impToggle() { UI.imp = UI.imp ? null : { rows: [] }; render(); },
   impTemplate() { const data = [['작업지시', '인정수량', '계획수량', '단위', '블록', '공정'], ...woList().filter(w => w.status === 'IN_PROGRESS').map(w => [w.work_order_id, w.accepted_qty, w.planned_qty, unit(w.unit), w.block_id, proc(w.process_id).process_name])];
     const csv = '\uFEFF' + data.map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
@@ -1022,7 +1171,9 @@ const ACT = {
   impSend() { const rows = (UI.imp?.rows || []).map(r => ({ work_order_id: r.wo, accepted_qty: Number(r.qty) }));
     call('tp_import_progress', { p_rows: rows }, () => { UI.imp = { rows: [] }; }); },
   sendSignal() { const t = draft('sigType', 'COUNT'); call('tp_ingest_signal', { p_eq: draft('sigEq', UI.sel.eq), p_signal: t, p_value: t === 'COUNT' ? Number(UI.draft.sigVal || 0) : null }); },
-  simToggle() { if (UI.simOn) return stopSim('자동 재생을 멈췄습니다.'); UI.simOn = true; simTimer = setInterval(simTick, SIM_SEC * 1000); toast(`자동 재생 시작 · ${SIM_SEC}초마다 5분씩 흐릅니다. 다른 사람 화면도 같이 움직입니다.`); render(); simTick(); },
+  async simToggle() { if (UI.simOn) return stopSim('자동 재생을 멈췄습니다.');
+    const r = await API.rpc('tp_sim_claim', { p_owner: MY_ID }).catch(e => ({ ok: false, msg: e.message })); if (!r.ok) { toast(r.msg, true); return reload(); }
+    UI.simOn = true; simTimer = setInterval(simTick, SIM_SEC * 1000); toast(`자동 재생 시작 · ${SIM_SEC}초마다 5분씩 흐릅니다. 다른 사람 화면도 같이 움직입니다.`); render(); simTick(); },
   async aiGen() { if (UI.aiBusy) return; UI.aiBusy = true; render();
     try { const r = await API.ai(); toast(r.msg || (r.ok ? '완료' : '실패'), !r.ok); if (!r.ok && /시연 코드가 필요/.test(r.msg || '')) { UI.canWrite = false; UI.codeOpen = true; } }
     catch (e) { toast('AI 서버 호출 실패: ' + (e.message || e), true); }
@@ -1031,11 +1182,14 @@ const ACT = {
 };
 // 자동 재생: 이 탭에서만 돈다(탭을 닫으면 멈춤). 신호는 전부 서버 규칙을 거친다.
 const SIM_SEC = 4; let simTimer = null, simBusy = false;
-const isLive = () => UI.simOn || Date.now() - (UI.clockAt || 0) < 7000;   // 이 화면이 재생 중이거나, 다른 화면의 재생으로 시각이 방금 바뀜
-function stopSim(msg, ng) { clearInterval(simTimer); simTimer = null; UI.simOn = false; if (msg) toast(msg, ng); render(); }
+const isLive = () => UI.simOn || othersPlaying() || Date.now() - (UI.clockAt || 0) < 7000;   // 이 화면이 재생 중이거나, 다른 화면의 재생으로 시각이 방금 바뀜
+function stopSim(msg, ng) { clearInterval(simTimer); simTimer = null; UI.simOn = false; API.rpc('tp_sim_release', { p_owner: MY_ID }).catch(() => {}); if (msg) toast(msg, ng); render(); }
+const MY_ID = (() => { try { let v = sessionStorage.getItem('tpTab'); if (!v) { v = Math.random().toString(36).slice(2, 10); sessionStorage.setItem('tpTab', v); } return v; } catch (e) { return Math.random().toString(36).slice(2, 10); } })();
+const othersPlaying = () => { const l = S.simLock; return !!l && l.owner !== MY_ID && Date.parse(l.until) > Date.now(); };
 async function simTick() {
-  if (simBusy || UI.busy) return; simBusy = true;
+  if (simBusy || UI.busy) return; simBusy = true; UI.selfAt = Date.now();
   try {
+    const lk = await API.rpc('tp_sim_claim', { p_owner: MY_ID }); if (!lk.ok) return stopSim(lk.msg, true);
     const c = await API.rpc('tp_advance_clock', { p_min: 5 }); if (!c.ok) return stopSim(/16:00/.test(c.msg) ? '16:00 운영 종료로 재생을 멈췄습니다. [데이터 초기화]를 두 번 누르면 12:00으로 돌아갑니다.' : '자동 재생 종료: ' + c.msg, !/16:00/.test(c.msg));
     let n = 0;
     for (const e of Object.values(S.equipment).filter(x => x.status === 'RUNNING')) { const w = S.wo[e.work_order_id]; if (!w || w.status !== 'IN_PROGRESS') continue;
@@ -1060,7 +1214,8 @@ document.addEventListener('input', e => {
   if (el.dataset.draft) { UI.draft[el.dataset.draft] = el.value; if (el.dataset.draft === 'hisQ') { UI.page.his = 1; render(); } return; }
   if (el.dataset.filter && el.type === 'text') { FILTER[el.dataset.filter](el.value, el); UI.page.wo = 1; render(); }
 });
-document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'codeIn') { e.preventDefault(); UI.draft.codeIn = e.target.value; ACT.codeSave(); } });
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.target.id === 'codeIn' || e.target.id === 'codeIn2')) { e.preventDefault(); UI.draft.codeIn = e.target.value; ACT.codeSave(); }
+  if (e.key === 'Escape' && (UI.wiz || UI.intro)) { UI.wiz ? ACT.wizClose() : ACT.introClose(); } });
 document.addEventListener('change', e => {
   const el = e.target;
   if (el.id === 'impFile' && el.files && el.files[0]) { readImportFile(el.files[0]); return; }
@@ -1072,9 +1227,10 @@ document.addEventListener('change', e => {
 let reloadTimer = null;
 async function reload() { const prev = S && S.now; const rows = await API.load(); S = buildState(rows);
   if (prev != null && S.now > prev) { UI.clockAt = Date.now(); clearTimeout(liveTimer); liveTimer = setTimeout(render, 7200); }
+  if (othersPlaying()) { clearTimeout(lockTimer); lockTimer = setTimeout(render, Date.parse(S.simLock.until) - Date.now() + 200); }
   render(); }
-let liveTimer = null;
-function scheduleReload() { clearTimeout(reloadTimer); reloadTimer = setTimeout(() => reload().catch(e => toast('다시 읽기 실패: ' + e.message, true)), 250); }
+let liveTimer = null, lockTimer = null;
+function scheduleReload() { if (Date.now() - (UI.selfAt || 0) > 3000 && !UI.simOn) { UI.extAt = Date.now(); setTimeout(render, 5200); } clearTimeout(reloadTimer); reloadTimer = setTimeout(() => reload().catch(e => toast('다시 읽기 실패: ' + e.message, true)), 250); }
 function setupScreen() {
   document.getElementById('app').innerHTML = `<div class="content" style="max-width:640px;margin:48px auto"><div class="ptitle"><h1>서버 연결 설정</h1></div>
     <p>Supabase 프로젝트의 <b>Project URL</b>과 <b>anon public 키</b>를 입력하세요. (Supabase 대시보드 → Project Settings → API) 이 브라우저에만 저장됩니다.</p>
@@ -1084,6 +1240,7 @@ function setupScreen() {
   document.getElementById('sSave').onclick = () => { try { localStorage.setItem('tpSupabaseUrl', document.getElementById('sUrl').value.trim()); localStorage.setItem('tpSupabaseKey', document.getElementById('sKey').value.trim()); } catch (e) { /* 저장 불가 */ } location.reload(); };
 }
 async function boot() {
+  try { UI.intro = !localStorage.getItem('tpIntroSeen'); } catch (e) { UI.intro = false; }
   if (NEEDS_SETUP) return setupScreen();
   try { await reload(); UI.conn = '실시간 연결';
     if (DEMO_CODE) { const r = await API.rpc('tp_check_code', {}).catch(() => ({ ok: false })); UI.canWrite = !!r.ok; } API.subscribe(scheduleReload, s => { UI.conn = s; render(); }); render(); }
