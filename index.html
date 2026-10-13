@@ -565,6 +565,7 @@ td .small { line-height: 18px; }
 .bkblk b, .bkcard .bkq b { font-family: var(--serif); }
 .bkp h3 { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; color: #6fd3ff; font-weight: 500; }
 .bkkv b, .bkt td:first-child, .bkq, .bktime, .bkchip { font-family: var(--mono); }
+.bkcard { text-align: left; color: inherit; font: inherit; cursor: pointer; } .bkcard:hover { border-color: #6fd3ff; }
 </style></head>
 <body><div id="app" class="app"><div class="content" style="margin:40px">서버에서 데이터를 읽는 중…</div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -1389,6 +1390,7 @@ async function call(fn, args, after) {
   finally { UI.busy = false; document.body.style.cursor = ''; }
 }
 function render() {
+  if (UI.ptrDown) { UI.renderPending = true; return; }   // 누르는 중에 화면을 다시 그리면 클릭이 사라지므로, 손을 뗀 뒤 그린다
   const app = document.getElementById('app'); const sx = window.scrollX, sy = window.scrollY;
   const focus = document.activeElement && document.activeElement.id;
   app.innerHTML = UI.view === 'easy' ? easyShell() : UI.view === '3d' ? t3Shell() : UI.view === 'blk' ? bkShell() : shell();
@@ -1509,6 +1511,9 @@ const FILTER = {
   prodVessel: v => UI.f.prod.vessel = v, prodProc: v => UI.f.prod.proc = v, prodSt: v => UI.f.prod.st = v, prodQ: v => UI.f.prod.q = v,
   woProc: v => UI.f.wo.proc = v, woSt: v => UI.f.wo.st = v, woDate: v => UI.f.wo.date = v, woQ: v => UI.f.wo.q = v, woOver: (v, el) => UI.f.wo.overdue = el.checked,
 };
+document.addEventListener('pointerdown', () => { UI.ptrDown = true; }, true);
+document.addEventListener('pointerup', () => { setTimeout(() => { UI.ptrDown = false; if (UI.renderPending) { UI.renderPending = false; render(); } }, 0); }, true);
+document.addEventListener('pointercancel', () => { UI.ptrDown = false; if (UI.renderPending) { UI.renderPending = false; render(); } }, true);
 document.addEventListener('click', e => {
   const t = e.target.closest('[data-act]'); if (!t || t.disabled) return;
   if (t.tagName === 'TR' && e.target.closest('button,a,input,select,textarea') && e.target.closest('[data-act]') !== t) return;
@@ -1979,9 +1984,9 @@ function bkShell() {
   const cards = T3_PROC.map((p, i) => { const w = ws[i], done = i < Math.floor(s) || s >= 6, on = i === a.st && s < 6;
     const q = !w ? '-' : done ? w.planned_qty : i === a.st ? +(w.planned_qty * a.f).toFixed(w.unit === 'm' || w.unit === 'm2' ? 1 : 0) : 0;
     const live = i === st && ds < 6 && w; const tag = done ? '<span class="bkchip g">✓ 완료</span>' : on ? '<span class="bkchip b">진행</span>' : '<span class="bkchip">대기</span>';
-    return `<div class="bkcard ${done ? 'done' : ''} ${on ? 'on' : ''}"><div class="bkct"><b>${p}</b> ${esc(proc(p).process_name)}${live && w.status === 'BLOCKED' ? ' <span class="bkchip r">멈춤</span>' : ''}</div>
+    return `<button class="bkcard ${done ? 'done' : ''} ${on ? 'on' : ''}" data-act="bkStage" data-arg="${i}" title="${esc(proc(p).process_name)} 장면으로 이동${i === st && ds < 6 ? ' (현재 상태)' : ''}"><div class="bkct"><b>${p}</b> ${esc(proc(p).process_name)}${live && w.status === 'BLOCKED' ? ' <span class="bkchip r">멈춤</span>' : ''}</div>
       <div class="bkthumb" style="background-image:url(${(window.BK_THUMBS || {})[p] || ''})">${tag}</div>
-      <div class="bkq"><b>${q}</b> / ${w ? w.planned_qty : '-'} ${BK_UNIT_NAME[w?.unit] || ''}</div><i class="bkbar"><em style="width:${done ? 100 : on ? a.f * 100 : 0}%"></em></i></div>`; }).join('<span class="bkarr">▶</span>');
+      <div class="bkq"><b>${q}</b> / ${w ? w.planned_qty : '-'} ${BK_UNIT_NAME[w?.unit] || ''}</div><i class="bkbar"><em style="width:${done ? 100 : on ? a.f * 100 : 0}%"></em></i></button>`; }).join('<span class="bkarr">▶</span>');
   const sel = BK.sel != null ? bom.parts[BK.sel] : bom.parts[Math.max(0, a.cur)];
   const list = bom.parts.filter(p => BK.set == null || p.set === BK.set), PER = 12, pages = Math.max(1, Math.ceil(list.length / PER)); BK.page = Math.min(BK.page, pages);
   const rows = list.slice((BK.page - 1) * PER, BK.page * PER).map(p => { const k = a.parts[p.i];
@@ -2149,6 +2154,8 @@ Object.assign(ACT, {
   bkPage(n) { BK.page = +n; render(); },
   bkPlay() { if (BK.play) { BK.play = false; return render(); } if (BK.s == null || BK.s >= 6) BK.s = 0; BK.play = true; render(); },
   bkFirst() { BK.play = false; BK.s = 0; render(); },
+  bkStage(i) { BK.play = false; const ds = bkDataS(BK.block); i = +i;   // 공정 카드: 데이터의 현재 공정이면 현재 상태, 아니면 그 공정의 작업 장면(60% 지점)
+    BK.s = i === Math.min(5, Math.floor(ds)) && ds < 6 ? null : i + 0.6; render(); },
   bkNow() { BK.play = false; BK.s = null; render(); },
   bkOpen(b) { BK.block = b || null; BK.s = null; BK.sel = null; BK.set = null; BK.play = false; ACT.go('blk'); },
 });
