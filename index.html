@@ -585,6 +585,8 @@ function shell() {
 // 재생 버튼: 16:00이면 '처음부터', 다른 화면이 재생 중이면 잠금, 아니면 재생/정지
 function playCtl() {
   const no = UI.canWrite ? '' : 'disabled title="조작 권한(시연 코드)이 있어야 합니다"';
+  if (!UI.canWrite && UI.trial && S.now >= toM(SHIFT_END) && !UI.simOn) return '<button class="btn pri" data-act="endTrial">↺ 처음부터 다시 보기</button>';
+  if (!UI.canWrite && !othersPlaying() && S.now < toM(SHIFT_END)) return `<button class="btn ${UI.simOn ? 'danger' : 'pri'}" data-act="simToggle" title="내 화면에서만 가상 시간이 ${SIM_SEC}초마다 5분씩 흐릅니다. 서버에 저장되지 않습니다">${UI.simOn ? '■ 멈춤' : '▶ 가상 시간 진행 (내 화면만)'}</button>`;
   if (S.now >= toM(SHIFT_END) && !UI.simOn) return `<button class="btn ${UI.resetArm ? 'danger' : 'pri'}" data-act="reset" ${no}>${UI.resetArm ? '한 번 더 누르면 12:00으로' : '↺ 처음부터 다시 보기'}</button>`;
   if (othersPlaying()) return '<button class="btn" disabled title="다른 화면에서 가상 시간을 진행 중입니다. 시간이 같이 흐릅니다">다른 화면에서 시간 진행 중</button>';
   return `<button class="btn ${UI.simOn ? 'danger' : 'pri'}" data-act="simToggle" ${no} title="가상 시간이 4초마다 5분씩 흐르며 작업이 진행됩니다(실제 공장 제어 아님)">${UI.simOn ? '■ 멈춤' : '▶ 가상 시간 진행'}</button>`;
@@ -851,7 +853,7 @@ function signalPanel(id) {
       <input type="number" id="sigVal" data-draft="sigVal" min="1" step="1" style="width:90px" placeholder="수량" value="${esc(draft('sigVal', ''))}" ${sig === 'COUNT' ? '' : 'disabled'}>
       <button class="btn pri" data-act="sendSignal" ${UI.canWrite ? '' : 'disabled title="시연 코드를 입력해야 신호를 보낼 수 있습니다"'}>신호 보내기</button>
       <span class="grow"></span>
-      <button class="btn ${UI.simOn ? 'danger' : 'line'}" data-act="simToggle" ${!UI.canWrite ? 'disabled title="시연 코드를 입력해야 자동 재생할 수 있습니다"' : othersPlaying() ? 'disabled title="다른 화면에서 재생 중입니다"' : ''}>${UI.simOn ? '■ 멈춤' : '▶ 가상 시간 진행'}</button>
+      <button class="btn ${UI.simOn ? 'danger' : 'line'}" data-act="simToggle" ${othersPlaying() ? 'disabled title="다른 화면에서 재생 중입니다"' : !UI.canWrite ? 'title="코드가 없으면 내 화면에서만 흐릅니다(저장 안 됨)"' : ''}>${UI.simOn ? '■ 멈춤' : '▶ 가상 시간 진행'}</button>
 </div><span class="small">가상 시간 진행 = ${SIM_SEC}초마다 시연 시각 +5분, 가동 중인 설비가 계획수량의 10%씩 생산 카운트 전송</span>
     <div class="tw"><table><thead><tr><th>시연 시각</th><th>설비</th><th>신호</th><th class="c">결과</th><th>서버 응답</th></tr></thead><tbody>${rows || '<tr><td colspan="5" class="c small">아직 받은 신호가 없습니다.</td></tr>'}</tbody></table></div></section>`;
 }
@@ -1168,7 +1170,8 @@ const ACT = {
   wizClose() { UI.wiz = null; render(); },
   async wizDo(k) { const inc = incById(UI.wiz); if (!inc) return; const cs = caseSteps(inc);
     if (!UI.canWrite) {          // 체험: 코드 없이 실행해 보고 결과만 화면에 보여 줌
-      if (!UI.trial || UI.trial.inc !== inc.incident_id) UI.trial = { inc: inc.incident_id, steps: [], note: '' };
+      if (!UI.trial || (UI.trial.inc && UI.trial.inc !== inc.incident_id)) UI.trial = { inc: inc.incident_id, steps: (UI.trial?.steps || []).filter(s => s === 'tick'), note: '' };
+      UI.trial.inc = inc.incident_id;
       if (k === 'act') { UI.trial.note = UI.draft.wizNote || ''; delete UI.draft.wizNote; }
       UI.trial.steps.push(k); UI.busy = true; await runTrial(true); UI.busy = false; return render(); }
     if (k === 'act') return call('tp_record_action', { p_inc: inc.incident_id, p_note: UI.draft.wizNote || '', p_owner: UI.draft.wizOwner || inc.owner_team || null }, () => { delete UI.draft.wizNote; });
@@ -1188,6 +1191,8 @@ const ACT = {
     call('tp_import_progress', { p_rows: rows }, () => { UI.imp = { rows: [] }; }); },
   sendSignal() { const t = draft('sigType', 'COUNT'); call('tp_ingest_signal', { p_eq: draft('sigEq', UI.sel.eq), p_signal: t, p_value: t === 'COUNT' ? Number(UI.draft.sigVal || 0) : null }); },
   async simToggle() { if (UI.simOn) return stopSim('가상 시간을 멈췄습니다.');
+    if (!UI.canWrite) { if (!UI.trial) UI.trial = { inc: null, steps: [], note: '' };
+      UI.simOn = true; simTimer = setInterval(simTick, SIM_SEC * 1000); toast(`내 화면에서만 가상 시간이 ${SIM_SEC}초마다 5분씩 흐릅니다. 서버에는 저장되지 않습니다.`); render(); return simTick(); }
     const r = await API.rpc('tp_sim_claim', { p_owner: MY_ID }).catch(e => ({ ok: false, msg: e.message })); if (!r.ok) { toast(r.msg, true); return reload(); }
     UI.simOn = true; simTimer = setInterval(simTick, SIM_SEC * 1000); toast(`가상 시간 진행 · ${SIM_SEC}초마다 5분씩 흐릅니다. 다른 사람 화면도 같이 움직입니다.`); render(); simTick(); },
   async aiGen() { if (UI.aiBusy) return; UI.aiBusy = true; render();
@@ -1199,12 +1204,16 @@ const ACT = {
 // 자동 재생: 이 탭에서만 돈다(탭을 닫으면 멈춤). 신호는 전부 서버 규칙을 거친다.
 const SIM_SEC = 4; let simTimer = null, simBusy = false;
 const isLive = () => UI.simOn || othersPlaying() || Date.now() - (UI.clockAt || 0) < 7000;   // 이 화면이 재생 중이거나, 다른 화면의 재생으로 시각이 방금 바뀜
-function stopSim(msg, ng) { clearInterval(simTimer); simTimer = null; UI.simOn = false; API.rpc('tp_sim_release', { p_owner: MY_ID }).catch(() => {}); if (msg) toast(msg, ng); render(); }
+function stopSim(msg, ng) { clearInterval(simTimer); simTimer = null; UI.simOn = false; if (UI.canWrite) API.rpc('tp_sim_release', { p_owner: MY_ID }).catch(() => {}); if (msg) toast(msg, ng); render(); }
 const MY_ID = (() => { try { let v = sessionStorage.getItem('tpTab'); if (!v) { v = Math.random().toString(36).slice(2, 10); sessionStorage.setItem('tpTab', v); } return v; } catch (e) { return Math.random().toString(36).slice(2, 10); } })();
 const othersPlaying = () => { const l = S.simLock; return !!l && l.owner !== MY_ID && Date.parse(l.until) > Date.now(); };
 async function simTick() {
   if (simBusy || UI.busy) return; simBusy = true; UI.selfAt = Date.now();
   try {
+    if (!UI.canWrite) { const t = UI.trial; if (!t) return stopSim();
+      t.steps.push('tick'); const n = t.steps.length; await runTrial(false);
+      if (t.steps.length < n) return S.now + 5 > toM(SHIFT_END) ? stopSim('16:00 운영 종료로 재생을 멈췄습니다. [↺ 처음부터 다시 보기]를 누르면 처음 상태로 돌아갑니다.') : stopSim('서버 응답이 없어 재생을 멈췄습니다.', true);
+      UI.clockAt = Date.now(); return render(); }
     const lk = await API.rpc('tp_sim_claim', { p_owner: MY_ID }); if (!lk.ok) return stopSim(lk.msg, true);
     const c = await API.rpc('tp_advance_clock', { p_min: 5 }); if (!c.ok) return stopSim(/16:00/.test(c.msg) ? '16:00 운영 종료로 재생을 멈췄습니다. [데이터 초기화]를 두 번 누르면 12:00으로 돌아갑니다.' : '자동 재생 종료: ' + c.msg, !/16:00/.test(c.msg));
     let n = 0;
@@ -1258,7 +1267,8 @@ async function runTrial(say) {
   t.rows = r.rows; const merged = { ...RAW }; for (const [k, v] of Object.entries(r.rows)) merged[k] = v || [];
   S = buildState(merged); if (say) toast('[체험 · 저장 안 됨] ' + last.msg);
 }
-function endTrial(msg) { UI.trial = null; S = buildState(RAW); if (msg) toast(msg); render(); }
+function endTrial(msg) { if (UI.trial && simTimer) { clearInterval(simTimer); simTimer = null; UI.simOn = false; }   // 체험 중 재생은 내 화면 재생뿐
+  UI.trial = null; S = buildState(RAW); if (msg) toast(msg); render(); }
 function scheduleReload() { if (Date.now() - (UI.selfAt || 0) > 3000 && !UI.simOn) { UI.extAt = Date.now(); setTimeout(render, 5200); } clearTimeout(reloadTimer); reloadTimer = setTimeout(() => reload().catch(e => toast('다시 읽기 실패: ' + e.message, true)), 250); }
 function setupScreen() {
   document.getElementById('app').innerHTML = `<div class="content" style="max-width:640px;margin:48px auto"><div class="ptitle"><h1>서버 연결 설정</h1></div>
