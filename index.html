@@ -3,7 +3,7 @@
 <title>TWIN PRO 운영 모니터링</title>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<style>/* Layout: 왼쪽 220px 남색 사이드바 + 상단 상태칩 헤더 + 탭 + 흰 콘텐츠 카드(패널 그리드). 01H Figma 확정안과 같은 단일 라이트 테마(관제 화면 고정 톤). */
+<style>/* Layout: 모든 화면 공통 어두운 상단 바(사이드바 없음) + 흰 콘텐츠 카드(패널 그리드). 01H Figma 확정안과 같은 단일 라이트 테마(관제 화면 고정 톤). */
 :root {
   --side: #002554; --side-hi: rgba(255,255,255,.12); --side-fg: #DCE6F5; --side-dim: #9DB3D6;
   --pri: #003087; --pri-tint: #E8EEF8; --bg: #F2F4F7; --card: #FFFFFF; --label: #F3F5F8; --row-hi: #EAF0F8;
@@ -20,7 +20,7 @@ body { margin: 0; background: var(--bg); color: var(--fg); font: 13px/1.45 var(-
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
 :focus-visible { outline: 2px solid var(--pri); outline-offset: 1px; }
-.app { display: grid; grid-template-columns: 220px minmax(0, 1fr); min-height: 100%; background: linear-gradient(to right, var(--side) 220px, var(--bg) 220px); }
+.app { min-height: 100%; background: var(--bg); display: flex; flex-direction: column; }
 /* sidebar */
 .side { background: var(--side); color: var(--side-fg); padding: 18px 16px; display: flex; flex-direction: column; gap: 6px; position: sticky; top: 0; height: 100vh; }
 .logo { display: flex; gap: 10px; align-items: center; margin-bottom: 18px; }
@@ -446,7 +446,8 @@ td .small { line-height: 18px; }
 /* 블록 제조 화면(어두운 테마) */
 .app:has(> .bk) { display: block; background: #0f141c; }
 .bk { --k0: #0f141c; --k1: #161d28; --k2: #1d2633; --k3: #27324291; --kl: #2b3646; --kt: #e6edf5; --kt2: #9fb0c3; --kb: #3b82f6; --kg: #22c55e;
-  height: 100vh; display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto; gap: 10px; padding: 0 12px 12px; background: var(--k0); color: var(--kt); }
+  height: 100vh; display: flex; flex-direction: column; gap: 10px; padding: 0 12px 12px; background: var(--k0); color: var(--kt); }
+.bk > .bkmain { flex: 1; } .bk > .gbar, .bk > .trialbar { margin: 0 -12px; }
 .bk button, .bk select, .bk input { color: inherit; }
 .bktop { display: flex; align-items: center; gap: 14px; height: 54px; border-bottom: 1px solid var(--kl); margin: 0 -12px; padding: 0 16px; background: #121925; }
 .bklogo { font-size: 18px; letter-spacing: .5px; } .bktop small { color: var(--kt2); margin-left: -8px; }
@@ -566,6 +567,100 @@ td .small { line-height: 18px; }
 .bkp h3 { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; color: #6fd3ff; font-weight: 500; }
 .bkkv b, .bkt td:first-child, .bkq, .bktime, .bkchip { font-family: var(--mono); }
 .bkcard { text-align: left; color: inherit; font: inherit; cursor: pointer; } .bkcard:hover { border-color: #6fd3ff; }
+
+/* ===== 통합 관제 개편: 공통 상단 바 · 상태 바 · 공정 연결망 · 사건 패널 ===== */
+:root { --gbar: #0F1B2D; }
+.gbar { display: flex; align-items: center; gap: 14px; height: 56px; padding: 0 24px; background: var(--gbar); color: #DCE6F5; flex: none; position: relative; z-index: 5; }
+.gbar .grow { flex: 1; }
+.glogo { color: #fff; font-size: 18px; letter-spacing: .02em; margin-right: 18px; }
+.gtabs { display: flex; gap: 6px; }
+.gtabs button { background: none; border: 0; color: #B8C6DA; padding: 6px 12px; border-radius: 4px; font-size: 14px; }
+.gtabs button.on { background: #2B74DE; color: #fff; font-weight: 700; }
+.gtabs button:hover:not(.on) { color: #fff; }
+.gmode { color: #F5C451; font-size: 12px; white-space: nowrap; }
+.gbtn { background: #1D2B42; border: 1px solid #2E3F5C; color: #E6EDF5; border-radius: 4px; padding: 5px 10px; font-size: 12px; white-space: nowrap; }
+.gcode { display: inline-flex; gap: 4px; } .gcode input { width: 110px; border: 1px solid #2E3F5C; background: #16233A; color: #fff; border-radius: 4px; padding: 4px 8px; }
+.gfocus { display: inline-flex; align-items: center; gap: 8px; background: #2B74DE; color: #fff; border-radius: 999px; padding: 4px 6px 4px 14px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.gfocus button { background: none; border: 0; color: #fff; font-size: 13px; }
+.gmenu { position: relative; } .gmenu summary { list-style: none; cursor: pointer; background: #1D2B42; border: 1px solid #2E3F5C; border-radius: 4px; padding: 5px 10px; font-size: 12px; color: #E6EDF5; }
+.gmenu summary::-webkit-details-marker { display: none; } .gmenu summary.on { border-color: #2B74DE; }
+.gmenu > div { position: absolute; right: 0; top: calc(100% + 6px); background: var(--card); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 8px 24px rgba(0,0,0,.18); display: flex; flex-direction: column; min-width: 150px; padding: 4px; z-index: 30; }
+.gmenu > div button { background: none; border: 0; text-align: left; padding: 8px 12px; border-radius: 4px; color: var(--fg); }
+.gmenu > div button:hover, .gmenu > div button.on { background: var(--pri-tint); color: var(--pri); font-weight: 600; }
+.content { margin: 12px 24px 16px; }
+.sbar { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; border: 1px solid var(--line); border-radius: 6px; background: var(--label); padding: 8px 16px; }
+.sbar .grow { flex: 1; }
+.sclock span, .sbar .kpi span { display: block; font-size: 12px; color: var(--fg2); }
+.sclock b { font-size: 22px; color: var(--pri); }
+.sbar .kpi { border-left: 1px solid var(--line2); padding: 0 16px; } .sbar .kpi b { font-size: 24px; color: var(--pri); display: flex; align-items: baseline; gap: 6px; }
+.sbar .kpi b.c-r { color: var(--r); } .sbar .kpi b small { font-size: 13px; color: var(--fg2); font-weight: 400; }
+.gap { font-style: normal; font-size: 11px; color: var(--r); background: var(--r-bg); border-radius: 999px; padding: 1px 8px; font-weight: 600; }
+.pstate { border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 600; background: var(--n-bg); color: var(--fg2); }
+.pstate.on { background: var(--g-bg); color: var(--g); } .pstate.wait { background: var(--o-bg); color: var(--o); }
+.speed { display: inline-flex; border: 1px solid var(--line2); border-radius: 6px; overflow: hidden; background: var(--card); }
+.speed button { border: 0; background: none; padding: 4px 12px; font-size: 13px; color: var(--fg2); } .speed button.on { background: var(--pri); color: #fff; font-weight: 700; }
+.speed .pp { border-right: 1px solid var(--line2); } .speed .pp.on { background: var(--o-bg); color: var(--o); }
+.g-dash2 { grid-template-columns: minmax(0, 1fr) minmax(360px, 0.36fr); }
+.dcol { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.g-bot { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 0.9fr); }
+.ph h3 { margin: 0; font-size: 14px; }
+.nodes { display: flex; align-items: stretch; gap: 4px; }
+.narr { align-self: center; font-style: normal; color: var(--fg3); }
+.node { flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 6px; background: var(--card); padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; text-align: left; }
+.node .nh { display: flex; justify-content: space-between; align-items: flex-start; gap: 4px; } .node .nh small { font-size: 12px; color: var(--fg2); }
+.node .ico { height: 34px; } .node .ico svg { height: 30px; }
+.node .blk { font-size: 22px; color: var(--pri); line-height: 1.1; } .node .nwo { color: var(--fg3); font-size: 11px; }
+.node .neq { font-size: 12px; color: var(--fg); }
+.node.r { background: #FFF6F5; }
+.node.sel { border: 2px solid var(--b); box-shadow: 0 0 0 2px var(--b-bg); padding: 7px 9px; }
+.node.rel { border: 2px dashed var(--o); padding: 7px 9px; }
+.itag { font-size: 11px; color: var(--r); border: 1px solid var(--r); border-radius: 4px; padding: 0 5px; line-height: 18px; }
+.pbar { position: relative; height: 6px; background: var(--line); border-radius: 3px; margin-top: 4px; }
+.pbar em { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: var(--b); }
+.pbar em.r { background: var(--r); } .pbar em.o { background: var(--o); } .pbar em.g { background: var(--g); } .pbar em.n { background: var(--n); }
+.pbar i { position: absolute; top: -3px; width: 2px; height: 12px; background: var(--fg); margin-left: -1px; }
+.ngap { font-size: 12px; }
+.nodes.live .node.b .pbar em { background-image: linear-gradient(45deg, rgba(255,255,255,.5) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.5) 50%, rgba(255,255,255,.5) 75%, transparent 75%); background-size: 12px 12px; animation: tpStripe .8s linear infinite; }
+.ndet { display: flex; align-items: center; gap: 10px; border: 1px solid #9CC0F2; background: var(--b-bg); border-radius: 6px; padding: 8px 14px; font-size: 13px; }
+.ndet .grow { flex: 1; min-width: 0; display: flex; flex-direction: column; } .ndet b { color: var(--b); }
+.spares { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.spare { display: flex; gap: 10px; align-items: center; border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; }
+.spare .grow { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; } .spare .ico { height: 36px; } .spare .ico svg { height: 32px; }
+.spare.sel { border: 2px solid var(--b); }
+.tagx { font-size: 12px; background: var(--n-bg); color: var(--fg2); border-radius: 999px; padding: 1px 10px; } .tagx.b { background: var(--b-bg); color: var(--b); font-weight: 600; } .tagx.r { background: var(--r-bg); color: var(--r); }
+.feed { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: 12.5px; color: var(--fg2); }
+.feed li::before { content: '●'; font-size: 8px; color: var(--line2); margin-right: 8px; vertical-align: 2px; } .feed li.new { color: var(--fg); font-weight: 600; } .feed li.new::before { color: var(--b); }
+.ipanel { gap: 10px; }
+.ilist { display: flex; flex-direction: column; gap: 6px; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
+.iitem { border: 1px solid var(--line); border-radius: 6px; background: var(--card); padding: 8px 12px; text-align: left; display: flex; flex-direction: column; gap: 3px; }
+.iitem small { color: var(--fg3); font-size: 11.5px; } .iitem.sel { border: 2px solid var(--b); background: var(--b-bg); padding: 7px 11px; }
+.ihint { color: var(--fg3); padding: 10px; font-size: 13px; }
+.path { display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
+.path > div { background: var(--label); border-radius: 4px; padding: 5px 10px; display: flex; gap: 8px; align-items: center; } .path i { font-style: normal; color: var(--fg3); padding-left: 16px; }
+.path .tag { font-size: 11px; border: 1px solid var(--line2); background: var(--card); border-radius: 4px; padding: 0 6px; color: var(--fg2); white-space: nowrap; }
+.path .maybe { background: none; border: 1px dashed var(--fg3); margin-top: 6px; font-size: 12px; color: var(--fg2); }
+.why { background: #FFF4D6; border-radius: 6px; padding: 10px 12px; font-size: 12.5px; } .why b { display: block; color: #8A5A00; margin-bottom: 2px; }
+.isteps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
+.isteps li { display: flex; gap: 10px; padding: 3px 10px; border-radius: 4px; color: var(--fg3); } .isteps li b { width: 16px; color: var(--fg3); }
+.isteps li.done { color: var(--fg); } .isteps li.done b { color: var(--g); }
+.isteps li.on { background: var(--b-bg); color: var(--b); font-weight: 700; } .isteps li.on b { color: var(--b); }
+.ictl { display: flex; flex-direction: column; gap: 6px; } .ictl textarea { width: 100%; min-height: 48px; border: 1px solid var(--line2); border-radius: 4px; padding: 6px 10px; resize: vertical; }
+.cand { border: 2px solid var(--b); border-radius: 6px; padding: 8px 12px; display: flex; flex-direction: column; gap: 6px; } .cand > b { color: var(--b); }
+.fit { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 3px 10px; font-size: 12.5px; }
+.icards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; } .icards div { background: var(--label); border-radius: 8px; padding: 14px 16px; font-size: 13px; color: var(--fg2); min-height: 120px; } .icards b { display: block; color: var(--b); margin-bottom: 8px; font-size: 14px; }
+.intro .intro-btns { display: flex; justify-content: center; } .intro { width: min(860px, 100%); }
+.small.c { text-align: center; }
+.txhead small.edu { display: inline-block; background: #F5C451; color: #0b111b; padding: 2px 8px; font-weight: 600; }
+@media (min-width: 1100px) and (min-height: 640px) {
+  .app { height: 100vh; } .content { flex: 1; min-height: 0; overflow: hidden; }
+  .content > .g-dash2:last-child { grid-template-rows: minmax(0, 1fr); }
+  .g-dash2 > .dcol { min-height: 0; overflow: auto; } .g-dash2 > .ipanel { overflow: auto; }
+  .g-dash2 .g-bot .panel { overflow: auto; max-height: 300px; }
+}
+@media (max-width: 1500px) { .gtabs button { padding: 6px 8px; font-size: 13px; } .gmode { display: none; } .g-dash2 { grid-template-columns: minmax(0, 1fr) minmax(320px, 0.4fr); } .g-bot { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .g-bot > :first-child { grid-column: 1 / -1; } }
+@media (max-width: 1100px) { .gbar { flex-wrap: wrap; height: auto; padding: 8px 12px; gap: 8px; } .gtabs { flex-wrap: wrap; } .nodes { flex-wrap: wrap; } .node { flex: 1 1 140px; } .narr { display: none; } .spares, .icards { grid-template-columns: minmax(0, 1fr); } .ndet { flex-wrap: wrap; } .content { margin: 8px; } .sbar .kpi { padding: 0 8px; } }
+.isteps li.ictlrow { display: block; padding: 6px 10px 10px 36px; color: var(--fg); font-weight: 400; }
+.dcol > *, .ipanel > * { flex-shrink: 0; }
 </style></head>
 <body><div id="app" class="app"><div class="content" style="margin:40px">서버에서 데이터를 읽는 중…</div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -587,10 +682,10 @@ const WD = ['일', '월', '화', '수', '목', '금', '토'];
 const wd = s => WD[new Date(toM(s.slice(0, 10) + ' 00:00') * 60000).getUTCDay()];
 
 const STATUS = {
-  eq: { RUNNING: ['가동', 'g'], IDLE: ['대기', 'o'], FAULT: ['고장', 'r'], MAINTENANCE: ['점검', 'p'], OFFSHIFT: ['비운영', 'n'] },
+  eq: { RUNNING: ['가동', 'b'], IDLE: ['대기', 'n'], FAULT: ['고장', 'r'], MAINTENANCE: ['점검', 'p'], OFFSHIFT: ['비운영', 'n'] },   // 색: 가동 파랑 · 대기 회색 · 고장 빨강 · 점검 보라
   wo: { PLANNED: ['계획', 'n'], IN_PROGRESS: ['진행', 'b'], BLOCKED: ['보류', 'r'], COMPLETED: ['완료', 'g'] },
   inc: { OPEN: ['미해소', 'r'], RESOLVED: ['해소', 'g'] },
-  cat: { EQUIPMENT: ['설비 고장', 'r'], MATERIAL: ['자재 대기', 'o'], QUALITY: ['품질 보류', 'r'] },
+  cat: { EQUIPMENT: ['설비 고장', 'r'], MATERIAL: ['자재 대기', 'o'], QUALITY: ['품질 보류', 'o'] },
   his: { START: '시작', PAUSE: '중단', RESUME: '재개', COMPLETE: '완료', QUALITY_HOLD: '품질 보류', REWORK_DONE: '보수 완료', ACTION: '조치', RESOLVE: '해소', PROGRESS: '실적', REASSIGN: '설비 변경' },
 };
 const CAT_ORDER = { EQUIPMENT: 0, MATERIAL: 1, QUALITY: 2 };
@@ -624,6 +719,8 @@ function buildState(rows) {
   const today = new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 10);       // 한국 날짜
   st.aiUsed = num((rows.ai_usage || []).find(u => String(u.day).slice(0, 10) === today)?.used) || 0;
   st.simLock = (rows.sim_lock || [])[0] || null;
+  st.steps = (rows.incident_steps || []).slice().sort((a, b) => a.id - b.id).map(x => ({ ...x, at: ts(x.at) }));   // 사건 처리 단계 기록(대체 가능 확인·적합성·승인)
+  st.fit = rows.equipment_fit || [];                                                                                     // 대체 설비 적합성 기준정보
   st.signals = (rows.signal_log || []).slice().sort((a, b) => b.id - a.id).slice(0, 8).map(g => ({ ...g, sim_at: ts(g.sim_at), value: num(g.value) }));
   return st;
 }
@@ -681,6 +778,10 @@ function kpis() {
     onTime: onTime.length, inspPass: S.inspections.filter(q => q.result === 'PASS').length, inspTotal: S.inspections.length,
   };
 }
+// 계획 진행률: 계획 시작~종료(운영시간 08~16시 기준) 중 지금까지 지난 비율. 실적 진행률 = 인정수량 ÷ 계획수량(완료 = 100%)
+function planRatio(w) { const a = toM(w.planned_start_at), b = toM(w.planned_end_at); const tot = opMinutes(w.planned_start_at, b); return tot ? Math.min(1, opMinutes(w.planned_start_at, Math.max(a, S.now)) / tot) : 1; }
+const actRatio = w => w.status === 'COMPLETED' ? 1 : w.progress_ratio;
+function progressKpi() { const ws = todayWos(); const a = ws.reduce((t, w) => t + actRatio(w), 0) / ws.length, p = ws.reduce((t, w) => t + planRatio(w), 0) / ws.length; return { a: a * 100, p: p * 100, gap: (p - a) * 100 }; }
 function processActual() {
   return Object.values(S.processes).sort((a, b) => a.sequence_no - b.sequence_no).map(p => {
     const ws = woList().filter(w => w.process_id === p.process_id && toM(w.planned_end_at) <= S.now);
@@ -692,8 +793,8 @@ if (false) module.exports = { buildState, setS: s => { S = s; }, kpis, processAc
 
 // 서버 연결 계층. 기본은 Supabase(supabase-js). 자동 테스트에서는 window.__TP_TEST_API(같은 SQL을 올린 로컬 Postgres)를 쓴다.
 const TABLES = ['vessels', 'zones', 'processes', 'equipment', 'equipment_snapshot', 'blocks', 'status_codes', 'work_orders', 'production_plan', 'production_actual',
-  'equipment_intervals', 'incidents', 'incident_actions', 'work_history', 'inspections', 'rework', 'sim_clock', 'event_log', 'ai_summary', 'ai_usage', 'signal_log', 'sim_lock'];
-const OPTIONAL = new Set(['ai_summary', 'ai_usage', 'signal_log', 'sim_lock']);   // 확장 SQL(3단계) 적용 전에도 화면이 열리도록: 없으면 빈 표
+  'equipment_intervals', 'incidents', 'incident_actions', 'work_history', 'inspections', 'rework', 'sim_clock', 'event_log', 'ai_summary', 'ai_usage', 'signal_log', 'sim_lock', 'equipment_fit', 'incident_steps'];
+const OPTIONAL = new Set(['ai_summary', 'ai_usage', 'signal_log', 'sim_lock', 'equipment_fit', 'incident_steps']);   // 확장 SQL(3단계) 적용 전에도 화면이 열리도록: 없으면 빈 표
 const LS = k => { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } };
 const BUILT_URL = 'https://rrgvqgphhwzkeuvdwndu.supabase.co', BUILT_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZ3ZxZ3BoaHd6a2V1dmR3bmR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE4MDA3OTAsImV4cCI6MjEwNzM3Njc5MH0.6dnywttjbB77nPBOAPNY-SSPDH1onNmdgx80QRJ1mPU';
 const SUPABASE_URL = LS('tpSupabaseUrl') || BUILT_URL, SUPABASE_ANON_KEY = LS('tpSupabaseKey') || BUILT_KEY;
@@ -732,13 +833,12 @@ const API = NEEDS_SETUP ? null : window.__TP_TEST_API ? {
 
 // TWIN PRO 화면 — 상태 S(서버에서 읽은 값)로 5개 화면을 그리고, 사용자 조작은 서버 함수(RPC)로 보낸 뒤 다시 읽는다.
 const UI = {
-  view: 'easy', busy: false, conn: '연결 중', draft: {}, page: { wo: 1, his: 1 }, sub: { wo: 'list', base: 'proc', eq: 'his', sum: '' },
-  sel: { eq: 'EQ03', block: 'B008', wo: 'WO009-02', proc: 'P03', inc: null },
+  view: 'dash', busy: false, speed: 1, conn: '연결 중', draft: {}, page: { wo: 1, his: 1 }, sub: { wo: 'list', base: 'proc', eq: 'his', sum: '' },
+  sel: { eq: 'EQ03', block: 'B008', wo: 'WO009-02', proc: 'P03', inc: null, node: null },
   f: { eq: { proc: '', st: '', q: '', kind: '' }, prod: { vessel: '', proc: '', st: '', q: '' }, wo: { proc: '', st: '', date: '16-17', q: '', overdue: false }, base: { q: '', zone: '' } },
-  faultForm: false, resetArm: false, codeOpen: false, canWrite: false, wiz: null, kpiMore: false, intro: false,
+  faultForm: false, resetArm: false, codeOpen: false, canWrite: false, intro: false, menuOpen: false, pausedFor: '',
 };
 const VIEWS = [['dash', '관제 대시보드', '모니터링'], ['eq', '설비 상태', '모니터링'], ['prod', '생산 현황', '모니터링'], ['wo', '작업 관리', '관리'], ['base', '기준정보', '관리']];
-const OWNERS = ['정비조-A', '정비조-B', '자재조-A', '품질조-A'];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const badge = (m, code, label) => { const [l, c] = STATUS[m][code] || [code, 'n']; return `<span class="badge ${c}">${esc(label || l)}</span>`; };
 const delayBadge = w => isDelayed(w) ? '<span class="badge delay">지연</span>' : '-';
@@ -755,265 +855,229 @@ const selectBox = (name, opts, val, attr = 'data-filter') => `<select id="${name
 const procOpts = () => [['', '전체'], ...Object.values(S.processes).sort((a, b) => a.sequence_no - b.sequence_no).map(p => [p.process_id, `${p.process_id} ${p.process_name}`])];
 const icon = pid => (ICONS[pid] || '');
 
-// ---------- 공통 틀 ----------
+// ---------- 공통 틀: 모든 화면 위의 어두운 상단 바(사이드바 없음) ----------
+const TOP_TABS = [['dash', '통합 관제'], ['3d', '3D 조선소'], ['blk', '블록 내부 3D'], ['edu', '공정 교육 재생']];
+const MGMT = VIEWS.slice(1);
+function topBar() {
+  const cur = UI.view === '3d' && SIM.on ? 'edu' : UI.view;
+  const inc = UI.sel.inc && incById(UI.sel.inc), w = inc && inc.work_order_id && S.wo[inc.work_order_id];
+  const focus = inc ? `<span class="gfocus">◎ 추적 중: ${w ? w.block_id + ' · ' : ''}${w ? `${p2(proc(w.process_id).sequence_no)} ${esc(proc(w.process_id).process_name)} · ` : ''}${STATUS.cat[inc.category][0]}<button data-act="selIncClear" title="추적 해제">✕</button></span>` : '';
+  const code = UI.canWrite ? '' : UI.codeOpen
+    ? `<span class="gcode"><input type="password" id="codeIn" data-draft="codeIn" value="${esc(draft('codeIn', ''))}" placeholder="시연 코드" autocomplete="off"><button class="gbtn" data-act="codeSave">확인</button></span>`
+    : '<button class="gbtn" data-act="codeOpen" title="팀에서 받은 시연 코드를 넣으면 서버에 저장됩니다. 코드가 없으면 체험 모드(내 화면에만 반영)">🔑 조작 권한</button>';
+  return `<header class="gbar"><b class="glogo">TWIN PRO</b>
+    <nav class="gtabs">${TOP_TABS.map(([v, l]) => `<button class="${cur === v ? 'on' : ''}" data-act="topGo" data-arg="${v}">${l}</button>`).join('')}</nav>
+    <span class="grow"></span>${focus}<span class="grow"></span>
+    <span class="gmode">${UI.canWrite ? '가상 데이터 · 조작 가능(저장됨)' : '가상 데이터 · 체험 모드'}</span>${code}
+    <details class="gmenu" ${UI.menuOpen ? 'open' : ''}><summary data-act="menuTog" class="${VIEW_RENDER[UI.view] && UI.view !== 'dash' ? 'on' : ''}">관리 화면 ▾</summary>
+      <div>${MGMT.map(([v, l]) => `<button class="${UI.view === v ? 'on' : ''}" data-act="go" data-arg="${v}">${l}</button>`).join('')}</div></details>
+    <button class="gbtn" data-act="intro">? 안내</button></header>
+    ${UI.trial ? `<div class="trialbar">🧪 <b>체험 중</b> · 지금 보이는 결과는 서버에 저장되지 않고 내 화면에만 보입니다.<span class="grow"></span><button class="btn" data-act="endTrial">체험 끝내기 (원래대로)</button></div>` : ''}`;
+}
 function shell() {
-  const k = kpis();
-  const nowTxt = `${md(nowS())} (${wd(nowS())}) ${hm(nowS())}`;
-  return `
-  <aside class="side">
-    <div class="logo"><b>TP</b><div><strong>TWIN PRO</strong><small>조선 블록 제작 운영 모니터링</small></div></div>
-    <h6>모니터링</h6>${VIEWS.slice(0, 3).map(navBtn).join('')}
-    <h6>관리</h6>${VIEWS.slice(3).map(navBtn).join('')}
-    <div class="databox">데이터 기준<b>2026-09-16 (수) 12:00</b>제공 샘플 · 교육용 가상 데이터<br><br>서버<b>${esc(SERVER_LABEL)}</b>${esc(UI.conn)}</div>
-  </aside>
-  <div class="main">
-    <header class="top">
-      <span class="chip clock ${isLive() ? 'live' : ''}" title="가상 데이터의 시각입니다(실제 현재 시각 아님). 12:00에서 시작해 16:00에 끝납니다">${isLive() ? '▶ 재생 중' : '⏸ 정지'} · 시연 시각 ${nowTxt}</span>
-      ${playCtl()}
-      <button class="btn" data-act="clock" data-arg="10" ${S.now >= toM(SHIFT_END) ? 'disabled' : ''} title="시연 시계를 10분 진행 (16:00까지)">+10분</button>
-      <span class="chip share ${Date.now() - (UI.extAt || 0) < 5000 ? 'flash' : ''}" title="서버가 하나라서 다른 사람이 조작한 결과도 이 화면에 바로 나타납니다">${Date.now() - (UI.extAt || 0) < 5000 ? '👥 다른 화면에서 변경됨' : '👥 함께 보는 시연'}</span>
-      <span class="chip warn" title="교육용 가상 데이터입니다. 실제 공장과 연결되어 있지 않습니다">가상 데이터</span>
-      <button class="chip alert" data-act="go" data-arg="dash" style="border:0">해결 안 된 문제 ${k.open}</button>
-      ${UI.canWrite ? '<span class="chip" title="상태를 바꿀 수 있습니다">🔑 조작 가능</span>' : UI.codeOpen
-        ? `<span class="row"><input type="password" id="codeIn" data-draft="codeIn" value="${esc(draft('codeIn', ''))}" placeholder="시연 코드" style="width:110px;border:1px solid var(--line2);border-radius:4px;padding:5px 8px" autocomplete="off"><button class="btn pri" data-act="codeSave">확인</button></span>`
-        : '<button class="btn line" data-act="codeOpen" title="지금은 보기만 됩니다. 팀에서 받은 시연 코드를 넣으면 조작할 수 있습니다">읽기 전용 · 조작 권한 받기</button>'}
-      <button class="btn" data-act="intro" title="처음 안내 다시 보기">? 안내</button>
-      <button class="btn line" data-act="go" data-arg="easy" title="처음 보는 사람용 화면">← 쉬운 화면</button>
-    </header>
-    ${UI.trial ? `<div class="trialbar">🧪 <b>체험 중</b> · 지금 보이는 화면은 체험 결과입니다. 서버에 저장되지 않고, 다른 사람 화면에는 보이지 않습니다.<span class="grow"></span><button class="btn" data-act="endTrial">체험 끝내기 (원래대로)</button></div>` : ''}
-    <nav class="tabs">${VIEWS.map(([v, l]) => `<button class="tab ${UI.view === v ? 'on' : ''}" data-act="go" data-arg="${v}">${l}</button>`).join('')}</nav>
-    <main class="content" id="content">${VIEW_RENDER[UI.view]()}</main>
-  </div>${UI.wiz ? wizard() : ''}${UI.intro ? introBox() : ''}`;
+  return `${topBar()}<main class="content" id="content">${VIEW_RENDER[UI.view]()}</main>${UI.intro ? introBox() : ''}`;
 }
-// 재생 버튼: 16:00이면 '처음부터', 다른 화면이 재생 중이면 잠금, 아니면 재생/정지
+// 재생 조작: ⏸/▶ + 배속(1× = 실제 10초당 가상 5분). 16:00이면 '처음부터', 다른 화면이 재생 중이면 잠금
+const simMs = () => 10000 / (UI.speed || 1);
 function playCtl() {
-  const no = UI.canWrite ? '' : 'disabled title="조작 권한(시연 코드)이 있어야 합니다"';
-  if (!UI.canWrite && UI.trial && S.now >= toM(SHIFT_END) && !UI.simOn) return '<button class="btn pri" data-act="endTrial">↺ 처음부터 다시 보기</button>';
-  if (!UI.canWrite && !othersPlaying() && S.now < toM(SHIFT_END)) return `<button class="btn ${UI.simOn ? 'danger' : 'pri'}" data-act="simToggle" title="내 화면에서만 가상 시간이 ${SIM_SEC}초마다 5분씩 흐릅니다. 서버에 저장되지 않습니다">${UI.simOn ? '■ 멈춤' : '▶ 가상 시간 진행 (내 화면만)'}</button>`;
-  if (S.now >= toM(SHIFT_END) && !UI.simOn) return `<button class="btn ${UI.resetArm ? 'danger' : 'pri'}" data-act="reset" ${no}>${UI.resetArm ? '한 번 더 누르면 12:00으로' : '↺ 처음부터 다시 보기'}</button>`;
+  const end = S.now >= toM(SHIFT_END) && !UI.simOn;
+  if (end && !UI.canWrite) return UI.trial ? '<button class="btn pri" data-act="endTrial">↺ 처음부터 다시 보기</button>' : '<span class="small">16:00 운영 종료</span>';
+  if (end) return `<button class="btn ${UI.resetArm ? 'danger' : 'pri'}" data-act="reset">${UI.resetArm ? '한 번 더 누르면 12:00으로' : '↺ 처음부터 다시 보기'}</button>`;
   if (othersPlaying()) return '<button class="btn" disabled title="다른 화면에서 가상 시간을 진행 중입니다. 시간이 같이 흐릅니다">다른 화면에서 시간 진행 중</button>';
-  return `<button class="btn ${UI.simOn ? 'danger' : 'pri'}" data-act="simToggle" ${no} title="가상 시간이 4초마다 5분씩 흐르며 작업이 진행됩니다(실제 공장 제어 아님)">${UI.simOn ? '■ 멈춤' : '▶ 가상 시간 진행'}</button>`;
+  const tip = UI.canWrite ? '가상 시간이 흐르며 작업이 진행됩니다(모든 화면에 반영)' : '내 화면에서만 가상 시간이 흐릅니다. 서버에 저장되지 않습니다';
+  return `<span class="speed"><button class="pp ${UI.simOn ? 'on' : ''}" data-act="simToggle" title="${tip}">${UI.simOn ? '⏸' : '▶'}</button>${[1, 2, 4].map(v => `<button class="${(UI.speed || 1) === v ? 'on' : ''}" data-act="speed" data-arg="${v}">${v}×</button>`).join('')}</span>`;
 }
-function navBtn([v, l]) { return `<button class="nav ${UI.view === v ? 'on' : ''}" data-act="go" data-arg="${v}">${l}</button>`; }
 function title(name, group) { return `<div class="ptitle"><h1>${name}</h1><span class="crumb">⌂ &gt; ${group} &gt; ${name}</span></div>`; }
 
-// ---------- 1. 관제 대시보드 ----------
-function cardInfo(w) {
-  const e = eqOf(w.equipment_id); const inc = w.hold_incident && incById(w.hold_incident);
-  let b = ['eq', e.status, null];
-  if (e.status === 'IDLE' && w.status === 'BLOCKED' && inc?.category === 'MATERIAL') b = ['cat', 'MATERIAL', '자재 대기'];
-  const c = STATUS[b[0]][b[1]][1];
-  let sub = '', red = false;
-  if (w.status === 'COMPLETED') sub = `${proc(w.process_id).process_name} 완료`;
-  else if (w.status === 'BLOCKED') {
-    if (inc?.category === 'EQUIPMENT') { sub = `${hm(inc.opened_at)}~ 중단 ${S.now - toM(inc.opened_at)}분`; red = true; }
-    else sub = inc ? inc.summary : '보류';
-  } else if (w.status === 'IN_PROGRESS') {
-    const q = S.incidents.find(i => i.status === 'OPEN' && i.category === 'QUALITY' && i.work_order_id === w.work_order_id);
-    const lastQ = S.inspections.filter(x => x.work_order_id === w.work_order_id).pop();
-    sub = q ? `${lastQ?.failed_points ?? ''}개 불합격 · 재검` : w.forecast_end_at && toM(w.forecast_end_at) > S.now ? `${hm(w.forecast_end_at)} 완료 예상` : '진행 중';
-  } else sub = '착수 대기';
-  return { e, b, c, sub, red };
+// ---------- 1. 통합 관제(대시보드) ----------
+// 공정 노드 상태: 정지(빨강) · 자재 대기/품질 보류(주황) · 가동(파랑) · 완료(초록) · 대기(회색)
+function nodeState(w) {
+  const e = eqOf(w.equipment_id), hold = w.hold_incident && incById(w.hold_incident);
+  const q = S.incidents.find(i => i.status === 'OPEN' && i.category === 'QUALITY' && i.work_order_id === w.work_order_id);
+  const inc = (hold && hold.status === 'OPEN' ? hold : null) || q || S.incidents.find(i => i.status === 'OPEN' && i.work_order_id === w.work_order_id) || null;
+  if (w.status === 'COMPLETED') return { c: 'g', l: '완료', inc };
+  if (w.status === 'BLOCKED') return inc?.category === 'MATERIAL' ? { c: 'o', l: '자재 대기', inc, stop: 1 } : { c: 'r', l: '정지', inc, stop: 1 };
+  if (q) return { c: 'o', l: '품질 보류', inc: q, stop: 1 };
+  if (w.status === 'IN_PROGRESS' && e.status === 'RUNNING') return { c: 'b', l: '가동', inc };
+  return { c: 'n', l: '대기', inc };
+}
+const curIncs = () => { const l = openIncidents(); const s = UI.sel.inc && incById(UI.sel.inc); if (s && !l.includes(s)) l.unshift(s); return l; };
+function substitutes(inc) {   // 같은 공정의 다른 설비 중 적합성 기준정보가 있는 것
+  const w = inc.work_order_id && S.wo[inc.work_order_id]; if (!w || inc.category !== 'EQUIPMENT') return [];
+  return Object.values(S.equipment).filter(e => e.process_id === w.process_id && e.equipment_id !== inc.equipment_id && S.fit.some(f => f.equipment_id === e.equipment_id && f.process_id === w.process_id));
+}
+const stepRec = (inc, k) => S.steps.filter(s => s.incident_id === inc.incident_id && s.step === k).pop();
+// 처리 단계. 설비 고장 + 대체 후보 있음 = 7단계 / 대체 후보 없음 = 고장 확인 → 복구·종료 → 재개 / 자재·품질 = 조치 → 해소 → 재개
+function caseSteps(inc) {
+  const w = inc.work_order_id ? S.wo[inc.work_order_id] : null, eqId = inc.equipment_id || incEquipment(inc), e = eqOf(eqId);
+  const res = inc.status === 'RESOLVED', acted = inc.actions.length > 0 || res;
+  let st;
+  if (inc.category === 'EQUIPMENT' && w && substitutes(inc).length) {
+    const moved = w.equipment_id !== eqId, run = moved && w.status !== 'BLOCKED';
+    const fit = stepRec(inc, 'fit'), ap = stepRec(inc, 'approve');
+    st = [
+      { key: 'act', title: '고장 확인', btn: '고장 확인 기록', done: acted },
+      { key: 'check', title: '대체 가능 여부 확인', btn: '대체 가능 여부 확인', done: !!stepRec(inc, 'check') || moved || res },
+      { key: 'fit', title: '적합성 확인 (WPS·출력·자격·위치)', btn: '적합성 확인', done: !!fit || moved || res },
+      { key: 'approve', title: '관리자 승인', btn: '관리자 승인 (생산관리)', done: !!ap || moved || res },
+      { key: 'swap', title: '설비 변경 (남은 작업만 이관)', btn: `남은 작업 ${ap?.equipment_id || ''}로 이관`, done: moved || res },
+      { key: 'resume', title: '작업 재개', btn: '작업 재개', done: run || res },
+      { key: 'close', title: '설비 복구 후 사건 종료', btn: `${eqId} 복구 확인 · 사건 종료`, done: res },
+    ];
+  } else if (inc.category === 'EQUIPMENT') {
+    st = [{ key: 'act', title: '고장 확인', btn: '고장 확인 기록', done: acted },
+      { key: 'close', title: '설비 복구 후 사건 종료', btn: `${eqId} 복구 확인 · 사건 종료`, done: res }];
+    if (w) st.push({ key: 'resume', title: '작업 재개', btn: '작업 재개', done: w.status !== 'BLOCKED' });
+  } else {
+    st = [{ key: 'act', title: '조치 기록', btn: '조치 기록', done: acted },
+      { key: 'resolve', title: inc.category === 'QUALITY' ? '재검사 합격 · 사건 해소' : '사건 해소', btn: '사건 해소', done: res }];
+    if (w && inc.category !== 'QUALITY') st.push({ key: 'resume', title: '작업 재개', btn: '작업 재개', done: w.status !== 'BLOCKED' });
+  }
+  return { st, active: st.find(x => !x.done), w, eqId, e };
+}
+function focusCase() { return openIncidents().filter(i => caseSteps(i).active); }
+const easyCase = () => (UI.sel.inc && incById(UI.sel.inc)) || focusCase()[0] || null;
+function relatedIncs(inc) {   // 관련 가능성: 고장 설비에서 앞 공정을 마친 블록의 품질 사건(확인 필요, 사실 아님)
+  if (inc.category !== 'EQUIPMENT') return [];
+  return openIncidents().filter(i => i !== inc && i.category === 'QUALITY' && i.work_order_id && blockWos(S.wo[i.work_order_id].block_id).some(w => w.equipment_id === inc.equipment_id && w.status === 'COMPLETED'));
+}
+function statusBar() {
+  const k = kpis(), g = progressKpi(), now = nowS();
+  const stopped = todayWos().filter(w => nodeState(w).stop).length;
+  const state = UI.simOn || othersPlaying() ? '<span class="pstate on">▶ 재생 중</span>' : UI.pausedFor ? `<span class="pstate wait">⏸ 일시정지 · ${UI.pausedFor}</span>` : '<span class="pstate">⏸ 정지</span>';
+  return `<div class="sbar"><div class="sclock"><span>가상 시각</span><b class="clock">${md(now)} (${wd(now)}) ${hm(now)}</b></div>${state}
+    ${playCtl()}<span class="small">마지막 갱신 ${hm(now)} · 1× = 실제 10초당 가상 5분</span><span class="grow"></span>
+    <div class="kpi"><span>진행률 (실적 / 계획)</span><b>${pct(g.a, 0)}<small>/ ${pct(g.p, 0)}</small>${g.gap >= 0.5 ? `<em class="gap">지연 ${g.gap.toFixed(0)}%p</em>` : ''}</b></div>
+    <div class="kpi"><span>멈춘 작업</span><b class="${stopped ? 'c-r' : ''}">${stopped}</b></div>
+    <div class="kpi"><span>미해결 사건</span><b class="${k.open ? 'c-r' : ''}">${k.open}</b></div>
+    <div class="kpi"><span>설비 가동</span><b>${k.running} / ${k.total}</b></div></div>`;
 }
 function viewDash() {
-  const k = kpis();
-  const kpi = (l, v, cls, u) => `<div class="kpi"><span>${l}</span><b class="${cls}">${v}<small>${u}</small></b></div>`;
-  const steps = todayWos().map(w => {
-    const p = proc(w.process_id), ci = cardInfo(w), occ = occupancy(ci.e.equipment_id);
-    const run = ci.e.status === 'RUNNING' && w.status === 'IN_PROGRESS';
-    return `<button class="step ${ci.e.status === 'FAULT' ? 'fault' : ''} ${run ? 'run' : ''}" data-act="goEq" data-arg="${ci.e.equipment_id}" title="${esc(eqName(ci.e.equipment_id))} 설비 상태로 이동">
-      <span class="t"><small>${p2(p.sequence_no)}</small>${esc(p.process_name)}</span>
-      <span>${badge(...ci.b)}</span>
-      <span class="ico">${icon(p.process_id)}</span>
-      <span class="blk">블록 ${w.block_id}</span>
-      <span class="${ci.red ? 'warn-t' : 'small'}" style="${ci.red ? '' : 'color:var(--fg2);font-size:12px'}">${esc(ci.sub)}</span>
-      ${bar(w.progress_ratio, ci.c, 90)}
-      <span class="eqn" title="점유율(가동시간 ÷ 운영시간) ${pct(occ.pct)} · 설비 상태 화면에서 자세히">${esc(eqName(ci.e.equipment_id))}</span>
-    </button>`;
-  }).join('');
+  const inc = UI.sel.inc && incById(UI.sel.inc);
+  const selWo = UI.sel.node || (inc && inc.work_order_id) || null;
+  const rel = new Set(inc ? relatedIncs(inc).map(i => i.work_order_id) : []);
+  const nodes = todayWos().map(w => {
+    const p = proc(w.process_id), ns = nodeState(w), e = eqOf(w.equipment_id), a = actRatio(w) * 100, pl = planRatio(w) * 100, gap = pl - a;
+    return `<button class="node ${ns.c} ${selWo === w.work_order_id ? 'sel' : ''} ${rel.has(w.work_order_id) ? 'rel' : ''}" data-act="selNode" data-arg="${w.work_order_id}">
+      <span class="nh"><small>${p2(p.sequence_no)} ${esc(p.process_name)}</small><span class="ico">${icon(p.process_id)}</span></span>
+      <b class="blk">${w.block_id}</b><small class="nwo">${w.work_order_id}</small>
+      <span class="row">${`<span class="badge ${ns.c}">${ns.l}</span>`}${ns.inc && ns.inc.status === 'OPEN' ? `<span class="itag">${ns.inc.incident_id}</span>` : ''}</span>
+      <span class="neq">${esc(eqName(e.equipment_id))}</span>
+      <span class="pbar"><em class="${ns.c}" style="width:${Math.min(100, a)}%"></em><i style="left:${Math.min(100, pl)}%"></i></span>
+      <span class="small">실적 ${pct(a)} · 계획 ${pct(pl)}</span><b class="${gap >= 0.5 ? 'c-r' : 'c-g'} ngap">${gap >= 0.5 ? `지연 ${pct(gap)}p` : '계획대로'}</b></button>`;
+  }).join('<i class="narr">›</i>');
+  const sw = selWo && S.wo[selWo];
+  const detail = sw ? (() => { const pre = sw.predecessor_id && S.wo[sw.predecessor_id], z = S.zones[proc(sw.process_id).zone_id];
+    return `<div class="ndet"><div class="grow"><b>${sw.block_id} 상세</b><span>작업지시 ${sw.work_order_id} · 담당 ${esc(sw.team_id || '-')} · 선행 공정 ${pre ? `${p2(proc(pre.process_id).sequence_no)} ${esc(proc(pre.process_id).process_name)} ${pre.status === 'COMPLETED' ? `완료(${md(pre.actual_end_at || pre.planned_end_at)})` : STATUS.wo[pre.status][0]}` : '없음'} · 위치 ${esc(z?.zone_name || '')} · 설비 ${sw.equipment_id} · 남은 작업 ${pct((1 - actRatio(sw)) * 100)}</span></div>
+      <button class="btn pri" data-act="go3d" data-arg="${sw.process_id}">📍 3D 조선소에서 위치 보기</button><button class="btn line" data-act="bkOpen" data-arg="${sw.block_id}">🔍 블록 내부 3D</button></div>`; })()
+    : '<div class="small">노드를 누르면 작업지시·담당·선행 공정 상태·현재 위치와 [3D로 보기]가 열립니다.</div>';
   const assigned = new Set(todayWos().map(w => w.equipment_id));
-  const alt = Object.values(S.equipment).filter(e => !assigned.has(e.equipment_id)).map(e => `${esc(eqName(e.equipment_id))} ${badge('eq', e.status)}`).join(' ');
-  const items = openIncidents().map(i => {
-    const w = i.work_order_id && S.wo[i.work_order_id]; const eq = incEquipment(i); const p = w ? proc(w.process_id) : proc(eqOf(eq).process_id);
-    const detail = i.category === 'EQUIPMENT' ? `${S.now - toM(i.opened_at)}분째 중단` : i.summary;
-    const [act, arg, lbl] = i.category === 'EQUIPMENT' ? ['goEq', eq, '설비 상태'] : i.category === 'MATERIAL' ? ['goWo', w?.work_order_id, '작업 관리'] : ['goBlock', w?.block_id, '생산 현황'];
-    return `<div class="chk"><div class="grow"><div class="l1">${badge('cat', i.category)} ${p2(p.sequence_no)} ${esc(p.process_name)} · ${esc(eqOf(eq)?.equipment_name || '')}</div>
-      <div class="l2">${i.incident_id} · ${hm(i.opened_at)} · ${esc(detail)}${w ? ' · ' + w.block_id : ''}</div></div>
-      <button class="btn pri" data-act="wizOpen" data-arg="${i.incident_id}" title="${lbl}에서 보려면 처리 안내의 링크를 누르세요">처리 안내 ›</button></div>`;
-  });
-  if (k.overdue.length) items.push(`<div class="chk"><div class="grow"><div class="l1"><span class="badge o">시간 지남</span> 완료 시간 지난 작업 ${k.overdue.length}건</div>
-    <div class="l2">${[...new Set(k.overdue.map(w => w.block_id))].join(' · ')}</div></div><button class="btn line" data-act="goOverdue">작업 관리 ›</button></div>`);
-  const rows = todayWos().map(w => `<tr data-act="goWo" data-arg="${w.work_order_id}" class="${UI.sel.wo === w.work_order_id ? 'sel' : ''}">
-    <td>${w.work_order_id}</td><td>${w.block_id} · ${esc(proc(w.process_id).process_name)}</td><td>${esc(eqName(w.equipment_id))}</td>
-    <td>${md(w.planned_start_at)} ${hm(w.planned_start_at)}~${hm(w.planned_end_at)}</td><td>${badge('wo', w.status)}</td><td>${delayBadge(w)}</td>
-    <td>${bar(w.progress_ratio, STATUS.wo[w.status][1] === 'r' ? 'r' : w.status === 'COMPLETED' ? 'g' : 'b')}</td><td class="clip" title="${esc(histText(lastHistory(w.work_order_id)))}">${esc(histText(lastHistory(w.work_order_id)))}</td></tr>`).join('');
-  const more = (l, v, cls, u) => kpi(l, v, cls, u).replace('class="kpi"', 'class="kpi more"');
-  return `${title('관제 대시보드', '모니터링')}
-  <div class="hero-row">${heroCard()}
-    <div class="kgrid ${UI.kpiMore ? 'open' : ''}">${kpi('가동', k.running, 'c-g', `/ ${k.total}대`)}${kpi('고장', k.fault, 'c-r', '대')}${kpi('오늘(09/16) 작업 완료', `${k.todayDone} / ${k.todayTotal}`, 'c-b', '건')}${kpi('해결 안 된 문제', k.open, 'c-r', '건')}
-      ${more('전체 설비', k.total, '', '대')}${more('대기', k.idle, 'c-o', '대')}${more('점검', k.maint, 'c-p', '대')}${more('완료 시간 지난 작업', k.overdue.length, 'c-o', '건')}
-      <button class="kmore" data-act="kpiMore">${UI.kpiMore ? '지표 접기 ▲' : '지표 더 보기 ▼'}</button></div></div>
-  <div class="grid g-dash">
-    <section class="panel"><div class="ph"><h2>공정 흐름 현황</h2><span class="sub">블록은 01→06 순서로 공정을 거칩니다 · 지금은 <b>공정마다 다른 블록</b>을 동시에 작업 중</span>${['RUNNING', 'IDLE', 'FAULT', 'MAINTENANCE'].map(s => badge('eq', s)).join('')}</div>
-      <div class="flow ${isLive() ? 'live' : ''}">${steps}</div>
-      <div class="legend" title="진행률 = 인정수량 ÷ 계획수량 · 점유율 = 가동시간 ÷ 운영시간 ${(opMinutes(OP_START, S.now) / 60).toFixed(1).replace('.0', '')}h(09/07 08:00~${hm(nowS())})">카드의 % = 그 블록 작업의 완료율 · 배지 = 그 공정 기계의 상태 · 그 밖의 기계 ${alt}</div></section>
-    <section class="panel"><div class="ph"><h2>지금 확인할 것</h2><span class="sub">해결 안 된 문제 ${k.open}건${k.overdue.length ? ' + 완료 시간 지난 작업' : ''}</span></div>
-      ${items.join('') || '<div class="empty">확인할 사건이 없습니다.</div>'}</section>
-    <section class="panel"><div class="ph"><h2>기준일 작업지시 현황</h2><span class="sub">09/16 · ${todayWos().length}건</span><button class="btn line" data-act="goWoAll">전체 작업지시 ›</button></div>
-      <div class="tw"><table><thead><tr><th>작업지시</th><th>블록 · 공정</th><th>설비</th><th>계획</th><th>작업 상태</th><th>지연</th><th>진행률</th><th>최근 이력</th></tr></thead><tbody>${rows}</tbody></table></div></section>
-    <section class="panel"><div class="ph"><h2>운영 요약</h2><span class="ptabs"><button class="${sumTab() === 'ai' ? 'on' : ''}" data-act="sub" data-arg="sum:ai">AI 요약</button><button class="${sumTab() === 'rule' ? 'on' : ''}" data-act="sub" data-arg="sum:rule">규칙 기반</button></span><span class="sub">${hm(nowS())} 기준</span></div>
-      ${sumTab() === 'ai' ? aiBox() : `<div id="summaryText">${esc(summaryText(k))}</div><span class="small">서버 값으로 즉시 계산 · 항상 최신</span>`}
-      <div class="row"><button class="btn" data-act="copySummary">${sumTab() === 'ai' && S.ai ? 'AI 요약 복사' : '요약 복사'}</button><span class="small">이번 시연 변경 ${S.events.length}건</span></div>
-      <div class="events">${S.events.slice(0, 4).map(e => `<span>${hm(e.at)} ${esc(e.text)}</span>`).join('') || '<span class="small">시연 중 서버에 기록된 변경이 여기에 표시됩니다.</span>'}</div></section>
+  const spare = Object.values(S.equipment).filter(e => !assigned.has(e.equipment_id)).map(e => {
+    const fitInc = openIncidents().find(i => i.category === 'EQUIPMENT' && substitutes(i).includes(e));
+    const fit = S.fit.find(f => f.equipment_id === e.equipment_id);
+    let tag = '';
+    if (e.status === 'MAINTENANCE') tag = '<span class="tagx">사용 불가 · 점검 중</span>';
+    else if (e.status === 'FAULT') tag = '<span class="tagx r">고장 · 복구 대기</span>';
+    else if (fitInc && stepRec(fitInc, 'approve')?.equipment_id === e.equipment_id) tag = '<span class="tagx b">대체 승인됨 · 이관 대기</span>';
+    else if (fitInc && stepRec(fitInc, 'fit')?.equipment_id === e.equipment_id) tag = '<span class="tagx b">대체 적합 · 승인 필요</span>';
+    else if (fitInc) tag = '<span class="tagx">대체 가능 여부 미확인</span>';
+    const on = fitInc && fitInc === inc && caseSteps(inc).active && ['fit', 'approve', 'swap'].includes(caseSteps(inc).active.key) && e.status === 'IDLE';
+    return `<div class="spare ${on ? 'sel' : ''}"><span class="ico">${icon(e.process_id)}</span><div class="grow"><div class="row"><b>${esc(eqName(e.equipment_id))}</b><span class="grow"></span><span class="small">${p2(proc(e.process_id).sequence_no)} ${esc(proc(e.process_id).process_name)} 공정${fit ? ' · ' + esc(fit.wps_note.split('(')[0]) : ''}</span></div>
+      <div class="row">${badge('eq', e.status)}${tag}</div></div></div>`; }).join('');
+  const rows = todayWos().map(w => { const ns = nodeState(w); return `<tr data-act="selNode" data-arg="${w.work_order_id}" class="${selWo === w.work_order_id ? 'sel' : ''}"><td>${w.work_order_id}</td><td>${w.block_id} · ${esc(proc(w.process_id).process_name)}</td><td>${w.equipment_id}</td>
+    <td><span class="badge ${ns.c}">${ns.l}</span></td><td>${+(actRatio(w) * 100).toFixed(1)} / ${+(planRatio(w) * 100).toFixed(0)}</td></tr>`; }).join('');
+  return `${title('관제 대시보드', '모니터링')}${statusBar()}
+  <div class="grid g-dash2">
+    <div class="dcol">
+      <section class="panel"><div class="ph"><h2>공정·설비 연결망</h2><span class="sub">블록·작업지시·설비·사건이 서로 연결된 상태입니다. 노드를 누르면 상세가 열립니다.</span><span class="grow"></span>${[['b', '가동'], ['n', '대기'], ['o', '자재 대기·품질 보류'], ['r', '정지'], ['g', '완료']].map(([c, l]) => `<span class="badge ${c}">${l}</span>`).join('')}</div>
+        <div class="nodes ${isLive() ? 'live' : ''}">${nodes}</div>${detail}
+        <div class="ph"><h3>대기·예비 설비</h3><span class="sub">'대기'는 쓸 수 있다는 뜻이 아닙니다. 대체 적합 여부를 따로 표시합니다.</span></div>
+        <div class="spares">${spare || '<div class="small">대기·예비 설비가 없습니다.</div>'}</div></section>
+      <div class="grid g-bot">
+        <section class="panel"><div class="ph"><h2>작업지시 현황 (09/16)</h2><button class="btn line" data-act="goWoAll">전체 ›</button></div>
+          <div class="tw"><table><thead><tr><th>작업지시</th><th>블록·공정</th><th>설비</th><th>상태</th><th>실적 / 계획 %</th></tr></thead><tbody>${rows}</tbody></table></div></section>
+        <section class="panel"><div class="ph"><h2>최근 작업 변화</h2><span class="sub">최신이 위</span></div><ul class="feed">${feedItems()}</ul></section>
+        <section class="panel"><div class="ph"><h2>운영 요약</h2><span class="ptabs"><button class="${sumTab() === 'rule' ? 'on' : ''}" data-act="sub" data-arg="sum:rule">규칙 기반 사실</button><button class="${sumTab() === 'ai' ? 'on' : ''}" data-act="sub" data-arg="sum:ai">AI 요약</button></span></div>
+          ${sumTab() === 'ai' ? aiBox() : `<div id="summaryText">${esc(summaryText())}</div><span class="small">확인되지 않은 원인은 단정하지 않습니다. 서버 값으로 즉시 계산합니다.</span>`}
+          <div class="row"><button class="btn" data-act="copySummary">요약 복사</button><span class="small">이번 시연 변경 ${S.events.length}건</span></div></section>
+      </div>
+    </div>
+    ${incPanel()}
   </div>`;
 }
-const sumTab = () => UI.sub.sum || 'ai';
-// ---------- 처리 단계(사건 하나를 끝까지): 조치 기록 → 사건 해소 → 설비 복구 → 작업 재개 ----------
-function caseSteps(inc) {
-  const w = inc.work_order_id ? S.wo[inc.work_order_id] : null, eqId = incEquipment(inc), e = eqOf(eqId);
-  const res = inc.status === 'RESOLVED', eqCase = inc.category === 'EQUIPMENT';
-  const st = [
-    { key: 'act', title: '조치 기록', desc: '고장(문제)을 어떻게 처리했는지 적습니다. 적기만 하고 상태는 아직 바뀌지 않습니다.', done: inc.actions.length > 0 || res },
-    { key: 'resolve', title: '사건 해소', desc: inc.category === 'QUALITY' ? '재검사에 합격했다고 확정하고 문제를 닫습니다.' : '문제가 해결됐다고 확정하고 닫습니다.', done: res, lock: '조치를 1건 이상 기록해야 해소할 수 있습니다.' },
-  ];
-  if (eqCase) st.push({ key: 'restore', title: '설비 복구', desc: `기계(${eqName(eqId)})를 다시 쓸 수 있는 상태(고장 → 대기)로 바꿉니다.`, done: e.status !== 'FAULT', lock: '사건을 해소해야 설비를 복구할 수 있습니다.' });
-  if (w && inc.category !== 'QUALITY') st.push({ key: 'resume', title: '작업 재개', desc: `멈췄던 블록 ${w.block_id} 작업(${w.work_order_id})을 다시 시작합니다. 기계가 가동으로 바뀝니다.`, done: w.status !== 'BLOCKED', lock: eqCase ? '설비를 복구해야 작업을 재개할 수 있습니다.' : '사건을 해소해야 작업을 재개할 수 있습니다.' });
-  const active = st.find(x => !x.done);
-  return { st, active, w, eqId, e };
+const sumTab = () => UI.sub.sum || 'rule';
+function feedItems() {
+  const ev = S.events.slice(0, 6).map(e => [e.at, e.text]);
+  if (ev.length < 6) S.history.filter(h => h.event_at.startsWith(DAY) && h.source !== 'demo').slice(-(6 - ev.length)).reverse()
+    .forEach(h => ev.push([h.event_at, `${S.wo[h.work_order_id]?.block_id || ''} ${STATUS.his[h.event_type] || h.event_type}${h.incident_id ? ' (' + h.incident_id + ')' : ''} · ${h.note || ''}`]));
+  return ev.map(([t, x], n) => `<li class="${n ? '' : 'new'}">${hm(t)} · ${esc(x)}</li>`).join('') || '<li class="small">변경이 생기면 여기에 표시됩니다.</li>';
 }
-function focusCase() {   // 처리할 일이 남은 사건: 미해소 + 시연 중 해소됐지만 복구·재개가 남은 것
-  const c = S.incidents.filter(i => (i.status === 'OPEN' || (i.resolved_at && toM(i.resolved_at) >= toM(BASE))) && caseSteps(i).active)
-    .sort((a, b) => CAT_ORDER[a.category] - CAT_ORDER[b.category] || toM(a.opened_at) - toM(b.opened_at));
-  return c;
+function incPanel() {
+  const list = curIncs(), inc = UI.sel.inc && incById(UI.sel.inc);
+  const item = i => { const w = i.work_order_id && S.wo[i.work_order_id], p = w ? proc(w.process_id) : proc(eqOf(incEquipment(i)).process_id);
+    const head = i.category === 'EQUIPMENT' ? `${p2(p.sequence_no)} ${esc(p.process_name)} · ${esc(eqName(i.equipment_id))}` : `${p2(p.sequence_no)} ${esc(p.process_name)} · ${esc(i.summary)}`;
+    return `<button class="iitem ${inc === i ? 'sel' : ''}" data-act="selInc" data-arg="${i.incident_id}"><span class="row">${badge('cat', i.category)}<b>${head}</b>${i.status === 'RESOLVED' ? badge('inc', 'RESOLVED', '종료') : ''}</span>
+      <small>${i.incident_id}${w ? ' · ' + w.block_id : ''} · ${hm(i.opened_at)} 발생 · ${i.status === 'OPEN' ? (w && w.status === 'BLOCKED' ? '정지 중' : '진행 중') : '처리 완료'}</small></button>`; };
+  let body = `<div class="ihint">사건을 선택하면 여기에<br>① 연결 경로 ② 멈춘 이유 ③ 처리 단계가 표시됩니다.<br><br>선택하는 동안 가상 시간 재생은 자동으로 멈춥니다.</div>`;
+  if (inc) {
+    const cs = caseSteps(inc), w = cs.w, a = cs.active;
+    const rel = relatedIncs(inc);
+    const path = `<div class="path"><div><span class="tag">사건</span>${inc.incident_id} ${STATUS.cat[inc.category][0]} · ${hm(inc.opened_at)}</div>${w ? `<i>↓</i><div><span class="tag">작업</span>${w.work_order_id} · ${w.block_id} ${esc(proc(w.process_id).process_name)}</div>` : ''}
+      ${inc.category === 'EQUIPMENT' ? `<i>↓</i><div><span class="tag">설비</span>${esc(eqName(inc.equipment_id))} · ${STATUS.eq[eqOf(inc.equipment_id).status][0]}</div>` : ''}
+      ${rel.map(r => `<div class="maybe"><span class="tag">관련 가능성 · 확인 필요</span>${r.incident_id} ${S.wo[r.work_order_id].block_id} ${esc(r.summary)} — ${inc.equipment_id}에서 앞 공정을 한 블록</div>`).join('')}</div>`;
+    const min = (inc.resolved_at ? toM(inc.resolved_at) : S.now) - toM(inc.opened_at);
+    const moved = w && inc.category === 'EQUIPMENT' && w.equipment_id !== inc.equipment_id;
+    const why = inc.category === 'EQUIPMENT'
+      ? `${esc(eqName(inc.equipment_id))}이 ${hm(inc.opened_at)}에 고장 나 ${w ? `${w.block_id} ${esc(proc(w.process_id).process_name)}(${w.work_order_id})이 멈췄습니다. ` : ''}${inc.status === 'OPEN' ? `${minLabel(min)}째 사건이 열려 있습니다. ` : ''}${moved ? `남은 작업은 대체 설비 ${w.equipment_id}로 옮겨 ${STATUS.wo[w.status][0]} 상태입니다. ${inc.status === 'OPEN' ? `사건은 ${inc.equipment_id} 복구 때까지 열려 있습니다.` : ''}` : w ? `남은 작업은 ${pct((1 - actRatio(w)) * 100)}입니다.` : ''} 원인: ${esc(inc.summary)}`
+      : inc.category === 'MATERIAL' ? `${w ? w.block_id + ' ' + esc(proc(w.process_id).process_name) + '이 ' : ''}${esc(inc.summary)}로 멈춰 있습니다. ${esc(inc.action_note || '')}`
+      : `${w ? w.block_id + ' 검사에서 ' : ''}${esc(inc.summary)}. ${esc(inc.action_note || '')}`;
+    const steps = cs.st.map((x, n) => `<li class="${x.done ? 'done' : x === a ? 'on' : ''}"><b>${x.done ? '✓' : n + 1}</b>${x.title}</li>${x === a ? `<li class="ictlrow">${stepCtl(inc, cs, a)}</li>` : ''}`).join('');
+    const compact = a && cs.st.indexOf(a) >= 2;   // 처리가 진행되면 연결 경로를 한 줄로 줄여 처리 단계를 위로 올린다
+    body = `<div class="ph"><h3>연결 경로</h3><span class="badge g">사실</span></div>${compact ? `<div class="small" style="font-size:13px;color:var(--fg)">${inc.incident_id} → ${w ? `${w.work_order_id} (${w.block_id}) → ` : ''}${inc.category === 'EQUIPMENT' ? inc.equipment_id + ' 고장' : STATUS.cat[inc.category][0]}${rel.length ? ` · 관련 가능성 ${rel.map(r => r.incident_id).join(', ')}(확인 필요)` : ''}</div>` : path}
+      <div class="why"><b>왜 멈췄나요?</b>${why}</div>
+      <div class="ph"><h3>처리 단계 · ${STATUS.cat[inc.category][0]}</h3></div><ol class="isteps">${steps}</ol>
+      ${a ? '' : `<div class="note ok"><b>${UI.trial ? '처리 완료 (체험 · 저장 안 됨)' : '처리 완료'}</b>${w ? `${w.work_order_id} ${STATUS.wo[w.status][0]} · ` : ''}${inc.category === 'EQUIPMENT' ? `${inc.equipment_id} ${STATUS.eq[eqOf(inc.equipment_id).status][0]}` : ''}</div>`}`;
+  }
+  return `<section class="panel ipanel"><div class="ph"><h2>사건</h2><span class="sub">미해결 ${openIncidents().length}건</span></div>
+    <div class="ilist">${list.map(item).join('') || '<div class="empty">미해결 사건이 없습니다.</div>'}</div>${body}</section>`;
 }
-function heroCard() {
-  const list = focusCase(), inc = list[0];
-  const running = todayWos().filter(w => w.status === 'IN_PROGRESS' && eqOf(w.equipment_id).status === 'RUNNING').map(w => proc(w.process_id).process_name);
-  const live = isLive() ? `<span class="hint live">▶ 가상 시간 진행 중 · ${SIM_SEC}초마다 5분</span>`
-    : S.now >= toM(SHIFT_END) ? '<span class="hint">16:00 운영 종료 · 위쪽 [↺ 처음부터 다시 보기]</span>'
-    : '<span class="hint">⏸ 가상 시간이 멈춰 있습니다 · 위쪽 [▶ 가상 시간 진행]을 누르면 작업이 진행됩니다</span>';
-  const foot = `<div class="hero-foot"><span>작업 중: <b class="c-g">${running.map(esc).join(', ') || '없음'}</b></span>${list.length > 1 ? `<span>그 밖에 해결 안 된 문제 ${list.length - 1}건</span>` : ''}${live}</div>`;
-  if (!inc) return `<section class="hero ok"><div class="hero-t">✓ 지금 멈춘 공정은 없습니다</div><div class="hero-s">완료 시간이 지난 작업 ${kpis().overdue.length}건 · [▶ 가상 시간 진행]으로 작업이 끝까지 진행되는지 볼 수 있습니다.</div>${foot}</section>`;
-  const cs = caseSteps(inc), w = cs.w, p = proc(w ? w.process_id : eqOf(cs.eqId).process_id).process_name, a = cs.active.key;
-  const min = S.now - toM(inc.opened_at);
-  const t = a === 'act' ? (inc.category === 'EQUIPMENT' ? `⚠ ${p} 설비 고장으로 작업이 멈췄습니다` : inc.category === 'MATERIAL' ? `⚠ ${p} 공정이 자재를 기다리며 멈춰 있습니다` : `⚠ ${p} 공정에서 검사 불합격이 나와 재검사를 기다립니다`)
-    : a === 'resolve' ? `조치가 기록됐습니다 · 문제 해결(사건 해소)을 확정하세요` : a === 'restore' ? `문제가 해결됐습니다 · 기계(${cs.eqId})를 복구하세요` : `${inc.category === 'EQUIPMENT' ? '기계가 복구됐습니다' : '문제가 해결됐습니다'} · 멈춘 작업을 다시 시작할 수 있습니다`;
-  const cause = inc.category === 'EQUIPMENT' ? `${esc(eqOf(cs.eqId).equipment_name)}(${cs.eqId}) 고장` : esc(inc.summary);
-  const dur = `${hm(inc.opened_at)}부터 ${min >= 60 ? minLabel(min) : min + '분'}${inc.status === 'OPEN' ? '째' : ''}`;
-  const sub = `<b>${cause}</b> → ${w ? `<b>블록 ${w.block_id}</b> 작업 ${STATUS.wo[w.status][0] === '보류' ? '멈춤' : STATUS.wo[w.status][0]}` : '영향 확인 필요'} · ${dur}
-    <div class="ids">작업지시 ${w ? w.work_order_id : '-'} · 사건 ${inc.incident_id} · 설비 ${cs.eqId}</div>`;
-  const dots = cs.st.map((x, n) => `<span class="dot ${x.done ? 'done' : x === cs.active ? 'on' : ''}">${x.done ? '✓' : n + 1} ${x.title}</span>`).join('<i>›</i>');
-  return `<section class="hero ${a === 'act' ? 'bad' : 'mid'}"><div class="hero-main"><div><div class="hero-t">${t}</div><div class="hero-s">${sub}</div><div class="dots">${dots}</div></div>
-    <button class="btn pri big" data-act="wizOpen" data-arg="${inc.incident_id}">처리 안내 ›</button></div>${foot}</section>`;
-}
-function wizard() {
-  const inc = incById(UI.wiz); if (!inc) return '';
-  const cs = caseSteps(inc), w = cs.w, e = cs.e, lockedAll = !UI.canWrite;
-  const ctrl = k => {
-    const dis = '';
-    if (k === 'act') return `<textarea id="wizNote" data-draft="wizNote" placeholder="예: 전원장치 퓨즈 교체 후 시운전">${esc(draft('wizNote', ''))}</textarea>
-      <div class="row">${selectBox('wizOwner', OWNERS.map(o => [o, o]), draft('wizOwner', inc.owner_team || OWNERS[0]), 'data-draft')}<button class="btn pri" data-act="wizDo" data-arg="act" ${dis}>조치 기록</button></div>`;
-    const lbl = { resolve: '사건 해소', restore: '설비 복구', resume: '작업 재개' }[k];
-    return `<button class="btn pri" data-act="wizDo" data-arg="${k}" ${dis}>${lbl}</button>`;
-  };
-  const rows = cs.st.map((x, n) => { const state = x.done ? 'done' : x === cs.active ? 'on' : 'lock';
-    return `<li class="ws ${state}"><b class="n">${x.done ? '✓' : n + 1}</b><div class="wb"><div class="wt">${x.title}${x.done ? ' <span class="badge g">완료</span>' : ''}</div><div class="small">${x.desc}</div>
-      ${state === 'on' ? ctrl(x.key) : state === 'lock' ? `<div class="small">🔒 ${x.lock}</div>` : ''}</div></li>`; }).join('');
-  const ctx = [['블록', w ? w.block_id : '-', w && 'goBlock', w?.block_id], ['공정', esc(proc(w ? w.process_id : e.process_id).process_name)], ['설비', `${cs.eqId} ${badge('eq', e.status)}`, 'goEq', cs.eqId],
-    ['사건', `${inc.incident_id} ${badge('inc', inc.status)}`, 'goInc', inc.incident_id], ['작업', w ? `${w.work_order_id} ${badge('wo', w.status)}` : '-', w && 'goWo', w?.work_order_id]]
-    .map(([a, b, act, arg]) => act ? `<button data-act="${act}" data-arg="${arg}" title="${a} 화면으로 이동"><span>${a} ›</span><b>${b}</b></button>` : `<div><span>${a}</span><b>${b}</b></div>`).join('');
-  const done = !cs.active;
-  return `<div class="modal-bg" data-act="wizClose"><div class="modal" data-act="stay" role="dialog" aria-label="처리 안내">
-    <div class="ph"><h2>처리 안내 · ${inc.incident_id} ${STATUS.cat[inc.category][0]}</h2><span class="sub">${esc(inc.summary)}</span><span class="grow"></span><button class="btn" data-act="wizClose">닫기 ✕</button></div>
-    <div class="ctx">${ctx}</div>
-    ${lockedAll ? `<div class="note trial"><b>🧪 체험 모드 · 시연 코드 없이 눌러 볼 수 있습니다</b>실제 서버 규칙으로 처리해 결과를 보여 주지만 저장하지는 않습니다. 다른 사람 화면도 바뀌지 않습니다.
-      <span class="row" style="margin-top:6px"><span class="small">실제로 저장하려면 시연 코드:</span><input type="password" id="codeIn2" data-draft="codeIn" placeholder="시연 코드" autocomplete="off"><button class="btn" data-act="codeSave">확인</button></span></div>` : ''}
-    <ol class="wsteps">${rows}</ol>
-    ${done ? `<div class="note ok"><b>${UI.trial ? '체험 완료 (저장 안 됨)' : '처리 완료'}</b>${inc.category === 'EQUIPMENT' ? `${cs.eqId} 설비가 ${STATUS.eq[e.status][0]} 상태가 되었고 ` : ''}${w ? `${w.work_order_id} 작업이 ${STATUS.wo[w.status][0]} 상태입니다. ` : ''}대시보드의 공정 카드·숫자·생산 현황이 함께 바뀐 것을 확인하세요.<div class="row" style="margin-top:8px"><button class="btn pri" data-act="wizClose">대시보드에서 확인</button>${UI.trial ? '<button class="btn" data-act="endTrial">체험 끝내기 (원래대로)</button>' : ''}</div></div>`
-      : '<div class="small">앞 단계를 끝내야 다음 단계가 열립니다(현장 처리 순서).</div>'}
-  </div></div>`;
+function stepCtl(inc, cs, a) {
+  const busy = UI.busy ? 'disabled' : '';
+  const trialNote = UI.canWrite ? '' : '<div class="small">🧪 체험 모드: 실제 서버 규칙으로 처리하지만 저장하지 않습니다. 저장하려면 위쪽 [🔑 조작 권한].</div>';
+  let extra = '';
+  if (a.key === 'act') extra = `<textarea id="wizNote" data-draft="wizNote" placeholder="${inc.category === 'EQUIPMENT' ? '예: 전원장치 경보 확인, 정비조 점검 시작' : '예: 부재 긴급 공급 요청'}">${esc(draft('wizNote', ''))}</textarea>`;
+  if (a.key === 'check') extra = `<div class="small">같은 공정 설비: ${substitutes(inc).map(e => `${e.equipment_id} ${STATUS.eq[e.status][0]}`).join(' · ')}</div>`;
+  if (['fit', 'approve', 'swap'].includes(a.key)) {
+    const cand = substitutes(inc).filter(e => !['FAULT', 'MAINTENANCE'].includes(e.status));
+    const ex = substitutes(inc).filter(e => ['FAULT', 'MAINTENANCE'].includes(e.status));
+    const eqId = a.key === 'fit' ? (cand.find(e => e.equipment_id === UI.draft.subEq) || cand[0])?.equipment_id : stepRec(inc, a.key === 'approve' ? 'fit' : 'approve')?.equipment_id;
+    const f = S.fit.find(x => x.equipment_id === eqId && x.process_id === cs.w.process_id);
+    const mark = s => s === 'OK' ? '<b class="c-g">✓</b>' : s === 'COND' ? '<b class="c-o">△</b>' : '<b class="c-r">✕</b>';
+    const word = s => s === 'OK' ? '적합' : s === 'COND' ? '조건부' : '부적합';
+    extra = eqId && f ? `<div class="cand"><b>대체 후보 · ${esc(eqName(eqId))}</b>${a.key === 'fit' && cand.length > 1 ? cand.map(e => `<button class="btn ${e.equipment_id === eqId ? 'pri' : ''}" data-act="subEq" data-arg="${e.equipment_id}">${e.equipment_id}</button>`).join('') : ''}
+      <div class="fit">${[['WPS (용접 절차)', f.wps_state, f.wps_note], ['출력', f.power_state, f.power_note], ['작업자 자격', f.cert_state, f.cert_note], ['위치', f.loc_state, f.loc_note]].map(([l, s, n]) => `<span>${mark(s)} ${l}</span><span>${esc(n)} — ${word(s)}</span>`).join('')}</div>
+      ${ex.map(e => `<div class="small">제외: ${esc(eqName(e.equipment_id))} — ${STATUS.eq[e.status][0]} 중</div>`).join('')}
+      <div class="small">${a.key === 'swap' ? `승인: ${esc(stepRec(inc, 'approve').by_name)} ${hm(stepRec(inc, 'approve').at)} · 남은 작업 ${+(cs.w.planned_qty - cs.w.accepted_qty).toFixed(1)} ${unit(cs.w.unit)}만 이관, 이미 한 실적은 ${inc.equipment_id}에 그대로` : '승인자: 생산관리 담당(관리자)'}</div></div>` : '<div class="small">대체할 수 있는 설비가 없습니다.</div>';
+  }
+  if (a.key === 'resume' && inc.category === 'EQUIPMENT' && cs.w.equipment_id !== inc.equipment_id) extra = `<div class="small">${cs.w.equipment_id}에서 작업을 재개합니다. 재개해도 ${inc.incident_id}은 ${inc.equipment_id} 복구 때까지 닫히지 않습니다.</div>`;
+  if (a.key === 'close') extra = `<div class="small">${inc.equipment_id} 정비가 끝나면 누릅니다: 복구 확인 기록 → 사건 해소 → ${inc.equipment_id} 대기 복구를 한 번에 처리합니다.</div>`;
+  return `<div class="ictl">${extra}<div class="row"><button class="btn pri" data-act="stepDo" data-arg="${a.key}" ${busy}>${a.btn} ›</button>${a.key === 'fit' || a.key === 'approve' ? '<button class="btn" data-act="selIncClear">취소</button>' : ''}</div>${trialNote}</div>`;
 }
 function introBox() {
   return `<div class="modal-bg" data-act="introClose"><div class="modal intro" data-act="stay" role="dialog" aria-label="처음 안내">
-    <h2>TWIN PRO · 공장 운영 현황을 한 화면에서 보는 프로그램</h2>
-    <ul class="facts">
-      <li><b>🏭 배(선박)를 만드는 공장의 가상 하루</b>배는 '블록'이라는 큰 강철 덩어리로 나눠 만듭니다. 블록 하나가 절단 → 조립 → 용접 → 검사 → 도장 → 이송 6단계를 거칩니다. 화면은 2026-09-16 12:00에 멈춰 있고, 위쪽 <b>[▶ 가상 시간 진행]</b>을 누르면 작업이 진행됩니다.</li>
-      <li><b>👥 여러 사람이 함께 보는 화면</b>누군가 저장하면 모두의 화면이 같이 바뀝니다.</li>
-      <li><b>🧪 코드가 없어도 체험할 수 있습니다</b>[고장 해결 체험]은 저장되지 않는 체험입니다. 실제로 저장하려면 위쪽 [조작 권한 받기]에 팀에서 받은 시연 코드를 넣으세요.</li>
-    </ul>
-    <div class="intro-btns"><button class="btn big" data-act="introClose">운영 현황 보기<small>지금 상태를 자유롭게 둘러보기</small></button>
-      <button class="btn pri big" data-act="introTry">고장 해결 체험 ›<small>멈춘 공정을 순서대로 살려 보기 · 약 90초 · 코드 없이 가능</small></button></div>
+    <h2>TWIN PRO · 조선 블록 생산 관제 시연</h2><p class="small">교육용 가상 데이터(09/16)로 움직입니다. 실제 공장과 연결되어 있지 않습니다.</p>
+    <div class="icards"><div><b>01 공정 연결망</b>절단부터 이송까지 6개 공정과 설비·작업이 연결되어 시간에 따라 움직입니다.</div>
+      <div><b>02 원인 추적과 조치</b>멈춘 작업을 누르면 원인이 이어져 보이고, 대체 설비는 확인과 승인을 거쳐 투입합니다.</div>
+      <div><b>03 2D ↔ 3D</b>관제에서 고른 블록의 위치와 내부 조립 상태를 3D로 바로 확인합니다.</div></div>
+    <div class="intro-btns"><button class="btn pri big" data-act="introStart">▶ 시연 시작</button></div>
+    <p class="small c">[? 안내]로 언제든 다시 열 수 있습니다</p>
   </div></div>`;
 }
-// ---------- 쉬운 화면: ① 공장 → ② 문제 처리 → ③ 결과 (처음 보는 사람용, 왼쪽에서 오른쪽으로) ----------
 const EASY_NAME = { P01: '자르기', P02: '붙이기', P03: '용접', P04: '검사', P05: '칠하기', P06: '옮기기' };
-function easyState(w) {
-  const e = eqOf(w.equipment_id);
-  if (e.status === 'FAULT') return ['r', '기계 고장 · 멈춤'];
-  if (w.status === 'BLOCKED') { const inc = w.hold_incident && incById(w.hold_incident); return ['o', inc?.category === 'MATERIAL' ? '재료 기다림 · 멈춤' : '멈춤']; }
-  if (w.status === 'COMPLETED') return ['b', '오늘 몫 끝남'];
-  if (w.status === 'IN_PROGRESS' && e.status === 'RUNNING') return ['g', '작업 중'];
-  return ['n', '대기'];
-}
-function easyCase() {   // 사용자가 처리하기 시작한 사건은 끝날 때까지 고정
-  const pin = UI.easyInc && incById(UI.easyInc);
-  return pin || focusCase()[0] || null;
-}
-function easyFactory() {
-  const rows = todayWos().slice().sort((a, b) => proc(a.process_id).sequence_no - proc(b.process_id).sequence_no).map(w => {
-    const p = proc(w.process_id), [c, word] = easyState(w);
-    return `<li class="es ${c}"><b class="n">${p.sequence_no}</b><div class="grow"><div class="l1"><b>${EASY_NAME[p.process_id] || esc(p.process_name)}</b> <small>${esc(p.process_name)} · 블록 ${w.block_id}</small></div>
-      <div class="l2"><span class="eb"><em style="width:${Math.min(100, w.progress_ratio * 100)}%"></em></span><span class="w">${word}</span></div></div></li>`; }).join('');
-  const end = S.now >= toM(SHIFT_END);
-  return `<section class="ecol"><div class="eh"><span class="num">1</span><h2>공장</h2><span class="grow"></span><button class="btn line" data-act="go" data-arg="3d">3D로 보기 ›</button></div>
-    <p class="lead">배는 '블록'이라는 큰 철 덩어리로 나눠 만듭니다. 블록은 아래 6단계를 거칩니다. 지금은 단계마다 서로 다른 블록을 작업하고 있습니다.</p>
-    <ol class="elist ${isLive() ? 'live' : ''}">${rows}</ol>
-    <div class="eclock">${isLive() ? '▶' : '⏸'} 가상 시각 <b>${hm(nowS())}</b> <small>(12:00 → 16:00)</small></div>
-    <div class="ebtn">${playCtl().replace('class="btn ', 'class="btn big ')}</div>
-    <p class="hint2">${end ? '하루 작업 시간이 끝났습니다.' : UI.simOn || isLive() ? '막대가 차오르는 것이 작업이 진행되는 모습입니다.' : '버튼을 누르면 시간이 흐르고 막대가 차오릅니다.'}</p></section>`;
-}
-function easyFix() {
-  const inc = easyCase();
-  const head = '<div class="eh"><span class="num">2</span><h2>문제 처리</h2></div>';
-  if (!inc) return `<section class="ecol">${head}<div class="eok">✓ 지금 멈춘 공정이 없습니다</div><p class="lead">① 공장에서 시간을 흐르게 하면 작업이 끝까지 진행되는 모습을 볼 수 있습니다.</p></section>`;
-  const cs = caseSteps(inc), w = cs.w, p = proc(w ? w.process_id : eqOf(cs.eqId).process_id);
-  const nm = EASY_NAME[p.process_id] || p.process_name, min = S.now - toM(inc.opened_at);
-  const what = inc.category === 'EQUIPMENT' ? `<b>${nm}</b> 기계가 고장 나서` : inc.category === 'MATERIAL' ? `<b>${nm}</b> 단계에 재료가 오지 않아` : `<b>${nm}</b> 결과가 검사에서 불합격이라`;
-  const steps = cs.st.map((x, n) => `<li class="${x.done ? 'done' : x === cs.active ? 'on' : ''}"><b class="n">${x.done ? '✓' : n + 1}</b><div><b>${x.title}</b><small>${x.desc}</small></div></li>`).join('');
-  const others = focusCase().filter(i => i.incident_id !== inc.incident_id).length;
-  const a = cs.active;
-  const action = a ? `<button class="btn pri big" data-act="easyDo" data-arg="${a.key}" ${UI.busy ? 'disabled' : ''}>다음: ${a.title} ›</button>`
-    : `<div class="eok">✓ 처리 완료${UI.trial ? ' (체험 · 저장 안 됨)' : ''}</div><p class="lead">③ 결과에서 숫자가 어떻게 바뀌었는지 보세요.</p>${others ? `<button class="btn big" data-act="easyNext">다음 문제 보기 ›</button>` : ''}`;
-  return `<section class="ecol"><div class="eh"><span class="num">2</span><h2>문제 처리</h2></div>
-    <div class="eprob ${a ? 'bad' : 'ok'}">${a ? `⚠ ${what} 블록 ${w ? w.block_id : ''} 작업이 멈췄습니다` : `✓ <b>${nm}</b> 문제를 처리해 블록 ${w ? w.block_id : ''} 작업이 ${w && w.status === 'BLOCKED' ? '처리를 마쳤습니다' : '다시 돌아갑니다'}`}<small>${hm(inc.opened_at)}부터 ${inc.status === 'OPEN' ? minLabel(min) + '째' : '· 해결됨'}</small></div>
-    <p class="lead">현장에서는 아래 순서대로 처리해야 합니다. 순서를 건너뛰면 시스템이 막습니다.</p>
-    <ol class="esteps">${steps}</ol>
-    <div class="ebtn">${action}</div>
-    ${!UI.canWrite && a ? '<p class="hint2">시연 코드 없이 눌러 볼 수 있습니다. 저장되지 않고 내 화면에만 보입니다.</p>' : ''}${others && a ? `<p class="hint2">이 밖에 해결 안 된 문제 ${others}건</p>` : ''}</section>`;
-}
-function easyResult() {
-  const k = kpis();
-  const cur = { run: k.running, fault: k.fault, done: k.todayDone, open: k.open };
-  const prev = UI.easyLast; UI.easyLast = cur;
-  const label = { run: '작업 중인 기계', fault: '고장 난 기계', done: '오늘 끝난 작업', open: '해결 안 된 문제' };
-  if (prev && Object.keys(cur).some(x => cur[x] !== prev[x])) {   // 6초 안에 이어진 변화는 합쳐서(처음 값 → 지금 값) 보여 준다
-    const base = Date.now() - (UI.easyChgAt || 0) < 6000 && UI.easyFrom ? UI.easyFrom : prev; UI.easyFrom = base;
-    UI.easyChg = Object.keys(cur).filter(x => cur[x] !== base[x]).map(x => [x, base[x], cur[x]]); UI.easyChgAt = Date.now(); setTimeout(render, 6100); }
-  const fresh = Date.now() - (UI.easyChgAt || 0) < 6000 ? UI.easyChg || [] : [];
-  const hot = new Set(fresh.map(c => c[0]));
-  const row = (x, v, max, c) => `<li class="${hot.has(x) ? 'chg' : ''}"><span>${label[x]}</span><span class="eb ${c}"><em style="width:${max ? Math.min(100, v / max * 100) : 0}%"></em></span><b>${v}${x === 'done' ? ` / ${k.todayTotal}` : x === 'run' ? ` / ${k.total}` : ''}</b></li>`;
-  return `<section class="ecol"><div class="eh"><span class="num">3</span><h2>결과</h2></div>
-    <p class="lead">①과 ②에서 일어난 일이 공장 전체 숫자에 바로 반영됩니다.</p>
-    <ul class="ebars">${row('run', k.running, k.total, 'g')}${row('fault', k.fault, k.total, 'r')}${row('done', k.todayDone, k.todayTotal, 'b')}${row('open', k.open, Math.max(k.open, 3), 'o')}</ul>
-    <div class="echg">${fresh.length ? '방금 바뀜: ' + fresh.map(([x, a, b]) => `${label[x]} ${a} → <b>${b}</b>`).join(' · ') : '<small>바뀐 숫자는 여기에 표시됩니다.</small>'}</div>
-    <p class="lead">관리자는 이 숫자와 공정·설비·작업 표를 한 화면에서 봅니다.</p>
-    <div class="ebtn"><button class="btn big" data-act="go" data-arg="dash">자세히 보기 (관리자 화면) ›</button></div></section>`;
-}
-function easyShell() {
-  return `<div class="easy"><header class="etop"><b class="logo2">TWIN PRO</b><span>배 블록 공장 운영 화면 · <span class="chip warn">교육용 가상 데이터</span></span><span class="grow"></span>
-      ${UI.canWrite ? '<span class="chip">🔑 조작 가능 (저장됨)</span>' : ''}<button class="btn line" data-act="go" data-arg="3d" title="과제 제외범위(3D)를 팀이 시연용으로 구현한 화면">3D로 보기 (확장 데모) ›</button><button class="btn line" data-act="bkOpen" data-arg="" title="블록 하나가 부재 → 세트 → 블록으로 만들어지는 과정(3D 확장 데모)">블록 제조 3D ›</button><button class="btn line" data-act="go" data-arg="dash">자세히 보기 ›</button></header>
-    ${UI.trial ? `<div class="trialbar">🧪 <b>체험 중</b> · 저장되지 않고 내 화면에만 보입니다.<span class="grow"></span><button class="btn" data-act="endTrial">처음 상태로</button></div>` : ''}
-    <div class="eflow">${easyFactory()}<i class="arr">→</i>${easyFix()}<i class="arr">→</i>${easyResult()}</div></div>`;
+function easyState(w) {   // 3D 화면의 공정 색(관제와 같은 기준)
+  const ns = nodeState(w);
+  const word = { r: '고장·멈춤', o: ns.l === '자재 대기' ? '재료 기다림 · 멈춤' : '품질 보류', b: '작업 중', g: '오늘 몫 끝남', n: '대기' }[ns.c];
+  return [ns.c === 'b' ? 'g' : ns.c === 'g' ? 'b' : ns.c, word];   // 3D 색 체계: g=작업 중, b=끝남
 }
 function aiBox() {
   const left = Math.max(0, AI_LIMIT - S.aiUsed);
@@ -1022,20 +1086,22 @@ function aiBox() {
   return `<div class="ai-box"><div class="ai-h"><b>AI 운영 요약</b><span class="small">${S.ai ? `시연 시각 ${hm(S.ai.sim_at)} 기준${fresh ? '' : ' · <span class="c-o">이후 변경 있음</span>'}` : '아직 생성하지 않음'}</span>
     <button class="btn pri" data-act="aiGen" ${why || UI.aiBusy ? `disabled title="${why || '생성 중'}"` : ''}>${UI.aiBusy ? '생성 중…' : `✦ AI 요약 생성`} <small>오늘 남은 ${left}회</small></button></div>
     ${S.ai ? `<div class="ai-text" id="aiText">${esc(S.ai.text)}</div><span class="small">Claude(${esc(S.ai.model || '')})가 서버 DB의 현재 값만으로 작성 · 하루 ${AI_LIMIT}회 제한</span>`
-      : `<span class="small">버튼을 누르면 AI(Claude)가 지금의 기계·작업·문제 상황을 읽고 상황 요약과 이상 설명을 보고서처럼 써 줍니다. 하루 ${AI_LIMIT}회.</span>`}</div>`;
+      : `<span class="small">버튼을 누르면 AI(Claude)가 지금의 설비·작업·사건 사실을 읽고 요약합니다. 하루 ${AI_LIMIT}회.</span>`}</div>`;
 }
 function histText(h) { return h ? `${hm(h.event_at)} ${STATUS.his[h.event_type] || h.event_type} · ${h.note || ''}` : '-'; }
-function summaryText(k) {
-  const s = [`기준일(09/16) 계획 ${k.todayTotal}건 중 ${k.todayDone}건 완료(${pct(k.todayDone / k.todayTotal * 100)}).`];
+function summaryText() {
+  const g = progressKpi(), ws = todayWos();
+  const s = [`${hm(nowS())} 기준 6개 공정 중 ${ws.filter(w => nodeState(w).c === 'b').length}개 가동.`];
   for (const i of openIncidents()) {
     const w = i.work_order_id && S.wo[i.work_order_id];
-    if (i.category === 'EQUIPMENT') s.push(`${eqName(incEquipment(i))} 고장(${i.incident_id})으로 ${w ? w.block_id + ' ' + proc(w.process_id).process_name + '이 ' : ''}${hm(i.opened_at)}부터 멈춰 있습니다.`);
-    else if (i.category === 'MATERIAL') s.push(`${w ? w.block_id + '는 ' : ''}${i.summary}(${i.incident_id}) 중입니다.`);
+    if (i.category === 'EQUIPMENT') s.push(`${eqName(i.equipment_id)} 고장(${i.incident_id})으로 ${w ? `${w.block_id} ${proc(w.process_id).process_name}이 ` + (w.status === 'BLOCKED' ? `${hm(i.opened_at)}부터 멈춰 있습니다.` : `대체 설비 ${w.equipment_id}에서 ${STATUS.wo[w.status][0]} 중입니다(사건은 복구 때까지 유지).`) : '사건이 열려 있습니다.'}`);
+    else if (i.category === 'MATERIAL') s.push(`${w ? w.block_id + '는 ' : ''}${i.summary}(${i.incident_id}).`);
     else s.push(`${w ? w.block_id + '는 ' : ''}${i.summary}(${i.incident_id})로 재검사 판정 대기입니다.`);
   }
-  if (!openIncidents().length) s.push('미해소 사건이 없습니다.');
-  const down = Object.values(S.equipment).filter(e => e.status === 'FAULT' && !openIncidents().some(i => incEquipment(i) === e.equipment_id));
-  if (down.length) s.push(`${down.map(e => e.equipment_id).join(', ')}는 사건 해소 후 복구 대기입니다.`);
+  if (!openIncidents().length) s.push('미해결 사건이 없습니다.');
+  const down = Object.values(S.equipment).filter(e => e.status === 'FAULT' && !openIncidents().some(i => i.equipment_id === e.equipment_id));
+  if (down.length) s.push(`${down.map(e => e.equipment_id).join(', ')}는 사건 종료 후 복구 대기입니다.`);
+  s.push(`전체 실적 ${pct(g.a, 0)}로 계획 ${pct(g.p, 0)} 대비 ${g.gap >= 0.5 ? `${g.gap.toFixed(0)}%p 늦습니다.` : '계획대로입니다.'}`);
   return s.join(' ');
 }
 
@@ -1059,7 +1125,7 @@ function viewEq() {
   const days = ['2026-09-12', '2026-09-13', '2026-09-14', '2026-09-15', '2026-09-16'];
   const lanes = days.map(d => { const d0 = toM(d + ' 08:00'), d1 = d0 + 480;
     const parts = S.intervals.filter(i => i.eq === id && i.s < d1 && (i.e ?? S.now) > d0).map(i => { const a = Math.max(i.s, d0), b = Math.min(i.e ?? S.now, d1, S.now); if (b <= a) return '';
-      const c = { RUNNING: 'g', IDLE: 'o', FAULT: 'r', MAINTENANCE: 'p' }[i.status] || 'n'; return `<i style="left:${(a - d0) / 4.8}%;width:${(b - a) / 4.8}%;background:${colorVar(c)}" title="${hm(fromM(a))}~${hm(fromM(b))} ${STATUS.eq[i.status]?.[0] || i.status}"></i>`; }).join('');
+      const c = STATUS.eq[i.status]?.[1] || 'n'; return `<i style="left:${(a - d0) / 4.8}%;width:${(b - a) / 4.8}%;background:${colorVar(c)}" title="${hm(fromM(a))}~${hm(fromM(b))} ${STATUS.eq[i.status]?.[0] || i.status}"></i>`; }).join('');
     return `<span>${dateLabel(d)}</span><div class="lane">${parts}</div>`; }).join('');
   const incs = openIncidents().filter(i => incEquipment(i) === id);
   const inc = incs.find(i => i.incident_id === UI.sel.inc) || incs[0];
@@ -1067,18 +1133,14 @@ function viewEq() {
   if (inc) {
     const w = inc.work_order_id && S.wo[inc.work_order_id];
     action = `<div class="alertbox">
-      <div class="row"><b>${inc.incident_id} · ${STATUS.cat[inc.category][0]} · ${inc.severity}</b>${badge('inc', inc.status)}${incs.length > 1 ? incs.filter(x => x !== inc).map(x => `<button class="btn" data-act="selInc" data-arg="${x.incident_id}">${x.incident_id}</button>`).join('') : ''}<span class="grow"></span><button class="btn pri" data-act="wizOpen" data-arg="${inc.incident_id}">단계별 처리 안내 ›</button></div>
-      <div class="small">${md(inc.opened_at)} ${hm(inc.opened_at)} 발생 · ${esc(inc.summary)}${w ? ` · ${w.work_order_id} (${w.block_id}) ${STATUS.wo[w.status][0]}` : ''}</div>
+      <div class="row"><b>${inc.incident_id} · ${STATUS.cat[inc.category][0]} · ${inc.severity}</b>${badge('inc', inc.status)}${incs.length > 1 ? incs.filter(x => x !== inc).map(x => `<button class="btn" data-act="selEqInc" data-arg="${x.incident_id}">${x.incident_id}</button>`).join('') : ''}</div>
+      <div class="small">${md(inc.opened_at)} ${hm(inc.opened_at)} 발생 · ${esc(inc.summary)}${w ? ` · ${w.work_order_id} (${w.block_id}) ${STATUS.wo[w.status][0]}${w.equipment_id !== id ? ' · 대체 설비 ' + w.equipment_id : ''}` : ''}</div>
       ${inc.action_note ? `<div><b style="font-size:12px">엑셀 기록 조치 메모:</b> <span style="font-size:12px">${esc(inc.action_note)} · 담당 ${esc(inc.owner_team)}</span></div>` : ''}
       ${inc.actions.length ? `<div class="tw"><table><thead><tr><th>시각</th><th>담당</th><th>조치 내용(서버 기록)</th></tr></thead><tbody>${inc.actions.map(a => `<tr><td>${hm(a.at)}</td><td>${esc(a.owner)}</td><td>${esc(a.note)}</td></tr>`).join('')}</tbody></table></div>` : ''}
-      <textarea id="actNote" data-draft="actNote" placeholder="조치 내용을 입력하세요. (예: 전원장치 퓨즈 교체 후 시운전)">${esc(draft('actNote', ''))}</textarea>
-      <div class="row"><div class="field"><span class="lb">담당</span><div class="in">${selectBox('actOwner', OWNERS.map(o => [o, o]), draft('actOwner', inc.owner_team), 'data-draft')}</div></div><span class="grow"></span>
-        <button class="btn line" data-act="recordAction" data-arg="${inc.incident_id}">조치 기록</button>
-        <button class="btn pri" data-act="resolve" data-arg="${inc.incident_id}" ${inc.actions.length ? '' : 'disabled title="조치 기록이 1건 이상 있어야 해소할 수 있습니다"'}>해소 처리</button></div>
-      <div class="small">조치 기록 = 이력만 추가(사건·설비 상태 유지) · 해소 처리 = 사건 종료 · 설비 복구와 작업 재개는 각각 따로 변경</div></div>`;
+      <div class="row"><span class="small grow">사건 처리는 관제 사건 패널에서만 합니다(처리 단계 순서를 지키기 위해).</span><button class="btn pri" data-act="goInc" data-arg="${inc.incident_id}">관제 사건 패널로 ›</button></div></div>`;
   } else action = `<div class="empty">이 설비에 미해소 사건이 없습니다.</div>`;
   const eqBtns = e.status === 'FAULT'
-    ? `<button class="btn pri" data-act="restore" data-arg="${id}">설비 복구 (고장 → 대기)</button><span class="small">미해소 고장 사건이 있으면 서버가 거부합니다.</span>`
+    ? `<span class="small">설비 복구는 관제 사건 패널의 [설비 복구 후 사건 종료] 단계에서 합니다.</span>`
     : UI.faultForm ? `<div class="field" style="flex:1"><span class="lb">고장 증상</span><div class="in" style="flex:1"><input type="text" id="faultSum" data-draft="faultSum" value="${esc(draft('faultSum', ''))}" placeholder="예: 도장 펌프 압력 저하" style="flex:1"></div></div>
         ${selectBox('faultSev', [['HIGH', 'HIGH'], ['MEDIUM', 'MEDIUM'], ['LOW', 'LOW']], draft('faultSev', 'HIGH'), 'data-draft')}<button class="btn danger" data-act="registerFault" data-arg="${id}">고장 등록</button><button class="btn" data-act="faultForm">취소</button>`
       : `<button class="btn danger" data-act="faultForm">고장 등록…</button><span class="small">고장 등록 시 이 설비의 진행 중 작업이 보류됩니다.</span>`;
@@ -1127,7 +1189,7 @@ function signalPanel(id) {
       <button class="btn pri" data-act="sendSignal" ${UI.canWrite ? '' : 'disabled title="시연 코드를 입력해야 신호를 보낼 수 있습니다"'}>신호 보내기</button>
       <span class="grow"></span>
       <button class="btn ${UI.simOn ? 'danger' : 'line'}" data-act="simToggle" ${othersPlaying() ? 'disabled title="다른 화면에서 재생 중입니다"' : !UI.canWrite ? 'title="코드가 없으면 내 화면에서만 흐릅니다(저장 안 됨)"' : ''}>${UI.simOn ? '■ 멈춤' : '▶ 가상 시간 진행'}</button>
-</div><span class="small">가상 시간 진행 = ${SIM_SEC}초마다 시연 시각 +5분, 가동 중인 설비가 계획수량의 10%씩 생산 카운트 전송</span>
+</div><span class="small">가상 시간 진행 = 1× 기준 10초마다 시연 시각 +5분, 가동 중인 설비가 계획수량의 10%씩 생산 카운트 전송</span>
     <div class="tw"><table><thead><tr><th>시연 시각</th><th>설비</th><th>신호</th><th class="c">결과</th><th>서버 응답</th></tr></thead><tbody>${rows || '<tr><td colspan="5" class="c small">아직 받은 신호가 없습니다.</td></tr>'}</tbody></table></div></section>`;
 }
 
@@ -1281,13 +1343,15 @@ function woEditor(w) {
   const st = draft('woStatus', w.status);
   const holdOpts = [['', '— 사유 선택 —'], ...openIncidents().filter(i => i.work_order_id === id || incEquipment(i) === w.equipment_id).map(i => [i.incident_id, `${i.incident_id} · ${i.summary}`])];
   const h = w.hold_incident && incById(w.hold_incident);
+  const lockInc = S.incidents.find(i => i.status === 'OPEN' && (i.incident_id === w.hold_incident || i.work_order_id === id));   // 미해결 사건이 걸린 작업은 설비 칸 잠금
   const his = woHistory(id).slice().reverse().slice(0, 6).map(x => `<tr><td>${md(x.event_at)} ${hm(x.event_at)}</td><td>${esc(STATUS.his[x.event_type] || x.event_type)}</td><td>${esc(x.note || '')}${x.incident_id ? ' · ' + x.incident_id : ''}</td></tr>`).join('');
   return `<section class="panel"><div class="ph"><h2>작업지시 편집</h2><span class="sub">${id} · ${w.block_id} · ${esc(p.process_name)}</span>${badge('wo', w.status)}${isDelayed(w) ? '<span class="badge delay">지연</span>' : ''}</div>
     <div class="form">
       <div class="frow"><span>작업지시 번호</span><div><input readonly value="${id}"></div></div>
       <div class="frow"><span>블록</span><div><input readonly value="${w.block_id} · ${esc(S.blocks[w.block_id].block_name)}"></div></div>
       <div class="frow"><span>공정</span><div><input readonly value="${w.process_id.slice(1)} ${esc(p.process_name)}"></div></div>
-      <div class="frow"><span class="req">설비</span><div>${selectBox('woEq', eqOptions, draft('woEq', w.equipment_id), 'data-draft')}<span class="small">같은 공정 설비만 · 고장·점검 설비는 서버가 거부</span></div></div>
+      <div class="frow"><span class="req">설비</span><div>${lockInc ? `<input readonly value="${esc(eqName(w.equipment_id))}" style="width:auto;flex:1"><span class="small">🔒 ${lockInc.incident_id} 미해결 · 설비 변경은 승인 절차가 필요합니다</span><button class="btn line" data-act="goInc" data-arg="${lockInc.incident_id}">관제에서 처리 ›</button>`
+        : `${selectBox('woEq', eqOptions, draft('woEq', w.equipment_id), 'data-draft')}<span class="small">같은 공정 설비만 · 고장·점검 설비는 서버가 거부</span>`}</div></div>
       <div class="frow"><span>계획 기간</span><div><input readonly value="${md(w.planned_start_at)} ${hm(w.planned_start_at)} ~ ${md(w.planned_end_at)} ${hm(w.planned_end_at)}"></div></div>
       <div class="frow"><span class="req">작업 상태</span><div><div class="seg">${['PLANNED', 'IN_PROGRESS', 'BLOCKED', 'COMPLETED'].map(s => `<button class="${st === s ? 'on' : ''}" data-act="woStatus" data-arg="${s}">${STATUS.wo[s][0]}</button>`).join('')}</div></div></div>
       <div class="frow"><span>인정수량</span><div><input type="number" id="woQty" data-draft="woQty" min="0" max="${w.planned_qty}" step="any" value="${esc(draft('woQty', w.accepted_qty))}" style="width:120px"><span class="small">/ ${w.planned_qty} ${unit(w.unit)} · 진행률 ${pct(w.progress_ratio * 100)}</span></div></div>
@@ -1317,9 +1381,10 @@ function viewBase() {
   const tabs = `<div class="subtabs"><button class="${UI.sub.base === 'proc' ? 'on' : ''}" data-act="sub" data-arg="base:proc">공정<small>${Object.keys(S.processes).length}</small></button><button class="${UI.sub.base === 'eq' ? 'on' : ''}" data-act="sub" data-arg="base:eq">설비<small>${Object.keys(S.equipment).length}</small></button></div>`;
   const procs = Object.values(S.processes).sort((a, b) => a.sequence_no - b.sequence_no);
   if (UI.sub.base === 'eq') {
-    const rows = Object.values(S.equipment).map(e => `<tr data-act="goEq" data-arg="${e.equipment_id}"><td>${e.equipment_id}</td><td>${esc(e.equipment_name)}</td><td>${e.process_id} ${esc(proc(e.process_id).process_name)}</td><td>${e.zone_id} ${esc(S.zones[e.zone_id].zone_name)}</td><td>${esc(e.resource_kind)}</td><td>${esc(e.capacity_note)}</td><td class="c">${badge('eq', e.status)}</td></tr>`).join('');
-    return `${title('기준정보', '관리')}${adminRow()}${tabs}<section class="panel"><div class="ph"><h2>설비 목록</h2><span class="sub">받은 엑셀 equipment 시트 · 상태는 서버 현재값</span><button class="btn line" data-act="csv" data-arg="baseEq">⭳ 엑셀(CSV)</button></div>
-      <div class="tw"><table><thead><tr><th>설비코드</th><th>설비명</th><th>공정</th><th>작업구역</th><th>자원</th><th>비고</th><th class="c">상태</th></tr></thead><tbody>${rows}</tbody></table></div></section>`;
+    const fitTxt = e => { const f = S.fit.find(x => x.equipment_id === e.equipment_id); return f ? `${f.note} · WPS ${f.wps_state === 'OK' ? '적합' : '확인'} · 출력 ${f.power_state === 'OK' ? '적합' : '확인'} · 자격 ${f.cert_state === 'OK' ? '적합' : '확인'} · 위치 ${f.loc_state === 'OK' ? '적합' : f.loc_state === 'COND' ? `조건부(이동 ${f.move_min}분)` : '부적합'}` : '-'; };
+    const rows = Object.values(S.equipment).map(e => `<tr data-act="goEq" data-arg="${e.equipment_id}"><td>${e.equipment_id}</td><td>${esc(e.equipment_name)}</td><td>${e.process_id} ${esc(proc(e.process_id).process_name)}</td><td>${e.zone_id} ${esc(S.zones[e.zone_id].zone_name)}</td><td>${esc(e.resource_kind)}</td><td>${esc(e.capacity_note)}</td><td class="clip" title="${esc(fitTxt(e))}">${esc(fitTxt(e))}</td><td class="c">${badge('eq', e.status)}</td></tr>`).join('');
+    return `${title('기준정보', '관리')}${adminRow()}${tabs}<section class="panel"><div class="ph"><h2>설비 목록</h2><span class="sub">받은 엑셀 equipment 시트 + 대체 적합성(가상 기준정보) · 상태는 서버 현재값 · 시연 중 읽기 전용</span><button class="btn line" data-act="csv" data-arg="baseEq">⭳ 엑셀(CSV)</button></div>
+      <div class="tw"><table><thead><tr><th>설비코드</th><th>설비명</th><th>공정</th><th>작업구역</th><th>자원</th><th>비고</th><th>대체 적합성</th><th class="c">상태</th></tr></thead><tbody>${rows}</tbody></table></div></section>`;
   }
   const sel = S.processes[UI.sel.proc] || procs[0];
   const linked = Object.values(S.equipment).filter(e => e.process_id === sel.process_id);
@@ -1332,16 +1397,16 @@ function viewBase() {
   return `${title('기준정보', '관리')}${adminRow()}${tabs}
   <div class="grid g-wo">
     <div class="grid">
-      <section class="panel"><div class="ph"><h2>공정 목록</h2><span class="sub">총 ${procs.length}건 · 순서·색은 고정, 공정명은 수정 가능</span><button class="btn line" data-act="csv" data-arg="baseProc">⭳ 엑셀(CSV)</button></div>
+      <section class="panel"><div class="ph"><h2>공정 목록</h2><span class="sub">총 ${procs.length}건 · 시연 중 읽기 전용</span><button class="btn line" data-act="csv" data-arg="baseProc">⭳ 엑셀(CSV)</button></div>
         <div class="tw"><table><thead><tr><th class="c">순서</th><th>공정 코드</th><th>공정명</th><th>작업구역</th><th class="c">단위</th><th class="c">기준 경과시간</th><th class="c">연결 설비</th><th class="c">사용</th><th>공정 색</th></tr></thead><tbody>${rows}</tbody></table></div>
         <span class="small">기준 경과시간 4h는 제공 데이터의 단순화 값(실제 표준공수 아님)</span></section>
-      <section class="panel"><div class="ph"><h2>2D 공정 흐름 미리보기</h2><span class="sub">공정명을 저장하면 대시보드 공정 흐름에 바로 반영</span></div><div class="flow">${prev}</div></section>
+      <section class="panel"><div class="ph"><h2>2D 공정 흐름 미리보기</h2><span class="sub">관제 공정·설비 연결망과 같은 순서</span></div><div class="flow">${prev}</div></section>
     </div>
-    <section class="panel"><div class="ph"><h2>공정 편집</h2><span class="sub">${sel.process_id} · ${esc(sel.process_name)}</span></div>
+    <section class="panel"><div class="ph"><h2>공정 상세</h2><span class="sub">${sel.process_id} · ${esc(sel.process_name)}</span></div>
       <div class="form">
         <div class="frow"><span>공정 코드</span><div><input readonly value="${sel.process_id}"></div></div>
         <div class="frow"><span>순서 번호</span><div><input readonly value="${sel.sequence_no}"><span class="small">진행 중 작업이 있어 순서 변경은 해커톤 이후</span></div></div>
-        <div class="frow"><span class="req">공정명</span><div><input type="text" id="procName" data-draft="procName" value="${esc(draft('procName', sel.process_name))}"></div></div>
+        <div class="frow"><span>공정명</span><div><input readonly value="${esc(sel.process_name)}"></div></div>
         <div class="frow"><span>작업구역</span><div><input readonly value="${sel.zone_id} ${esc(S.zones[sel.zone_id].zone_name)}"></div></div>
         <div class="frow"><span>단위</span><div><input readonly value="${unit(sel.unit)}"></div></div>
         <div class="frow"><span>기준 경과시간</span><div><input readonly value="${sel.standard_hours} h"></div></div>
@@ -1349,7 +1414,7 @@ function viewBase() {
       <b style="font-size:13px">연결 설비 ${linked.length}대</b>
       <div class="tw"><table><thead><tr><th>설비</th><th>설비명</th><th>비고</th><th class="c">상태</th></tr></thead><tbody>${linked.map(e => `<tr data-act="goEq" data-arg="${e.equipment_id}"><td>${e.equipment_id}</td><td>${esc(e.equipment_name)}</td><td>${esc(e.capacity_note)}</td><td class="c">${badge('eq', e.status)}</td></tr>`).join('')}</tbody></table></div>
       <div class="alertbox" style="background:var(--o-bg);border-color:#F2C677"><b class="c-o" style="font-size:13px">삭제·사용 중지 불가</b><span style="font-size:12px">연결 설비 ${linked.length}대와 작업지시 ${woCount}건이 있어 삭제·사용 중지할 수 없습니다.</span></div>
-      <div class="row"><span class="grow"></span><button class="btn" data-act="procCancel">취소</button><button class="btn pri" data-act="procSave" data-arg="${sel.process_id}">저장</button></div>
+      <div class="note"><b>시연 중 기준정보는 읽기 전용입니다</b>공정·설비·대체 적합성 값은 관제 판단의 기준이라 시연 중에는 바꾸지 않습니다.</div>
     </section>
   </div>`;
 }
@@ -1388,28 +1453,40 @@ async function call(fn, args, after) {
     if (!r.ok && /시연 코드/.test(r.msg)) { UI.canWrite = false; UI.codeOpen = true; }
     if (r.ok && after) after(); await reload(); return r; }
   catch (e) { toast('서버 호출 실패: ' + (e.message || e), true); }
-  finally { UI.busy = false; document.body.style.cursor = ''; }
+  finally { UI.busy = false; document.body.style.cursor = ''; render(); }
 }
 function render() {
   if (UI.ptrDown) { UI.renderPending = true; return; }   // 누르는 중에 화면을 다시 그리면 클릭이 사라지므로, 손을 뗀 뒤 그린다
   const app = document.getElementById('app'); const sx = window.scrollX, sy = window.scrollY;
   const focus = document.activeElement && document.activeElement.id;
-  app.innerHTML = UI.view === 'easy' ? easyShell() : UI.view === '3d' ? t3Shell() : UI.view === 'blk' ? bkShell() : shell();
+  app.innerHTML = UI.view === '3d' ? t3Shell() : UI.view === 'blk' ? bkShell() : shell();
   if (UI.view === '3d') t3Mount(); if (UI.view === 'blk') bkMount();
   if (focus) { const el = document.getElementById(focus); if (el && el.focus) { el.focus(); if (el.setSelectionRange && el.type === 'text') { const n = el.value.length; el.setSelectionRange(n, n); } } }
   window.scrollTo(sx, sy);
 }
 const ACT = {
   noop() { render(); },
-  go(v) { if (v !== '3d' && SIM.on) simStop(true); if (v === 'easy') UI.easyLast = null; UI.view = v; try { history.replaceState(null, '', v === 'easy' ? location.pathname + location.search : '#' + v); } catch (e) { /* file:// 등 */ } UI.resetArm = false; UI.wiz = null; render(); window.scrollTo(0, 0); },
+  go(v) { if (v === 'easy') v = 'dash'; if (v !== '3d' && SIM.on) simStop(true); UI.view = v; UI.menuOpen = false; try { history.replaceState(null, '', '#' + v); } catch (e) { /* file:// 등 */ } UI.resetArm = false; render(); window.scrollTo(0, 0); },
+  topGo(v) { if (v === 'blk') return ACT.bkOpen(easyCase()?.work_order_id ? S.wo[easyCase().work_order_id].block_id : '');
+    if (v === 'edu') { ACT.go('3d'); if (T3.ready) { simStart(); render(); } else T3.wantSim = true; return; }
+    if (v === '3d') { if (SIM.on) simStop(true); const c = easyCase(); if (c && c.work_order_id) T3.sel = S.wo[c.work_order_id].process_id; } ACT.go(v); },
+  go3d(pid) { T3.sel = pid || null; ACT.go('3d'); },
+  menuTog() { UI.menuOpen = !UI.menuOpen; render(); },
   goEq(id) { UI.sel.eq = id; UI.sel.inc = null; UI.faultForm = false; UI.f.eq = { proc: '', st: '', q: '', kind: '' }; delete UI.draft.actNote; ACT.go('eq'); },
   goWo(id) { if (!id) return; UI.sel.wo = id; clearWoDraft(); UI.f.wo = { proc: '', st: '', date: '', q: '', overdue: false }; const i = woRows().findIndex(w => w.work_order_id === id); UI.page.wo = Math.floor(i / 10) + 1; UI.sub.wo = 'list'; ACT.go('wo'); },
   goWoAll() { UI.f.wo = { proc: '', st: '', date: '16-17', q: '', overdue: false }; UI.page.wo = 1; UI.sub.wo = 'list'; ACT.go('wo'); },
   goOverdue() { UI.f.wo = { proc: '', st: '', date: '', q: '', overdue: true }; UI.page.wo = 1; UI.sub.wo = 'list'; ACT.go('wo'); },
   goBlock(id) { if (id) UI.sel.block = id; UI.f.prod = { vessel: '', proc: '', st: '', q: '' }; ACT.go('prod'); },
-  goInc(id) { const i = incById(id); const eq = incEquipment(i); UI.sel.eq = eq; UI.sel.inc = id; UI.f.eq = { proc: '', st: '', q: '', kind: '' }; ACT.go('eq'); },
+  goInc(id) { ACT.go('dash'); ACT.selInc(id); },
   selEq(id) { UI.sel.eq = id; UI.sel.inc = null; UI.faultForm = false; delete UI.draft.actNote; render(); },
-  selInc(id) { UI.sel.inc = id; render(); },
+  selInc(id) { UI.sel.inc = id; const i = incById(id); UI.sel.node = i && i.work_order_id || null; delete UI.draft.subEq;
+    if (UI.simOn) { stopSim(); UI.pausedFor = '사건 확인 중'; } render(); },   // 사건을 고르면 재생을 자동으로 멈춘다
+  selIncClear() { UI.sel.inc = null; UI.pausedFor = ''; render(); },
+  selEqInc(id) { UI.sel.inc = id; render(); },
+  selNode(id) { UI.sel.node = UI.sel.node === id ? null : id; render(); },
+  subEq(e) { UI.draft.subEq = e; render(); },
+  speed(v) { UI.speed = +v; if (UI.simOn) { clearInterval(simTimer); simTimer = setInterval(simTick, simMs()); } render(); },
+  stepDo(k) { return stepDo(incById(UI.sel.inc), k); },
   selBlock(id) { UI.sel.block = id; render(); },
   selWo(id) { if (UI.sel.wo !== id) clearWoDraft(); UI.sel.wo = id; render(); },
   selProc(id) { UI.sel.proc = id; delete UI.draft.procName; render(); },
@@ -1423,13 +1500,9 @@ const ACT = {
   faultForm() { UI.faultForm = !UI.faultForm; render(); },
   woStatus(s) { UI.draft.woStatus = s; render(); },
   woCancel() { clearWoDraft(); render(); },
-  procCancel() { delete UI.draft.procName; render(); },
   clock(m) { call('tp_advance_clock', { p_min: +m }); },
   reset() { if (!UI.resetArm) { UI.resetArm = true; render(); setTimeout(() => { if (UI.resetArm) { UI.resetArm = false; render(); } }, 4000); return; }
-    UI.resetArm = false; call('tp_reset_demo', {}, () => { UI.draft = {}; UI.sel.inc = null; }); },
-  recordAction(inc) { call('tp_record_action', { p_inc: inc, p_note: UI.draft.actNote || '', p_owner: UI.draft.actOwner || null }, () => { delete UI.draft.actNote; }); },
-  resolve(inc) { call('tp_resolve_incident', { p_inc: inc }); },
-  restore(eq) { call('tp_restore_equipment', { p_eq: eq }); },
+    UI.resetArm = false; call('tp_reset_demo', {}, () => { UI.draft = {}; UI.sel.inc = null; UI.sel.node = null; UI.pausedFor = ''; }); },
   registerFault(eq) { call('tp_register_fault', { p_eq: eq, p_summary: UI.draft.faultSum || '', p_severity: UI.draft.faultSev || 'HIGH' }, () => { delete UI.draft.faultSum; UI.faultForm = false; }); },
   woSave(id) {
     const w = S.wo[id]; const d = UI.draft;
@@ -1437,34 +1510,29 @@ const ACT = {
     call('tp_save_work_order', { p_wo: id, p_eq: d.woEq && d.woEq !== w.equipment_id ? d.woEq : null, p_status: d.woStatus && d.woStatus !== w.status ? d.woStatus : null,
       p_qty: qty, p_hold: d.woHold || null, p_memo: 'woMemo' in d ? d.woMemo : null }, clearWoDraft);
   },
-  procSave(pid) { call('tp_rename_process', { p_pid: pid, p_name: draft('procName', S.processes[pid].process_name) }, () => delete UI.draft.procName); },
   csv(k) { exportCsv(k); },
   stay() {},
-  kpiMore() { UI.kpiMore = !UI.kpiMore; render(); },
-  wizOpen(id) { UI.wiz = id; render(); document.getElementById('wizNote')?.focus(); },
-  wizClose() { UI.wiz = null; render(); },
-  wizDo(k) { return stepDo(incById(UI.wiz), k); },
-  easyDo(k) { const inc = easyCase(); if (!inc) return; UI.easyInc = inc.incident_id;
-    if (k === 'act' && !UI.draft.wizNote) UI.draft.wizNote = { EQUIPMENT: '전원장치 점검 후 부품 교체', MATERIAL: '부재 긴급 공급 요청', QUALITY: '불합격 부위 보수 용접' }[inc.category] || '현장 조치';
-    return stepDo(inc, k); },
-  easyNext() { UI.easyInc = null; render(); },
+  wizOpen(id) { ACT.goInc(id); },
   t3sel(p) { T3.sel = p || null; render(); },
 };
-async function stepDo(inc, k) { if (!inc) return; const cs = caseSteps(inc);
-    if (!UI.canWrite) {          // 체험: 코드 없이 실행해 보고 결과만 화면에 보여 줌
-      if (!UI.trial || (UI.trial.inc && UI.trial.inc !== inc.incident_id)) UI.trial = { inc: inc.incident_id, steps: (UI.trial?.steps || []).filter(s => s === 'tick'), note: '' };
-      UI.trial.inc = inc.incident_id;
-      if (k === 'act') { UI.trial.note = UI.draft.wizNote || ''; delete UI.draft.wizNote; }
-      UI.trial.steps.push(k); UI.busy = true; await runTrial(true); UI.busy = false; return render(); }
-    if (k === 'act') return call('tp_record_action', { p_inc: inc.incident_id, p_note: UI.draft.wizNote || '', p_owner: UI.draft.wizOwner || inc.owner_team || null }, () => { delete UI.draft.wizNote; });
-    if (k === 'resolve') return call('tp_resolve_incident', { p_inc: inc.incident_id });
-    if (k === 'restore') return call('tp_restore_equipment', { p_eq: cs.eqId });
-    if (k === 'resume') return call('tp_resume_work', { p_wo: cs.w.work_order_id }); }
+async function stepDo(inc, k) { if (!inc) return; const cs = caseSteps(inc), id = inc.incident_id;
+  const usable = substitutes(inc).filter(e => !['FAULT', 'MAINTENANCE'].includes(e.status));
+  const eqArg = k === 'fit' ? (usable.find(e => e.equipment_id === UI.draft.subEq) || usable[0])?.equipment_id : k === 'approve' ? stepRec(inc, 'fit')?.equipment_id : k === 'swap' ? stepRec(inc, 'approve')?.equipment_id : null;
+  const note = k === 'act' ? (UI.draft.wizNote || '').trim() || (inc.category === 'EQUIPMENT' ? '고장 확인: ' + inc.summary : '현장 조치: ' + inc.summary) : null;
+  if (!UI.canWrite) {          // 체험: 코드 없이 서버 규칙으로 실행해 보고 결과만 화면에 보여 줌(저장 안 됨)
+    if (!UI.trial) UI.trial = { inc: null, steps: [], note: '' };
+    const arg = k === 'act' ? note.replace(/\|/g, '/') : eqArg || '';
+    UI.trial.steps.push(`${k}|${id}${arg ? '|' + arg : ''}`); if (k === 'act') delete UI.draft.wizNote;
+    UI.busy = true; await runTrial(true); UI.busy = false; return render(); }
+  if (k === 'act') return call('tp_record_action', { p_inc: id, p_note: note, p_owner: null }, () => { delete UI.draft.wizNote; });
+  if (k === 'resolve') return call('tp_resolve_incident', { p_inc: id });
+  if (k === 'resume') return call('tp_resume_work', { p_wo: cs.w.work_order_id });
+  return call('tp_incident_step', { p_inc: id, p_step: k, p_eq: eqArg || null });
+}
 Object.assign(ACT, {
   intro() { UI.intro = true; render(); },
   introClose() { UI.intro = false; try { localStorage.setItem('tpIntroSeen', '1'); } catch (e) { /* 저장 불가 */ } render(); },
-  introTry() { ACT.introClose(); const inc = focusCase().find(i => i.category === 'EQUIPMENT') || focusCase()[0];
-    if (!inc) return toast('지금은 처리할 고장이 없습니다. 기준정보의 [데이터 초기화] 뒤 다시 해 보세요.'); UI.view = 'dash'; ACT.wizOpen(inc.incident_id); },
+  introStart() { ACT.introClose(); if (!UI.simOn && S.now < toM(SHIFT_END)) ACT.simToggle(); },
   impToggle() { UI.imp = UI.imp ? null : { rows: [] }; render(); },
   impTemplate() { const data = [['작업지시', '인정수량', '계획수량', '단위', '블록', '공정'], ...woList().filter(w => w.status === 'IN_PROGRESS').map(w => [w.work_order_id, w.accepted_qty, w.planned_qty, unit(w.unit), w.block_id, proc(w.process_id).process_name])];
     const csv = '\uFEFF' + data.map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
@@ -1475,9 +1543,9 @@ Object.assign(ACT, {
   sendSignal() { const t = draft('sigType', 'COUNT'); call('tp_ingest_signal', { p_eq: draft('sigEq', UI.sel.eq), p_signal: t, p_value: t === 'COUNT' ? Number(UI.draft.sigVal || 0) : null }); },
   async simToggle() { if (UI.simOn) return stopSim('가상 시간을 멈췄습니다.');
     if (!UI.canWrite) { if (!UI.trial) UI.trial = { inc: null, steps: [], note: '' };
-      UI.simOn = true; simTimer = setInterval(simTick, SIM_SEC * 1000); toast(`내 화면에서만 가상 시간이 ${SIM_SEC}초마다 5분씩 흐릅니다. 서버에는 저장되지 않습니다.`); render(); return simTick(); }
+      UI.simOn = true; UI.pausedFor = ''; simTimer = setInterval(simTick, simMs()); toast(`내 화면에서만 가상 시간이 흐릅니다(${UI.speed}× · ${simMs() / 1000}초마다 5분). 서버에는 저장되지 않습니다.`); render(); return simTick(); }
     const r = await API.rpc('tp_sim_claim', { p_owner: MY_ID }).catch(e => ({ ok: false, msg: e.message })); if (!r.ok) { toast(r.msg, true); return reload(); }
-    UI.simOn = true; simTimer = setInterval(simTick, SIM_SEC * 1000); toast(`가상 시간 진행 · ${SIM_SEC}초마다 5분씩 흐릅니다. 다른 사람 화면도 같이 움직입니다.`); render(); simTick(); },
+    UI.simOn = true; UI.pausedFor = ''; simTimer = setInterval(simTick, simMs()); toast(`가상 시간 진행(${UI.speed}× · ${simMs() / 1000}초마다 5분). 다른 사람 화면도 같이 움직입니다.`); render(); simTick(); },
   async aiGen() { if (UI.aiBusy) return; UI.aiBusy = true; render();
     try { const r = await API.ai(); toast(r.msg || (r.ok ? '완료' : '실패'), !r.ok); if (!r.ok && /시연 코드가 필요/.test(r.msg || '')) { UI.canWrite = false; UI.codeOpen = true; } }
     catch (e) { toast('AI 서버 호출 실패: ' + (e.message || e), true); }
@@ -1485,7 +1553,7 @@ Object.assign(ACT, {
   copySummary() { const t = sumTab() === 'ai' && S.ai ? S.ai.text : summaryText(kpis()); navigator.clipboard?.writeText(t).then(() => toast('운영 요약을 복사했습니다.'), () => { const r = document.createRange(); r.selectNodeContents(document.getElementById('summaryText') || document.getElementById('aiText')); getSelection().removeAllRanges(); getSelection().addRange(r); toast('복사가 막혀 있어 요약 문장을 선택해 두었습니다. Ctrl+C로 복사하세요.'); }); },
 });
 // 자동 재생: 이 탭에서만 돈다(탭을 닫으면 멈춤). 신호는 전부 서버 규칙을 거친다.
-const SIM_SEC = 4; let simTimer = null, simBusy = false;
+let simTimer = null, simBusy = false;
 const isLive = () => UI.simOn || othersPlaying() || Date.now() - (UI.clockAt || 0) < 7000;   // 이 화면이 재생 중이거나, 다른 화면의 재생으로 시각이 방금 바뀜
 function stopSim(msg, ng) { clearInterval(simTimer); simTimer = null; UI.simOn = false; if (UI.canWrite) API.rpc('tp_sim_release', { p_owner: MY_ID }).catch(() => {}); if (msg) toast(msg, ng); render(); }
 const MY_ID = (() => { try { let v = sessionStorage.getItem('tpTab'); if (!v) { v = Math.random().toString(36).slice(2, 10); sessionStorage.setItem('tpTab', v); } return v; } catch (e) { return Math.random().toString(36).slice(2, 10); } })();
@@ -1526,7 +1594,7 @@ document.addEventListener('input', e => {
   if (el.dataset.filter && el.type === 'text') { FILTER[el.dataset.filter](el.value, el); UI.page.wo = 1; render(); }
 });
 document.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.target.id === 'codeIn' || e.target.id === 'codeIn2')) { e.preventDefault(); UI.draft.codeIn = e.target.value; ACT.codeSave(); }
-  if (e.key === 'Escape' && (UI.wiz || UI.intro)) { UI.wiz ? ACT.wizClose() : ACT.introClose(); } });
+  if (e.key === 'Escape' && UI.intro) ACT.introClose(); });
 document.addEventListener('change', e => {
   const el = e.target;
   if (el.id === 'impFile' && el.files && el.files[0]) { readImportFile(el.files[0]); return; }
@@ -1566,7 +1634,7 @@ function setupScreen() {
 }
 async function boot() {
   const hv = location.hash.slice(1); if (VIEW_RENDER[hv] || hv === '3d' || hv === 'blk') UI.view = hv;   // 새로고침해도 보던 화면 유지(#dash 등)
-  UI.intro = false;   // 첫 화면은 쉬운 화면이 안내를 대신한다. 대시보드의 [? 안내]로 볼 수 있음
+  try { UI.intro = UI.view === 'dash' && !localStorage.getItem('tpIntroSeen'); } catch (e) { UI.intro = false; }   // 처음 방문이면 안내 카드
   if (NEEDS_SETUP) return setupScreen();
   try { await reload(); UI.conn = '실시간 연결';
     if (DEMO_CODE) { const r = await API.rpc('tp_check_code', {}).catch(() => ({ ok: false })); UI.canWrite = !!r.ok; } API.subscribe(scheduleReload, s => { UI.conn = s; render(); }); render(); }
@@ -1596,16 +1664,15 @@ function t3Shell() {
   const S3 = t3State(), k = kpis(), now = `${md(nowS())} (${wd(nowS())}) ${hm(nowS())}`;
   const sel = T3.sel && S3[T3.sel];
   const bar = `<div class="txbar">
-      <select data-t3="view"><option value="3d" selected>조선소 전체</option><option value="blk">블록 제조</option><option value="easy">쉬운 화면</option><option value="dash">관리자 화면</option></select>
-      <button class="txb" data-act="bkOpen" data-arg="">블록 찾기</button>
+      <button class="txb" data-act="go" data-arg="dash">↩ 관제로 돌아가 조치</button>
       <span class="txb fill g" title="공정 상태·수량은 서버 데이터 그대로입니다">서버 데이터</span>
       ${SIM.on ? '<button class="txb fill r" data-act="simEnd">시뮬레이션 끝내기</button>' : `<button class="txb fill w" data-act="simStart" ${T3.ready ? '' : 'disabled'}>▶ 공정 시뮬레이션</button>`}
       ${SIM.on ? '' : playCtl().replace(/class="btn[^"]*"/, 'class="txb"')}
       <button class="txb ${T3.showLab ? 'fill w' : ''}" data-act="t3tog" data-arg="showLab">이름표</button><button class="txb ${T3.panel ? 'fill w' : ''}" data-act="t3tog" data-arg="panel">패널</button>
       <span class="grow"></span><span class="txtag">확장 데모 · 과제 제외범위를 팀이 시연용으로 구현</span></div>`;
   const legend = `<div class="txlegend">${['g', 'r', 'o', 'b'].map(c => `<span><i style="background:${hex(T3_LINE[c])}"></i>${T3_LTXT[c]}</span>`).join('')}</div>`;
-  const head = SIM.on ? `<div class="txhead"><small>공정 시뮬레이션 · 정상 흐름 · 블록 ${SIM.block} 수량 기준</small><h1>블록이 배가 되기까지</h1></div>`
-    : `<div class="txhead"><small>서버 데이터 기준 · ${now}</small><h1>조선소 전체</h1></div>`;
+  const head = SIM.on ? `<div class="txhead"><small class="edu">교육용 표준 공정 재생 — ${SIM.block} 정상 흐름 · 관제 데이터와 별도</small><h1>블록이 배가 되기까지</h1></div>`
+    : `<div class="txhead"><small>서버 데이터 기준 · 관제와 같은 시각 · ${now}</small><h1>조선소 전체</h1></div>`;
   const chips = SIM.on ? `<div class="txchips">${SIM_STEPS.map((s, i) => `<button class="${i < simStep() ? 'done' : i === simStep() ? 'on' : ''}" data-act="simJump" data-arg="${i}">— ${s}</button>`).join('')}</div>`
     : `<div class="txchips"><span class="on">— 공정 6곳</span><span>— 오늘 블록 ${todayWos().length}개 <i>DATA</i></span></div>`;
   const cap = SIM.on ? `<div class="txcap"><small>${simStep() + 1} / ${SIM_STEPS.length}</small><b id="simT"></b><p id="simD"></p><div class="simq" id="simQ"></div><i class="simbar"><em id="simBar"></em></i></div>`
@@ -1625,12 +1692,12 @@ function t3Shell() {
       <div class="txsec">공정별 블록 · DATA</div>
       <div class="txkv">${T3_PROC.map(p => S3[p] ? `<span>${p} ${EASY_NAME[p]}</span><b><i class="dot" style="background:${hex(T3_LINE[S3[p].c])}"></i>${S3[p].w.block_id} · ${pct(S3[p].w.progress_ratio * 100, 0)}</b>` : '').join('')}</div>
       <div class="txsec">확인할 문제</div>
-      ${!inc ? '<p class="txnote">지금 멈춘 공정이 없습니다.</p>' : `<p class="txnote"><b class="${a ? 'r' : ''}">${a ? '⚠ ' : '✓ '}${esc(EASY_NAME[proc(cs.w ? cs.w.process_id : eqOf(cs.eqId).process_id).process_id] || '')} ${a ? (inc.category === 'EQUIPMENT' ? '기계 고장' : inc.category === 'MATERIAL' ? '재료 기다림' : '검사 불합격') : '처리 완료'}</b> · 블록 ${cs.w ? cs.w.block_id : ''}<br>${cs.st.map((x, n) => `${x.done ? '✓' : n + 1} ${x.title}`).join(' · ')}</p>
-        ${a ? `<button class="txb fill w wide" data-act="easyDo" data-arg="${a.key}" ${UI.busy ? 'disabled' : ''}>다음: ${a.title} ›</button>` : ''}`}
-      ${UI.trial ? '<p class="txnote">🧪 체험 중 · 저장되지 않고 내 화면에만 보입니다. <button class="txlink" data-act="endTrial">처음 상태로</button></p>' : ''}
+      ${!inc ? '<p class="txnote">지금 멈춘 공정이 없습니다.</p>' : `<p class="txnote"><b class="${a ? 'r' : ''}">${a ? '⚠ ' : '✓ '}${cs.w ? cs.w.block_id + ' · ' : ''}${esc(proc(cs.w ? cs.w.process_id : eqOf(cs.eqId).process_id).process_name)} · ${STATUS.cat[inc.category][0]}</b> (${inc.incident_id})<br>${a ? `다음 단계: ${a.title}` : '처리 완료'}</p>
+        ${cs.w ? `<button class="txb fill w wide" data-act="bkOpen" data-arg="${cs.w.block_id}">🔍 ${cs.w.block_id} 블록 내부 3D</button>` : ''}<button class="txb wide" data-act="goInc" data-arg="${inc.incident_id}">↩ 관제로 돌아가 조치</button>`}
+      ${UI.trial ? '<p class="txnote">🧪 체험 중 · 저장되지 않고 내 화면에만 보입니다.</p>' : ''}
       <div class="txsec">이 화면은</div>
       <p class="txnote">조선소 모델은 외부 자료 없이 Blender 코드로 만든 가상 조선소입니다. 공정 상태·블록·수량은 서버 데이터 그대로이며, 실제 설비와 연결되어 있지 않습니다. 드래그로 회전, 휠로 확대합니다.</p></aside>`;
-  return `<div class="tx"><header class="txtop"><span class="txbrand">TWIN PRO</span><b class="txtitle">조선소 3D</b><span class="txsub">조선 블록 공장 — 강재 절단장, 판넬 라인, 블록 조립 공장, 검사장, 도장 공장과 운반 도로, 건조 도크</span></header>
+  return `<div class="tx">${topBar()}
     ${bar}<div class="txmain ${T3.panel ? '' : 'nopanel'}"><div class="txview"><div id="t3host"></div>${head}${chips}${SIM.on ? '' : legend}${cap}${info}
       ${T3.err ? `<div class="t3msg">3D 모델을 불러오지 못했습니다. 인터넷 연결을 확인하세요.<small>${esc(T3.err)}</small></div>` : !T3.ready ? '<div class="t3msg">3D 조선소 모델을 불러오는 중… (약 3MB)</div>' : ''}</div>${side}</div></div>`;
 }
@@ -1680,7 +1747,7 @@ async function t3Init() {
       const pt = hit.point; if (pt.y > 26 || pt.y < -40) return;
       const p = T3_PROC.reduce((a, b2) => Math.abs(T3_X[b2] - pt.x) < Math.abs(T3_X[a] - pt.x) ? b2 : a); ACT.t3sel(p);
     });
-    T3.ready = true; t3Sync(); render(); t3Loop();
+    T3.ready = true; t3Sync(); if (T3.wantSim) { T3.wantSim = false; simStart(); } render(); t3Loop();
   } catch (e) { T3.err = e.message || String(e); render(); }
 }
 function t3Mount() {   // 화면을 다시 그린 뒤 캔버스를 새 자리로 옮긴다
@@ -1743,7 +1810,6 @@ function t3Loop() {
   T3.r.render(T3.scene, T3.cam);
 }
 Object.assign(ACT, { t3tog(k) { T3[k] = !T3[k]; T3.dirty = true; render(); } });
-document.addEventListener('change', e => { if (e.target.dataset && e.target.dataset.t3 === 'view') { const v = e.target.value; if (v === 'blk') ACT.bkOpen(''); else ACT.go(v); } });
 
 // ---------- 평블록 디테일 공용(블록 제조 화면·공정 시뮬레이션): 구멍 뚫린 판(경감공·맨홀), 블록 번호 스텐실, 인양 러그 ----------
 // size = [x, y, z] 판 치수(m). 가장 얇은 축이 판의 두께 방향. holes = [[u, v, 가로반지름, 세로반지름]] (판 중심 기준, 판 평면 좌표)
@@ -2365,8 +2431,8 @@ function bkShell() {
   const k = a.parts[sel.i];
   const stName = s >= 6 ? '이송 완료' : `${T3_PROC[a.st]} ${proc(T3_PROC[a.st]).process_name} ${Math.round(a.f * 100)}%`;
   return `<div class="bk">
-    <header class="bktop"><b class="bklogo">TWIN PRO</b><small>Shipyard Digital Twin</small>
-      <nav><button data-act="go" data-arg="easy">쉬운 화면</button><button data-act="go" data-arg="3d">조선소 3D</button><button class="on">블록 제조</button><button data-act="go" data-arg="dash">관리자 화면</button></nav>
+    ${topBar()}<header class="bktop"><b class="bklogo">블록 내부 3D</b><span class="bkchip b">조립 재생 · 관제 시각과 별도</span>
+      <button class="bklink" data-act="go" data-arg="dash">↩ 관제로 복귀</button>
       <span class="grow"></span><span class="bkchip warn">확장 데모 · 가상 부재 구성</span>
       <select id="bkBlock" data-bk="block">${Object.values(S.blocks).map(b => `<option value="${b.block_id}" ${b.block_id === bid ? 'selected' : ''}>${b.block_id} · ${bkDataS(b.block_id) >= 6 ? '완료' : T3_PROC[Math.floor(bkDataS(b.block_id))] + ' ' + proc(T3_PROC[Math.floor(bkDataS(b.block_id))]).process_name}</option>`).join('')}</select></header>
     <div class="bkcards">${cards}</div>
