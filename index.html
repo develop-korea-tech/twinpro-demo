@@ -661,6 +661,12 @@ td .small { line-height: 18px; }
 @media (max-width: 1100px) { .gbar { flex-wrap: wrap; height: auto; padding: 8px 12px; gap: 8px; } .gtabs { flex-wrap: wrap; } .nodes { flex-wrap: wrap; } .node { flex: 1 1 140px; } .narr { display: none; } .spares, .icards { grid-template-columns: minmax(0, 1fr); } .ndet { flex-wrap: wrap; } .content { margin: 8px; } .sbar .kpi { padding: 0 8px; } }
 .isteps li.ictlrow { display: block; padding: 6px 10px 10px 36px; color: var(--fg); font-weight: 400; }
 .dcol > *, .ipanel > * { flex-shrink: 0; }
+/* 관제 화면 안쪽 스크롤바: 평소에는 보이지 않고, 마우스를 올렸을 때만 얇게 표시 */
+.g-dash2 > .dcol, .g-dash2 > .ipanel, .g-dash2 .g-bot .panel { scrollbar-width: thin; scrollbar-color: transparent transparent; scrollbar-gutter: stable; }
+.g-dash2 > .dcol:hover, .g-dash2 > .ipanel:hover, .g-dash2 .g-bot .panel:hover { scrollbar-color: #C9D1DC transparent; }
+.g-dash2 > .dcol::-webkit-scrollbar, .g-dash2 > .ipanel::-webkit-scrollbar, .g-dash2 .g-bot .panel::-webkit-scrollbar { width: 6px; }
+.g-dash2 > .dcol::-webkit-scrollbar-thumb, .g-dash2 > .ipanel::-webkit-scrollbar-thumb, .g-dash2 .g-bot .panel::-webkit-scrollbar-thumb { background: transparent; border-radius: 3px; }
+.g-dash2 > .dcol:hover::-webkit-scrollbar-thumb, .g-dash2 > .ipanel:hover::-webkit-scrollbar-thumb, .g-dash2 .g-bot .panel:hover::-webkit-scrollbar-thumb { background: #C9D1DC; }
 </style></head>
 <body><div id="app" class="app"><div class="content" style="margin:40px">서버에서 데이터를 읽는 중…</div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
