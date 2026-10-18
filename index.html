@@ -82,6 +82,7 @@ button { cursor: pointer; }
 .c-g { color: var(--g); } .c-o { color: var(--o); } .c-r { color: var(--r); } .c-p { color: var(--p); } .c-b { color: var(--b); }
 /* table */
 .tw { overflow-x: auto; min-width: 0; }
+.wcode { margin-left: 6px; font-size: 11px; color: var(--fg3); font-family: var(--mono); }
 table { border-collapse: collapse; width: 100%; }
 th { background: var(--label); color: var(--fg2); font-weight: 500; text-align: left; padding: 9px 10px; font-size: 12px; white-space: nowrap; }
 td { padding: 9px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
@@ -1213,7 +1214,7 @@ function viewDash() {
     const on = fitInc && fitInc === inc && caseSteps(inc).active && ['fit', 'approve', 'swap'].includes(caseSteps(inc).active.key) && e.status === 'IDLE';
     return `<div class="spare ${on ? 'sel' : ''}"><span class="ico">${icon(e.process_id)}</span><div class="grow"><div class="row"><b>${esc(eqName(e.equipment_id))}</b><span class="grow"></span><span class="small">${p2(proc(e.process_id).sequence_no)} ${esc(proc(e.process_id).process_name)} 공정${fit ? ' · ' + esc(fit.wps_note.split('(')[0]) : ''}</span></div>
       <div class="row">${badge('eq', e.status)}${tag}</div></div></div>`; }).join('');
-  const rows = todayWos().map(w => { const ns = nodeState(w); return `<tr data-act="selNode" data-arg="${w.work_order_id}" class="${selWo === w.work_order_id ? 'sel' : ''}"><td>${w.work_order_id}</td><td>${w.block_id} · ${esc(proc(w.process_id).process_name)}</td><td>${w.equipment_id}</td>
+  const rows = todayWos().map(w => { const ns = nodeState(w); return `<tr data-act="selNode" data-arg="${w.work_order_id}" class="${selWo === w.work_order_id ? 'sel' : ''}"><td><b>${p2(proc(w.process_id).sequence_no)} ${esc(proc(w.process_id).process_name)}</b><small class="wcode">${w.work_order_id}</small></td><td>${w.block_id}</td><td>${w.equipment_id}</td>
     <td><span class="badge ${ns.c}">${ns.l}</span></td><td>${+(actRatio(w) * 100).toFixed(1)} / ${+(planRatio(w) * 100).toFixed(0)}</td></tr>`; }).join('');
   return `${title('관제 대시보드', '모니터링')}${statusBar()}
   <div class="grid g-dash2">
@@ -1223,8 +1224,8 @@ function viewDash() {
         <div class="ph"><h3>대기·예비 설비</h3><span class="sub">'대기'는 쓸 수 있다는 뜻이 아닙니다. 대체 적합 여부를 따로 표시합니다.</span></div>
         <div class="spares">${spare || '<div class="small">대기·예비 설비가 없습니다.</div>'}</div></section>
       <div class="grid g-bot">
-        <section class="panel"><div class="ph"><h2>작업지시 현황 (09/16)</h2><button class="btn line" data-act="goWoAll">전체 ›</button></div>
-          <div class="tw"><table><thead><tr><th>작업지시</th><th>블록·공정</th><th>설비</th><th>상태</th><th>실적 / 계획 %</th></tr></thead><tbody>${rows}</tbody></table></div></section>
+        <section class="panel"><div class="ph"><h2>작업지시 현황 (09/16)</h2><span class="sub">WO008-03 = B008 블록의 03공정</span><span class="grow"></span><button class="btn line" data-act="goWoAll">전체 ›</button></div>
+          <div class="tw"><table><thead><tr><th>공정</th><th>블록</th><th>설비</th><th>상태</th><th>실적 / 계획 %</th></tr></thead><tbody>${rows}</tbody></table></div></section>
         <section class="panel"><div class="ph"><h2>공정별 달성률 (09/16)</h2><span class="sub">고리 = 실적 ÷ 계획 수량 · 눈금 = 지금 계획 위치</span></div><div class="rings">${procRings()}</div></section>
         <section class="panel"><div class="ph"><h2>운영 요약</h2><span class="ptabs"><button class="${sumTab() === 'rule' ? 'on' : ''}" data-act="sub" data-arg="sum:rule">규칙 기반 사실</button><button class="${sumTab() === 'ai' ? 'on' : ''}" data-act="sub" data-arg="sum:ai">AI 요약</button></span></div>
           ${sumTab() === 'ai' ? aiBox() : `<div id="summaryText">${esc(summaryText())}</div><span class="small">확인되지 않은 원인은 단정하지 않습니다. 서버 값으로 즉시 계산합니다.</span>`}
