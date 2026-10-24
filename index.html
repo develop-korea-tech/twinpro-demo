@@ -179,7 +179,7 @@ td.c, th.c { text-align: center; }
 .events { font-size: 12px; color: var(--fg2); max-height: 120px; overflow: auto; display: flex; flex-direction: column; gap: 2px; }
 .clip { max-width: 280px; overflow: hidden; text-overflow: ellipsis; }
 .empty { color: var(--fg3); padding: 18px; text-align: center; border: 1px dashed var(--line2); border-radius: 6px; }
-.toast { position: fixed; right: 24px; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); max-width: 460px; background: var(--fg); color: #fff; padding: 12px 16px; border-radius: 6px; box-shadow: 0 6px 24px rgba(0,0,0,.18); font-size: 13px; z-index: 10; }
+.toast { position: fixed; right: 24px; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); max-width: 460px; background: var(--fg); color: #fff; padding: 12px 16px; border-radius: 6px; box-shadow: 0 6px 24px rgba(0,0,0,.18); font-size: 13px; z-index: 80; }
 .toast.ng { background: var(--r); }
 .blank-gap { flex: 1; }
 @media (max-width: 1280px) {
@@ -333,7 +333,7 @@ td .small { line-height: 18px; }
 .kmore { position: absolute; right: 6px; bottom: 4px; border: 0; background: none; color: var(--pri); font-size: 11px; }
 .chk .btns { display: flex; gap: 4px; flex: none; }
 /* 모달 */
-.modal-bg { position: fixed; inset: 0; background: rgba(15, 23, 42, .45); display: grid; place-items: center; z-index: 20; padding: 16px; }
+.modal-bg { position: fixed; inset: 0; background: rgba(15, 23, 42, .45); display: grid; place-items: center; z-index: 70; padding: 16px; }
 .modal { background: var(--card); border-radius: 8px; width: min(720px, 100%); max-height: calc(100vh - 32px); overflow: auto; padding: 18px 22px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 20px 60px rgba(0,0,0,.25); }
 .ctx { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 6px; }
 .ctx > div, .ctx > button { padding: 6px 10px; border: 0; border-left: 1px solid var(--line); display: flex; flex-direction: column; gap: 2px; min-width: 0; background: none; text-align: left; }
@@ -1484,7 +1484,7 @@ function introBox() {
       <div><b>02 원인 추적과 조치</b>멈춘 작업을 누르면 원인이 이어져 보이고, 대체 설비는 확인과 승인을 거쳐 투입합니다.</div>
       <div><b>03 2D ↔ 3D</b>관제에서 고른 블록의 위치와 내부 조립 상태를 3D로 바로 확인합니다.</div></div>
     <div class="intro-btns"><button class="btn pri big" data-act="introStart">▶ 시연 시작</button></div>
-    <p class="small c">[? 안내]로 언제든 다시 열 수 있습니다</p>
+    <p class="small c">왼쪽 아래 ? 아이콘(휴대폰은 [? 안내])으로 언제든 다시 열 수 있습니다</p>
   </div></div>`;
 }
 const EASY_NAME = { P01: '자르기', P02: '붙이기', P03: '용접', P04: '검사', P05: '칠하기', P06: '옮기기' };
