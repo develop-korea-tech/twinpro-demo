@@ -2201,9 +2201,9 @@ function t3Loop() {
     T3.parts[sk].lab.innerHTML = `<b>${sk.slice(1)} ${esc(proc(sk).process_name)}</b><span>블록 ${SIM.block} · 시뮬레이션</span>`; T3.parts[sk].lab.className = 'txlab sel';
     t3PlaceLabels(sk);
     T3.sparkLight.intensity = 0;   // 시뮬레이션 불꽃은 sim3d가 직접 그림
-    T3.blinkKey = null; t3xPlace(); T3.r.render(T3.scene, T3.cam); return;
+    T3.blinkKey = null; t3xPlace(); T3.r.shadowMap.needsUpdate = true; T3.r.render(T3.scene, T3.cam); return;
   }
-  if (T3.simLast) { T3.simLast = 0; t3Sync(); }
+  if (T3.simLast) { T3.simLast = 0; T3X.shadow = true; t3Sync(); }   // 시뮬레이션이 끝나면 물체가 제자리로 돌아오므로 그림자 다시 계산
   const xa = t3xFrame(now); if (!T3X.fly && !T3X.tour) T3.ctl.update();
   // 필요할 때만 그린다: 카메라 이동·데이터 변경·경광등 깜빡임 전환, 재생 중에는 초당 30장까지(저사양 노트북 배려)
   const blinkKey = T3_PROC.map(p => T3.st[p] && T3.st[p].c === 'r' ? (Math.sin(t * 6) > 0 ? 1 : 0) : T3.st[p] && T3.st[p].c === 'o' ? Math.round(Math.sin(t * 2) * 3) : '').join();
@@ -2223,6 +2223,7 @@ function t3Loop() {
   if (A.bridge && run('P03')) A.bridge.position.z = A.bridge.userData.p0.z - Math.sin(t * 0.3) * 6;
   if (A.trans && run('P06')) A.trans.position.x = A.trans.userData.p0.x + Math.sin(t * 0.15) * 22;
   const weld = run('P03'); if (A.spark) A.spark.visible = weld && Math.random() > 0.3; T3.sparkLight.intensity = weld ? 300 + Math.random() * 500 : 0;
+  if (anim || T3X.shadow) { T3.r.shadowMap.needsUpdate = true; T3X.shadow = false; }   // 크레인이 움직일 때·보이기가 바뀔 때만 그림자 갱신
   T3.r.render(T3.scene, T3.cam);
 }
 Object.assign(ACT, { t3tog(k) { T3[k] = !T3[k]; T3.dirty = true; render(); } });
@@ -2809,6 +2810,7 @@ function t3xInit() {   // t3Init 끝에서 한 번: 원래 낮 설정을 기억�
   T3X.cl = document.createElement('div'); T3X.cl.className = 'xcl'; T3X.cl.innerHTML = '<svg class="xclsvg"></svg><div class="xclbox"></div>'; T3.labels.appendChild(T3X.cl);
   T3X.planNodes = T3X_HIDE_PLAN.map(n => T3.find(n)).filter(Boolean);
   T3X.cut = {}; for (const p of ['P03', 'P05']) T3X.cut[p] = T3X_CUT.map(m => T3.find(`static_${p}__${m}`)).filter(Boolean);
+  T3.r.shadowMap.autoUpdate = false; T3.r.shadowMap.needsUpdate = true;   // 그림자는 물체가 움직이거나 보이기가 바뀔 때만 다시 계산(카메라·화살표만 바뀌면 그대로)
   t3xTheme(); t3xQuality(); t3xSync();
 }
 function t3xArrows(t) { const n = T3X.arrows.count, step = 6, off = (t * 5) % step;
@@ -2828,7 +2830,7 @@ function t3xTheme() {   // 관제(짙은 남색) ↔ 주간
   for (const p of T3_PROC) { const f = T3X.floor[p]; if (f) f.glow.visible = n; }
   T3.dirty = true;
 }
-function t3xQuality() { if (!T3.r) return; T3.r.setPixelRatio(T3X.lq ? 1 : Math.min(2, window.devicePixelRatio || 1)); T3.r.shadowMap.enabled = !T3X.lq;
+function t3xQuality() { if (!T3.r) return; T3.r.setPixelRatio(T3X.lq ? 1 : Math.min(2, window.devicePixelRatio || 1)); T3.r.shadowMap.enabled = !T3X.lq; T3X.shadow = true;
   T3.scene.traverse(o => { if (o.material && o.isMesh) o.material.needsUpdate = true; }); t3Resize(); T3.dirty = true; }
 function t3xSync() {   // 상태가 바뀐 공정만 바닥 판을 다시 그린다
   if (!T3X.floor) return;
@@ -2849,10 +2851,10 @@ function t3xSync() {   // 상태가 바뀐 공정만 바닥 판을 다시 그린
 // ---------- 카메라 이동 ----------
 function t3xFly(pos, tgt, dur = 2.2) { const V = T3.THREE.Vector3;
   T3X.fly = { p0: T3.cam.position.clone(), t0: T3.ctl.target.clone(), p1: new V(...pos), t1: new V(...tgt), s: performance.now(), d: dur * 1000 }; T3.dirty = true; }
-function t3xPlanSet(on) { T3X.plan = on; for (const o of T3X.planNodes || []) o.visible = !on;
+function t3xPlanSet(on) { T3X.plan = on; T3X.shadow = true; for (const o of T3X.planNodes || []) o.visible = !on;
   for (const p of T3_PROC) { const l = T3X.floor?.[p]?.lab; if (l) { l.scale.setScalar(on ? 1.15 : 1); l.position.y = on ? -27.5 : -26.6; } }   // 평면에서는 상태 판을 키운다
   t3xCutSet(T3X.cutP); }
-function t3xCutSet(p) { T3X.cutP = p || null; for (const k in T3X.cut || {}) for (const o of T3X.cut[k]) o.visible = k !== p && !(T3X.plan && T3X.planNodes.includes(o)); T3.dirty = true; }   // 사건 공정의 건물 외피만 걷어 안을 보인다
+function t3xCutSet(p) { T3X.cutP = p || null; T3X.shadow = true; for (const k in T3X.cut || {}) for (const o of T3X.cut[k]) o.visible = k !== p && !(T3X.plan && T3X.planNodes.includes(o)); T3.dirty = true; }   // 사건 공정의 건물 외피만 걷어 안을 보인다
 function t3xTitle() { if (T3X.tour) { const R = T3X.tour; return `자동 순회 · ${R.shots[Math.max(0, R.i)].k}`; }
   if (T3X.inc) return `사건 현장 · ${T3X.inc}`; return T3X.plan ? '평면 관제' : '조선소 전체'; }
 const t3xIncProc = inc => inc.work_order_id ? S.wo[inc.work_order_id].process_id : eqOf(inc.equipment_id || incEquipment(inc))?.process_id;
@@ -2862,7 +2864,7 @@ function t3xFrame(now) {   // t3Loop에서 매 프레임: 카메라 이동·자�
   if (T3X.tour) need = t3xTourTick(now) || need;
   const F = T3X.fly; if (F) { const k = Math.min(1, (now - F.s) / F.d), e = t3xEase(k);
     T3.cam.position.lerpVectors(F.p0, F.p1, e); T3.ctl.target.lerpVectors(F.t0, F.t1, e); T3.ctl.update(); if (k >= 1) T3X.fly = null; need = true; }
-  if (!T3X.lq) { t3xArrows(now / 1000); need = need || now - (T3X.al || 0) > 40; if (need) T3X.al = now; }
+  if (!T3X.lq && !document.hidden && now - (T3X.al || 0) > 66) { T3X.al = now; t3xArrows(now / 1000); need = true; }   // 화살표는 초당 15장까지만(가벼움 우선)
   const ip = T3X.inc && incById(T3X.inc) && t3xIncProc(incById(T3X.inc));
   for (const p of T3_PROC) { const r = T3X.floor[p]?.ring; if (!r) continue; const on = p === ip; r.visible = on;
     if (on) { const k = (now / 1400) % 1; r.scale.setScalar(0.92 + k * 0.25); r.material.opacity = 0.9 * (1 - k); need = true; } }
