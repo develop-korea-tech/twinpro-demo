@@ -748,6 +748,24 @@ td .small { line-height: 18px; }
 }
 .txbar .txb, .xrow .txb { white-space: nowrap; } .txbar { flex-wrap: wrap; row-gap: 6px; }
 @media (max-width: 1500px) { .txtag { display: none; } .txbar .txb { padding: 5px 8px; } }
+/* ---------- 왼쪽 아이콘 사이드바(넓은 화면) ---------- */
+.grail { display: none; }
+@media (min-width: 761px) {
+  .app { padding-left: 56px; }
+  .grail { display: flex; flex-direction: column; gap: 2px; position: fixed; left: 0; top: 0; bottom: 0; width: 56px; padding: 0 8px 10px; background: #0B1626; border-right: 1px solid #1E2C42; z-index: 60; overflow: hidden; transition: width .16s ease, box-shadow .16s ease; }
+  .grail:hover, .grail:focus-within { width: 210px; box-shadow: 8px 0 24px rgba(0,0,0,.35); }
+  .grlogo { height: 56px; flex: none; display: flex; align-items: center; gap: 12px; padding-left: 4px; color: #fff; font-weight: 800; font-size: 15px; white-space: nowrap; }
+  .grlogo span { font-size: 13px; font-weight: 700; letter-spacing: .04em; opacity: 0; transition: opacity .12s; }
+  .grsec { height: 22px; padding: 6px 0 0 6px; font-size: 10px; color: #5F7391; white-space: nowrap; opacity: 0; transition: opacity .12s; border-top: 1px solid #1E2C42; margin-top: 4px; }
+  .gri { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; height: 40px; padding: 0 8px; background: none; border: 0; border-radius: 6px; color: #9DB0CB; white-space: nowrap; text-align: left; flex: none; }
+  .gri svg { width: 22px; height: 22px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .gri span { display: flex; flex-direction: column; font-size: 13.5px; opacity: 0; transition: opacity .12s; } .gri span small { font-size: 10.5px; color: #FF8A80; }
+  .gri:hover { background: #16243A; color: #fff; } .gri.on { background: #2B74DE; color: #fff; } .gri.on span { font-weight: 700; }
+  .gri .gbadge { position: absolute; left: 24px; top: 4px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: #E5484D; color: #fff; font-size: 10px; line-height: 16px; text-align: center; }
+  .grail:hover .grlogo span, .grail:hover .grsec, .grail:hover .gri span, .grail:focus-within .grlogo span, .grail:focus-within .grsec, .grail:focus-within .gri span { opacity: 1; }
+  .grail .grow { flex: 1; }
+  .gbar .gtabs, .gbar .gmenu, .gbar [data-act="intro"] { display: none; }   /* 넓은 화면에서는 사이드바가 같은 메뉴를 맡는다 */
+}
 .iso{
   --anatomy-page:#0b0b0b;--anatomy-card:#131313;--anatomy-text:#a3a3a3;--anatomy-strong:#e6e6e6;--anatomy-muted:#6e6e6e;
   --anatomy-paper:#131313;--anatomy-face:#1b1b1b;--anatomy-top:#1c1c1c;
@@ -1182,6 +1200,26 @@ const icon = pid => (ICONS[pid] || '');
 // ---------- 공통 틀: 모든 화면 위의 어두운 상단 바(사이드바 없음) ----------
 const TOP_TABS = [['dash', '통합 관제'], ['3d', '3D 조선소'], ['blk', '블록 내부 3D'], ['edu', '공정 교육 재생']];
 const MGMT = VIEWS.slice(1);
+// 왼쪽 아이콘 사이드바(넓은 화면): 평소 아이콘만, 마우스를 올리면 펼쳐져 글자가 보인다. 좁은 화면(휴대폰)은 위쪽 탭·[관리 화면 ▾]를 그대로 쓴다
+const RAIL_ICO = {
+  dash: '<rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>',
+  '3d': '<path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="m3 7 9 5 9-5M12 12v10"/>',
+  blk: '<path d="m12 2 10 5-10 5L2 7z"/><path d="m2 12 10 5 10-5M2 17l10 5 10-5"/>',
+  edu: '<circle cx="12" cy="12" r="9"/><path d="m10 8 6 4-6 4z"/>',
+  eq: '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/>',
+  prod: '<path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/>',
+  wo: '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2h6v2M9 10h6M9 14h6M9 18h4"/>',
+  base: '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
+  intro: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17.5v.01"/>',
+};
+function railNav() {
+  const cur = UI.view === '3d' && SIM.on ? 'edu' : UI.view, open = S ? openIncidents().length : 0;
+  const it = (act, arg, label, sub) => `<button class="gri ${cur === arg ? 'on' : ''}" data-act="${act}" data-arg="${arg}" title="${label}"><svg viewBox="0 0 24 24">${RAIL_ICO[arg]}</svg><span>${label}${sub ? `<small>${sub}</small>` : ''}</span>${arg === 'dash' && open ? `<b class="gbadge">${open}</b>` : ''}</button>`;
+  return `<nav class="grail" aria-label="화면 메뉴"><div class="grlogo">TP<span>TWIN PRO</span></div>
+    <div class="grsec">모니터링</div>${it('topGo', 'dash', '통합 관제', open ? `미해결 사건 ${open}건` : '')}${it('topGo', '3d', '3D 조선소')}${it('topGo', 'blk', '블록 내부 3D')}${it('topGo', 'edu', '공정 교육 재생')}
+    <div class="grsec">관리</div>${MGMT.map(([v, l]) => it('go', v, l)).join('')}
+    <span class="grow"></span><button class="gri" data-act="intro" title="안내"><svg viewBox="0 0 24 24">${RAIL_ICO.intro}</svg><span>안내</span></button></nav>`;
+}
 function topBar() {
   const cur = UI.view === '3d' && SIM.on ? 'edu' : UI.view;
   const inc = UI.sel.inc && incById(UI.sel.inc), w = inc && inc.work_order_id && S.wo[inc.work_order_id];
@@ -1189,7 +1227,7 @@ function topBar() {
   const code = UI.canWrite ? '' : UI.codeOpen
     ? `<span class="gcode"><input type="password" id="codeIn" data-draft="codeIn" value="${esc(draft('codeIn', ''))}" placeholder="시연 코드" autocomplete="off"><button class="gbtn" data-act="codeSave">확인</button></span>`
     : '<button class="gbtn" data-act="codeOpen" title="팀에서 받은 시연 코드를 넣으면 서버에 저장됩니다. 코드가 없으면 체험 모드(내 화면에만 반영)">🔑 조작 권한</button>';
-  return `<header class="gbar"><b class="glogo">TWIN PRO</b>
+  return `${railNav()}<header class="gbar"><b class="glogo">TWIN PRO</b>
     <nav class="gtabs">${TOP_TABS.map(([v, l]) => `<button class="${cur === v ? 'on' : ''}" data-act="topGo" data-arg="${v}">${l}</button>`).join('')}</nav>
     <span class="grow"></span>${focus}<span class="grow"></span>
     <span class="gmode">${UI.canWrite ? '가상 데이터 · 조작 가능(저장됨)' : '가상 데이터 · 체험 모드'}</span>${code}
