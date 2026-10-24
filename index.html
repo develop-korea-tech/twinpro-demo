@@ -748,21 +748,20 @@ td .small { line-height: 18px; }
 }
 .txbar .txb, .xrow .txb { white-space: nowrap; } .txbar { flex-wrap: wrap; row-gap: 6px; }
 @media (max-width: 1500px) { .txtag { display: none; } .txbar .txb { padding: 5px 8px; } }
-/* ---------- 왼쪽 아이콘 사이드바(넓은 화면) ---------- */
+/* ---------- 왼쪽 아이콘 사이드바(넓은 화면): 폭은 늘 56px, 마우스를 올린 아이콘 옆에만 이름표(내용을 가리지 않게) ---------- */
 .grail { display: none; }
 @media (min-width: 761px) {
   .app { padding-left: 56px; }
-  .grail { display: flex; flex-direction: column; gap: 2px; position: fixed; left: 0; top: 0; bottom: 0; width: 56px; padding: 0 8px 10px; background: #0B1626; border-right: 1px solid #1E2C42; z-index: 60; overflow: hidden; transition: width .16s ease, box-shadow .16s ease; }
-  .grail:hover, .grail:focus-within { width: 210px; box-shadow: 8px 0 24px rgba(0,0,0,.35); }
-  .grlogo { height: 56px; flex: none; display: flex; align-items: center; gap: 12px; padding-left: 4px; color: #fff; font-weight: 800; font-size: 15px; white-space: nowrap; }
-  .grlogo span { font-size: 13px; font-weight: 700; letter-spacing: .04em; opacity: 0; transition: opacity .12s; }
-  .grsec { height: 22px; padding: 6px 0 0 6px; font-size: 10px; color: #5F7391; white-space: nowrap; opacity: 0; transition: opacity .12s; border-top: 1px solid #1E2C42; margin-top: 4px; }
-  .gri { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; height: 40px; padding: 0 8px; background: none; border: 0; border-radius: 6px; color: #9DB0CB; white-space: nowrap; text-align: left; flex: none; }
-  .gri svg { width: 22px; height: 22px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
-  .gri span { display: flex; flex-direction: column; font-size: 13.5px; opacity: 0; transition: opacity .12s; } .gri span small { font-size: 10.5px; color: #FF8A80; }
-  .gri:hover { background: #16243A; color: #fff; } .gri.on { background: #2B74DE; color: #fff; } .gri.on span { font-weight: 700; }
-  .gri .gbadge { position: absolute; left: 24px; top: 4px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: #E5484D; color: #fff; font-size: 10px; line-height: 16px; text-align: center; }
-  .grail:hover .grlogo span, .grail:hover .grsec, .grail:hover .gri span, .grail:focus-within .grlogo span, .grail:focus-within .grsec, .grail:focus-within .gri span { opacity: 1; }
+  .grail { display: flex; flex-direction: column; gap: 2px; position: fixed; left: 0; top: 0; bottom: 0; width: 56px; padding: 0 8px 10px; background: #0B1626; border-right: 1px solid #1E2C42; z-index: 60; }
+  .grlogo { height: 56px; flex: none; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 15px; } .grlogo span { display: none; }
+  .grsec { height: 0; margin: 6px 4px; border-top: 1px solid #1E2C42; font-size: 0; }
+  .gri { position: relative; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; padding: 0; background: none; border: 0; border-radius: 6px; color: #9DB0CB; flex: none; }
+  .gri svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .gri span { position: absolute; left: 50px; top: 50%; transform: translateY(-50%); display: none; flex-direction: column; padding: 6px 10px; background: #0B1626; border: 1px solid #2E3F5C; border-radius: 6px; box-shadow: 0 6px 18px rgba(0,0,0,.35); color: #fff; font-size: 13px; font-weight: 600; white-space: nowrap; pointer-events: none; }
+  .gri span small { font-size: 10.5px; font-weight: 400; color: #FF8A80; }
+  .gri:hover span, .gri:focus-visible span { display: flex; }
+  .gri:hover { background: #16243A; color: #fff; } .gri.on { background: #2B74DE; color: #fff; }
+  .gri .gbadge { position: absolute; right: 2px; top: 2px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: #E5484D; color: #fff; font-size: 10px; line-height: 16px; text-align: center; }
   .grail .grow { flex: 1; }
   .gbar .gtabs, .gbar .gmenu, .gbar [data-act="intro"] { display: none; }   /* 넓은 화면에서는 사이드바가 같은 메뉴를 맡는다 */
 }
