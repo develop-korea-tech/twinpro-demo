@@ -1215,8 +1215,9 @@ function railNav() {
   const cur = UI.view === '3d' && SIM.on ? 'edu' : UI.view, open = S ? openIncidents().length : 0;
   const it = (act, arg, label, sub) => `<button class="gri ${cur === arg ? 'on' : ''}" data-act="${act}" data-arg="${arg}" title="${label}"><svg viewBox="0 0 24 24">${RAIL_ICO[arg]}</svg><span>${label}${sub ? `<small>${sub}</small>` : ''}</span>${arg === 'dash' && open ? `<b class="gbadge">${open}</b>` : ''}</button>`;
   return `<nav class="grail" aria-label="화면 메뉴"><div class="grlogo">TP<span>TWIN PRO</span></div>
-    <div class="grsec">모니터링</div>${it('topGo', 'dash', '통합 관제', open ? `미해결 사건 ${open}건` : '')}${it('topGo', '3d', '3D 조선소')}${it('topGo', 'blk', '블록 내부 3D')}${it('topGo', 'edu', '공정 교육 재생')}
+    <div class="grsec">모니터링</div>${it('topGo', 'dash', '통합 관제', open ? `미해결 사건 ${open}건` : '')}
     <div class="grsec">관리</div>${MGMT.map(([v, l]) => it('go', v, l)).join('')}
+    <div class="grsec">3D</div>${it('topGo', '3d', '3D 조선소')}${it('topGo', 'blk', '블록 내부 3D')}${it('topGo', 'edu', '공정 교육 재생')}
     <span class="grow"></span><button class="gri" data-act="intro" title="안내"><svg viewBox="0 0 24 24">${RAIL_ICO.intro}</svg><span>안내</span></button></nav>`;
 }
 function topBar() {
