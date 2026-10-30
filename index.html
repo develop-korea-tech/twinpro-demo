@@ -899,6 +899,38 @@ td .small { line-height: 18px; }
 .d3side .sumpanel .sumbody { flex: 1 1 auto; min-height: 0; overflow: auto; }
 .d3side .sumpanel > .row { flex: none; }
 @media (max-height: 860px) { .d3side .sumpanel { max-height: 46%; } .sumbody { line-height: 1.45; font-size: 12.5px; } }
+/* 오른쪽 카드 하나: 제목+탭 → 지금 상황 한 줄 → 사건(각 사건 2줄째가 운영 요약 문장) → 선택 시 처리 → 바닥 줄(버튼). 접기 없음 */
+.d3side.sidecard { gap: 10px; padding: 14px 16px 12px; overflow: hidden; }
+.sidecard > .ph .ptabs button { padding: 4px 10px; font-size: 12px; }
+.sitline { font-size: 12.5px; color: var(--fg); background: #F4F7FB; border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; line-height: 1.5; }
+.sitline em { font-style: normal; font-weight: 700; color: var(--r); background: var(--r-bg); padding: 0 6px; border-radius: 9px; margin-left: 2px; }
+.sidecard > .ipanel { display: flex; flex-direction: column; gap: 8px; flex: 1 1 auto; min-height: 0; overflow: auto; border: 0; padding: 0; background: none; }
+.sidecard .ipanel .iitem:not(.sel) .iline, .sidecard .ipanel .iitem:not(.sel) > small { display: block !important; }
+.sidecard .ipanel:has(.iitem.sel) .iitem:not(.sel) { padding: 9px 12px; }
+.sidecard .iitem .iline { line-height: 1.45; }
+.sidecard .ihint { font-size: 12px; color: var(--fg3); padding: 4px 2px; line-height: 1.5; }
+.sidecard > .sumbody { flex: 1 1 auto; min-height: 0; overflow: auto; font-size: 13px; }
+.sidefoot { flex: none; display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--line); padding-top: 8px; }
+.sidefoot > .small { font-size: 11px; color: var(--fg3); }
+@media (max-height: 860px) { .d3side.sidecard { padding: 10px 14px 10px; gap: 7px; } .sidecard .iitem { padding: 7px 10px !important; } .sidecard .iitem .iline { font-size: 12px; } .sitline { padding: 5px 9px; font-size: 12px; } }
+/* 오른쪽 카드에서 사건을 고르면: 연결 경로는 한 줄 흐름, 처리 단계는 번호 칩 줄(지금 단계만 이름 표시) + 지금 할 일 */
+.sidecard .ipanel .ph h3 { font-size: 13px; }
+.sidecard .path { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 4px; font-size: 12px; }
+.sidecard .path > div { padding: 3px 8px; gap: 5px; }
+.sidecard .path > i { font-size: 0; padding: 0; } .sidecard .path > i::after { content: '→'; font-size: 12px; color: var(--fg3); }
+.sidecard .path .maybe { flex-basis: 100%; margin-top: 2px; font-size: 11.5px; padding: 3px 8px; }
+.sidecard .why { padding: 8px 10px; font-size: 12px; line-height: 1.45; } .sidecard .why .figbtn { margin-top: 4px; padding: 3px 10px; font-size: 12px; }
+.sidecard .isteps { flex-direction: row; flex-wrap: wrap; gap: 4px; }
+.sidecard .isteps li:not(.ictlrow) { font-size: 0; gap: 0; padding: 2px 7px; border: 1px solid var(--line); border-radius: 10px; }
+.sidecard .isteps li:not(.ictlrow) b { font-size: 11.5px; width: auto; }
+.sidecard .isteps li.on { font-size: 12px; gap: 5px; border-color: var(--b); }
+.sidecard .isteps li.ictlrow { flex-basis: 100%; padding: 4px 0 0; }
+.sidecard .ipanel:has(.iitem.sel) ~ .sidefoot > .small { display: none; }
+@media (max-height: 860px) { .sidecard .ihint { font-size: 11.5px; padding: 0 2px; } .sidefoot > .small { display: none; } }
+.sidecard .isteps li.ictlrow { order: 99; }
+.sidecard .isteps li.ictlrow textarea { height: 34px; min-height: 34px; resize: none; padding: 6px 8px; font-size: 12px; }
+.sidecard .isteps li.ictlrow .btn { padding: 5px 12px; font-size: 12.5px; }
+.sidecard .ipanel .ph { margin: 0; } .sidecard .ipanel > .ph + * { margin-top: -2px; }
 .iso{
   --anatomy-page:#0b0b0b;--anatomy-card:#131313;--anatomy-text:#a3a3a3;--anatomy-strong:#e6e6e6;--anatomy-muted:#6e6e6e;
   --anatomy-paper:#131313;--anatomy-face:#1b1b1b;--anatomy-top:#1c1c1c;
@@ -1509,11 +1541,11 @@ function viewDash() {
       ${detail}
       ${dayTimeline()}
     </div>
-    <div class="d3side">${incPanel()}
-      <section class="panel sumpanel"><div class="ph"><h2>운영 요약</h2><span class="ptabs"><button class="${sumTab() === 'rule' ? 'on' : ''}" data-act="sub" data-arg="sum:rule">규칙 기반</button><button class="${sumTab() === 'ai' ? 'on' : ''}" data-act="sub" data-arg="sum:ai">AI 요약</button><button class="${sumTab() === 'spc' ? 'on' : ''}" data-act="sub" data-arg="sum:spc">통계 감지</button></span></div>
-        <div class="sumbody">${sumTab() === 'spc' ? spcBox() : sumTab() === 'ai' ? aiBox() : `<div id="summaryText"><ul class="sumli">${summaryText().split(/(?<=[.다])\s+(?=\S)/).map(x => `<li>${esc(x.replace(/\s*\(INC\d+\)/g, ''))}</li>`).join('')}</ul></div><span class="small">확인되지 않은 원인은 단정하지 않습니다. 서버 값으로 즉시 계산합니다.</span>`}</div>
-        <div class="row"><button class="btn" data-act="copySummary">요약 복사</button><button class="btn line" data-act="goWoAll">작업지시 전체 ›</button><span class="small">이번 시연 변경 ${S.events.length}건</span></div></section>
-    </div>
+    <section class="d3side panel sidecard"><div class="ph"><h2>지금 확인할 것</h2><span class="grow"></span><span class="ptabs"><button class="${sumTab() === 'rule' ? 'on' : ''}" data-act="sub" data-arg="sum:rule">규칙 기반</button><button class="${sumTab() === 'ai' ? 'on' : ''}" data-act="sub" data-arg="sum:ai">AI 요약</button><button class="${sumTab() === 'spc' ? 'on' : ''}" data-act="sub" data-arg="sum:spc">통계 감지</button></span></div>
+      <div class="sitline">${sitLine()}</div>
+      ${sumTab() === 'rule' ? incPanel() : `<div class="sumbody">${sumTab() === 'ai' ? aiBox() : spcBox()}</div>`}
+      <div class="sidefoot"><span class="small">미해결 ${openIncidents().length}건 · 설비 고장 → 자재 → 품질 순 · 확인되지 않은 원인은 단정하지 않습니다.</span><div class="row"><button class="btn" data-act="copySummary">요약 복사</button><button class="btn line" data-act="goWoAll">작업지시 전체 ›</button><span class="small">이번 시연 변경 ${S.events.length}건</span></div></div>
+    </section>
   </div></div>`;
 }
 const sumTab = () => UI.sub.sum || 'rule';
@@ -1532,9 +1564,9 @@ function incPanel() {
     const head = i.category === 'EQUIPMENT' ? `${p2(p.sequence_no)} ${esc(p.process_name)} · ${esc(eqName(i.equipment_id))}` : `${p2(p.sequence_no)} ${esc(p.process_name)} · ${esc(i.summary)}`;
     const eq = i.equipment_id ? eqOf(i.equipment_id) : w && eqOf(w.equipment_id);
     return `<button class="iitem ${inc === i ? 'sel' : ''}" data-act="selInc" data-arg="${i.incident_id}"><span class="row"><b class="ihd ${STATUS.cat[i.category][1]}">${STATUS.cat[i.category][0]}</b><b>· ${esc(p.process_name)}</b><span class="grow"></span>${i.status === 'RESOLVED' ? badge('inc', 'RESOLVED', '종료') : `<small class="icode">${i.incident_id}</small>`}</span>
-      <span class="iline">${eq ? esc(eqName(eq.equipment_id)) : ''}${w ? ' · ' + w.block_id : ''}${i.category !== 'EQUIPMENT' ? ' · ' + esc(i.summary) : ''}</span>
+      <span class="iline">${i.status === 'OPEN' ? esc(incSentence(i)) : `${eq ? esc(eqName(eq.equipment_id)) : ''}${w ? ' · ' + w.block_id : ''}`}</span>
       <small>${hm(i.opened_at)} 발생 · ${i.status === 'OPEN' ? (w && w.status === 'BLOCKED' ? '공정 정지 중' : '진행 중') : '처리 완료'}</small></button>`; };
-  let body = `<div class="ihint">사건을 선택하면 여기에<br>① 연결 경로 ② 멈춘 이유 ③ 처리 단계가 표시됩니다.<br><br>선택하는 동안 가상 시간 재생은 자동으로 멈춥니다.</div>`;
+  let body = `<div class="ihint">사건을 선택하면 이 아래에 ① 연결 경로 ② 멈춘 이유 ③ 처리 단계가 열립니다. 선택하는 동안 가상 시간 재생은 자동으로 멈춥니다.</div>`;
   if (inc) {
     const cs = caseSteps(inc), w = cs.w, a = cs.active;
     const rel = relatedIncs(inc);
@@ -1554,7 +1586,7 @@ function incPanel() {
       <div class="ph"><h3>처리 단계 · ${STATUS.cat[inc.category][0]}</h3></div><ol class="isteps">${steps}</ol>
       ${a ? '' : `<div class="note ok"><b>${UI.trial ? '처리 완료 (체험 · 저장 안 됨)' : '처리 완료'}</b>${w ? `${w.work_order_id} ${STATUS.wo[w.status][0]} · ` : ''}${inc.category === 'EQUIPMENT' ? `${inc.equipment_id} ${STATUS.eq[eqOf(inc.equipment_id).status][0]}` : ''}</div>`}`;
   }
-  return `<section class="panel ipanel"><div class="ph"><h2>지금 확인할 것</h2><span class="sub">미해결 ${openIncidents().length}건 · 설비 고장 → 자재 → 품질 순</span></div>
+  return `<section class="ipanel">
     <div class="ilist">${list.map(item).join('') || '<div class="empty">미해결 사건이 없습니다.</div>'}</div>${body}</section>`;
 }
 // 사건 설명도(Anatomy 키트로 만든 그림, 분해·조립 동작 포함). 사건 패널 '왜 멈췄나요?'의 버튼으로 크게 연다.
@@ -1644,6 +1676,19 @@ function aiBox() {
       : `<span class="small">버튼을 누르면 AI(Claude)가 지금의 설비·작업·사건 사실을 읽고 요약합니다. 하루 ${AI_LIMIT}회.</span>`}</div>`;
 }
 function histText(h) { return h ? `${hm(h.event_at)} ${STATUS.his[h.event_type] || h.event_type} · ${h.note || ''}` : '-'; }
+// 관제 오른쪽 카드 맨 위 한 줄: 운영 요약의 전체 문장(가동 공정 · 실적 대비 계획)
+function sitLine() {
+  const g = progressKpi(), ws = todayWos(), run = ws.filter(w => nodeState(w).c === 'b').length;
+  const down = Object.values(S.equipment).filter(e => e.status === 'FAULT' && !openIncidents().some(i => i.equipment_id === e.equipment_id));
+  return `<b>${hm(nowS())} 기준</b> 6개 공정 중 ${run}개 가동 · 실적 ${pct(g.a, 0)} / 계획 ${pct(g.p, 0)} ${g.gap >= 0.5 ? `<em>${g.gap.toFixed(0)}%p 지연</em>` : '· 계획대로'}${down.length ? ` · ${down.map(e => e.equipment_id).join(', ')} 복구 대기` : ''}`;
+}
+// 사건 한 건의 운영 요약 문장(사건 번호 없이). 사건 목록 2줄째에 쓴다
+function incSentence(i) {
+  const w = i.work_order_id && S.wo[i.work_order_id];
+  if (i.category === 'EQUIPMENT') return `${eqName(i.equipment_id)} 고장으로 ${w ? `${w.block_id} ${proc(w.process_id).process_name}이 ` + (w.status === 'BLOCKED' ? `${hm(i.opened_at)}부터 멈춰 있습니다.` : `대체 설비 ${w.equipment_id}에서 ${STATUS.wo[w.status][0]} 중입니다(사건은 복구 때까지 유지).`) : '사건이 열려 있습니다.'}`;
+  if (i.category === 'MATERIAL') return `${w ? w.block_id + '는 ' : ''}${i.summary}.`;
+  return `${w ? w.block_id + '는 ' : ''}${i.summary}로 재검사 판정 대기입니다.`;
+}
 function summaryText() {
   const g = progressKpi(), ws = todayWos();
   const s = [`${hm(nowS())} 기준 6개 공정 중 ${ws.filter(w => nodeState(w).c === 'b').length}개 가동.`];
