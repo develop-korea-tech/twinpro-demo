@@ -882,9 +882,23 @@ td .small { line-height: 18px; }
 .dash3 .ndet .grow > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dash3 .ndet.empty { justify-content: center; }
 .dart { filter: drop-shadow(0 8px 10px rgba(0,0,0,.5)); }
-/* 창 높이가 모자라면 잘라 내지 않고 대시보드 전체를 세로로 스크롤한다(큰 화면은 그대로 한 화면에 맞춤) */
-.content:has(> .dash3) { overflow-y: auto; }
-.dash3 { flex: 1 0 auto; } .dash3 .d3grid { min-height: auto; }
+/* 한 화면 맞춤: 지도 안의 설비 그림이 남는 높이만큼만 차지하고(줄어듦), 낮은 창에서는 타임라인 줄을 얇게 한다. 스크롤 없음 */
+.d3main > .dmap { min-height: 0; } .d3main > .dmap .nodes { min-height: 0; align-content: stretch; grid-template-rows: minmax(0, 1fr); }
+.dmap .dcell { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; min-height: 0; }
+.dmap .dcell .dimg { height: auto; min-height: 0; overflow: hidden; }
+.dmap .dcell .dart { max-height: 100%; max-width: 100%; object-fit: contain; min-height: 0; }
+.dmap .dcell .dlamp { max-height: 60%; }
+@media (max-height: 860px) {
+  .dash3 { gap: 8px; } .d3main, .d3side, .d3grid { gap: 8px; }
+  .dash3 .ndet { height: 42px; padding: 4px 12px; font-size: 12px; } .dash3 .ndet .grow > span { font-size: 12px; }
+  .tlpanel { padding-top: 8px; padding-bottom: 8px; } .tlg { row-gap: 5px; padding-top: 2px; } .tlb { height: 19px; } .tlb .mk { top: 0; height: 19px; font-size: 10px; } .tln { font-size: 12px; }
+  .dmap { padding: 10px 12px 8px; } .dmh { margin-bottom: 6px; } .dfoot { padding-top: 5px; } .dmap .spare { padding-top: 2px; padding-bottom: 2px; }
+}
+/* 운영 요약: 버튼 줄은 늘 보이고, 본문만 칸 안에서 스크롤 */
+.d3side .sumpanel { display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+.d3side .sumpanel .sumbody { flex: 1 1 auto; min-height: 0; overflow: auto; }
+.d3side .sumpanel > .row { flex: none; }
+@media (max-height: 860px) { .d3side .sumpanel { max-height: 46%; } .sumbody { line-height: 1.45; font-size: 12.5px; } }
 .iso{
   --anatomy-page:#0b0b0b;--anatomy-card:#131313;--anatomy-text:#a3a3a3;--anatomy-strong:#e6e6e6;--anatomy-muted:#6e6e6e;
   --anatomy-paper:#131313;--anatomy-face:#1b1b1b;--anatomy-top:#1c1c1c;
