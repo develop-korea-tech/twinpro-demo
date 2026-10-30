@@ -771,8 +771,8 @@ td .small { line-height: 18px; }
 .dash3 { display: flex; flex-direction: column; gap: 12px; min-height: 0; flex: 1; }
 .dash3 .sbar { background: var(--card); padding: 10px 18px; gap: 14px; }
 .dash3 .sbar .kpi { padding: 0 18px; } .dash3 .sbar .kpi b { font-size: 26px; }
-.dash3 .eqc { display: inline-flex; gap: 6px; margin-left: 8px; } .dash3 .eqc i { font-style: normal; font-size: 11.5px; color: var(--fg3); padding: 1px 6px; border-radius: 9px; background: var(--n-bg); }
-.dash3 .eqc i.r { color: var(--r); background: var(--r-bg); font-weight: 700; } .dash3 .eqc i.p { color: var(--p); background: var(--p-bg); }
+.dash3 .eqcnt { display: inline-flex; gap: 6px; margin-left: 8px; } .dash3 .eqcnt i { font-style: normal; font-size: 11.5px; color: var(--fg3); padding: 1px 6px; border-radius: 9px; background: var(--n-bg); }
+.dash3 .eqcnt i.r { color: var(--r); background: var(--r-bg); font-weight: 700; } .dash3 .eqcnt i.p { color: var(--p); background: var(--p-bg); }
 .d3grid { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 380px); gap: 12px; }
 .d3main { display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; }
 .d3side { display: flex; flex-direction: column; gap: 12px; min-height: 0; }
@@ -843,7 +843,7 @@ td .small { line-height: 18px; }
 @media (max-width: 760px) { .dmap .nodes { grid-template-columns: repeat(2, minmax(0, 1fr)); } .dash3 .sbar .kpi { padding: 0 8px; } .tlg { grid-template-columns: 96px minmax(0, 1fr); } .tleg { display: none; } }
 @media (min-width: 1281px) and (max-width: 1600px) {   /* 노트북(1366·1440): 한 줄 유지 */
   .d3grid { grid-template-columns: minmax(0, 1fr) 320px; }
-  .dash3 .sbar { gap: 10px; padding: 8px 14px; } .dash3 .sbar > .small, .dash3 .eqc { display: none; } .dash3 .sbar .kpi { padding: 0 12px; } .dash3 .sbar .kpi b { font-size: 22px; } .dash3 .sclock b { font-size: 19px; }
+  .dash3 .sbar { gap: 10px; padding: 8px 14px; } .dash3 .sbar > .small, .dash3 .eqcnt { display: none; } .dash3 .sbar .kpi { padding: 0 12px; } .dash3 .sbar .kpi b { font-size: 22px; } .dash3 .sclock b { font-size: 19px; }
   .dmap { padding: 12px; } .dmap .nodes { gap: 8px; } .dmh .sub { display: none; }
   .dmap .node { padding: 7px 8px; } .gauge { width: 40px; height: 40px; } .dmap .node .blk { font-size: 16px; } .dmap .node .nwo { display: none; } .dmap .node .nh small { display: none; }
   .dimg { height: 96px; } .dlamp { height: 36px; } .deq { font-size: 10.5px; padding: 2px 8px; }
@@ -888,7 +888,7 @@ td .small { line-height: 18px; }
 .dmap .dcell .dimg { height: auto; min-height: 0; overflow: hidden; }
 .dmap .dcell .dart { max-height: 100%; max-width: 100%; object-fit: contain; min-height: 0; }
 .dmap .dcell .dlamp { max-height: 60%; }
-@media (max-height: 860px) {
+@media (max-height: 1000px) {
   .dash3 { gap: 8px; } .d3main, .d3side, .d3grid { gap: 8px; }
   .dash3 .ndet { height: 42px; padding: 4px 12px; font-size: 12px; } .dash3 .ndet .grow > span { font-size: 12px; }
   .tlpanel { padding-top: 8px; padding-bottom: 8px; } .tlg { row-gap: 5px; padding-top: 2px; } .tlb { height: 19px; } .tlb .mk { top: 0; height: 19px; font-size: 10px; } .tln { font-size: 12px; }
@@ -1833,7 +1833,7 @@ function statusBar() {   // 위: 가상 시각·재생 / 아래: 지표 띠(설�
   const eqc = [['가동', k.running, 'b'], ['대기', k.idle, 'n'], ['고장', k.fault, 'r'], ['점검', k.maint, 'p']];
   return `<div class="sbar"><div class="sclock"><span>가상 시각</span><b class="clock">${md(now)} (${wd(now)}) ${hm(now)}</b></div>${state}
     ${playCtl()}<span class="small">1× = 실제 10초당 가상 5분</span><span class="grow"></span>
-    <div class="kpi"><span>설비 가동</span><b>${k.running} / ${k.total}<small class="eqc">${eqc.slice(1).map(([l, v, c]) => `<i class="${v ? c : ''}">${l} ${v}</i>`).join('')}</small></b><small class="kpis2">설비 ${k.total}대 = 가동 ${k.running} + 대기 ${k.idle} + 고장 ${k.fault} + 점검 ${k.maint} (설비 기준)</small></div>
+    <div class="kpi"><span>설비 가동</span><b>${k.running} / ${k.total}<small class="eqcnt">${eqc.slice(1).map(([l, v, c]) => `<i class="${v ? c : ''}">${l} ${v}</i>`).join('')}</small></b><small class="kpis2">설비 ${k.total}대 = 가동 ${k.running} + 대기 ${k.idle} + 고장 ${k.fault} + 점검 ${k.maint} (설비 기준)</small></div>
     <div class="kpi"><span>진행률 (실적 / 계획)</span><b>${pct(g.a, 0)}<small>/ ${pct(g.p, 0)}</small>${g.gap >= 0.5 ? `<em class="gap">지연 ${g.gap.toFixed(0)}%p</em>` : ''}</b></div>
     <div class="kpi"><span>멈춘 작업</span><b class="${stopped ? 'c-r' : ''}">${stopped}<small>/ ${todayWos().length}</small></b></div>
     <div class="kpi"><span>미해결 사건</span><b class="${k.open ? 'c-r' : ''}">${k.open}</b></div></div>`;
