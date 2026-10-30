@@ -1233,6 +1233,11 @@ td .small { line-height: 18px; }
   .pv-pri, .pv-hero { grid-template-columns: minmax(0, 1fr); } .pv-bcols { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } .pv-plan { --gh: 150px; } .pv-gi { display: none; }
   .pv-pc { grid-template-columns: 64px minmax(0, 1fr); } .pv-pph { display: none; } .pvhead { flex-wrap: wrap; } .pv-read { grid-template-columns: 1fr; }
 }
+/* 공정 교육 재생 30초 요약: 장면 전환(컷) 때 잠깐 어둡게 */
+.simfade { position: absolute; inset: 0; background: #0B1322; opacity: 0; pointer-events: none; z-index: 4; }
+.simfade.on { animation: simcut .5s ease-out; }
+@keyframes simcut { 0% { opacity: .9; } 100% { opacity: 0; } }
+.txctl.simmode .txb { flex: 1; }
 .iso{
   --anatomy-page:#0b0b0b;--anatomy-card:#131313;--anatomy-text:#a3a3a3;--anatomy-strong:#e6e6e6;--anatomy-muted:#6e6e6e;
   --anatomy-paper:#131313;--anatomy-face:#1b1b1b;--anatomy-top:#1c1c1c;
@@ -2879,7 +2884,7 @@ function t3Shell() {
     : `<div class="txhead"><small>서버 데이터 기준 · 관제와 같은 시각 · ${now}</small><h1>${t3xTitle()}</h1></div>`;
   const chips = SIM.on ? `<div class="txchips">${SIM_STEPS.map((s, i) => `<button class="${i < simStep() ? 'done' : i === simStep() ? 'on' : ''}" data-act="simJump" data-arg="${i}">— ${s}</button>`).join('')}</div>`
     : T3X.tour || T3X.inc ? '' : `<div class="txchips"><span class="on">— 공정 6곳</span><span>— 오늘 블록 ${todayWos().length}개 <i>DATA</i></span></div>`;
-  const cap = !SIM.on ? '' : `<div class="txcap"><small>${simStep() + 1} / ${SIM_STEPS.length}</small><b id="simT"></b><p id="simD"></p><div class="simq" id="simQ"></div><i class="simbar"><em id="simBar"></em></i></div>`
+  const cap = !SIM.on ? '' : `<div class="txcap"><small>${simStep() + 1} / ${SIM_STEPS.length}</small><b id="simT"></b><p id="simD"></p><div class="simq" id="simQ"></div><i class="simbar"><em id="simBar"></em></i></div><div id="simFade" class="simfade"></div>`
     ;
   const info = !SIM.on && sel ? (() => { const ws = bkWos(sel.w.block_id);
     return `<div class="txcard"><div class="txch"><small>공정 ${proc(T3.sel).process_id.slice(1)} · ${esc(S.zones[proc(T3.sel).zone_id]?.zone_name || '')}</small><button data-act="t3sel" data-arg="">✕</button></div>
@@ -3015,7 +3020,8 @@ function t3Loop() {
   const now = performance.now(), t = (now - T3.t0) / 1000, live = isLive();
   if (SIM.on) {   // 공정 시뮬레이션: 매 프레임 그림, 모든 공정 정상(초록), 시뮬레이션 블록이 있는 공정 상자만 표시
     const dt = Math.min(0.1, (now - (T3.simLast || now)) / 1000); T3.simLast = now;
-    if (SIM.play) { SIM.t = Math.min(SIM_TOTAL, SIM.t + dt * SIM.speed); if (SIM.t >= SIM_TOTAL) { SIM.play = false; render(); } }
+    if (SIM.play) { if (SIM.hl) { simHlSeek(SIM.h + dt); if (SIM.h >= SB.hlTotal) { SIM.play = false; render(); } }   // 30초 요약: 장면 목록을 따라 재생
+      else { SIM.t = Math.min(SIM_TOTAL, SIM.t + dt * SIM.speed); if (SIM.t >= SIM_TOTAL) { SIM.play = false; render(); } } }
     simApply(dt);
     const sk = T3_PROC[Math.min(5, simStep())];
     for (const p of T3_PROC) { const part = T3.parts[p]; part.lamp.intensity = 0; part.box.material.color.setHex(0x6fd3ff); part.box.material.opacity = 1;
@@ -3090,7 +3096,7 @@ function lugMesh(T, mat) { const m = new T.Mesh(new T.BoxGeometry(.3, .06, .36),
 // 서버의 고장·멈춤 데이터와 분리된 시연용 재생. 수량(piece·set·m·point·m²)은 엑셀 데이터(다음 착공 블록) 값을 쓴다.
 // 규칙(QC 검수 반영): ① 공중의 물체는 반드시 크레인 훅에 걸려 있다 ② 놓인 물체는 바닥·받침·운반차·다른 부재 위에 있다
 // ③ 02에서 만든 세트 8개(부재 15장)가 그대로 03 블록이 된다 ④ 모든 위치는 시간 t의 함수(일시정지·단계 이동·배속이 자연스럽게 됨).
-const SIM = { on: false, play: false, t: 0, speed: 1, phase: -1 };
+const SIM = { on: false, play: false, t: 0, speed: 1, phase: -1, hl: true, h: 0, clip: -1 };   // hl = 30초 요약(하이라이트) 재생, h = 요약 재생 시각
 const SIM_PH = [   // [키, 길이(초, 계획을 만든 뒤 다시 계산), 단계 번호(칩), 제목, 기본 설명]
   ['w1', 40, 0, '01 강재 절단', ''], ['m12', 10, 0, '부재 운반', '부재 운반차가 잘린 부재와 판넬용 강판을 판넬 라인으로 옮깁니다.'],
   ['w2', 60, 1, '02 소조립·취부', ''], ['m23', 14, 1, '세트 운반', 'SPMT가 세트 8개(부재 15장)를 블록 조립 공장으로 옮깁니다.'],
@@ -3319,6 +3325,7 @@ function simPlan() {
       r = lift('c1', l.k, poseAt(l.k, t), { v: 'ft', lp: st.lp, lq: st.lq }, t, { f: fast ? 8 : (j ? 2.5 : 1) }); t = r.t; });
   });
   t = crGo('c1', t, -2, -119, 6.65, 2);
+  SB.key = { cut0: CUT[0].cut0 };   // 30초 요약에 쓸 장면 시각
   const inCut = tt => CUT.find(w => tt >= w.cut0 && tt < w.cut1);
   CUT.forEach(w => SB.fx.push([w.cut0, w.cut1, tt => { const u = (tt - w.cut0) / (w.cut1 - w.cut0); return V(P1 + w.xe + (w.xw - w.xe) * u, 16.2 + w.hw * Math.sin(u * Math.PI * (w.c.fl ? 10 : 6)), 1.25); }]));
   SB.upd.push(tt => { const N = O.nodes, w = inCut(tt); let x, y;
@@ -3365,7 +3372,7 @@ function simPlan() {
     SB.fx.push([c0 + 1.2 * sp, c1 - 0.8 * sp, tt => V(WX, FCBY[Math.floor(tt * 8) % 4], 1.62)]); TW.push([c0, c1]);
     return { h1, c0, c1, tb: rb.t };
   };
-  const pA = panel('IBA', t, false);
+  const pA = panel('IBA', t, false); SB.key.fcb = pA.c0;
   t = crGo('c2', pA.tb, -51.5, 0, 10.6);   // FCB 용접 동안 크레인이 비켜 서면 SPMT가 옆으로 들어옴
   let ts = veGo('sp', Math.max(t, last(SB.ve.sp)[0]), -69.5, -13.8, 0, VS.crab); crHold('c2', ts);
   cap(pA.h1, '절단 갠트리가 내저판에 맨홀 2개를 뚫습니다.'); cam(pA.h1 - 0.5, camFix([P2 - 19, -10, 7], [P2 - 11, 0, 1.6]));
@@ -3409,6 +3416,7 @@ function simPlan() {
     if (i === 5) cam(t, camFix([-9, -17, 9], [-18, -6, 3]));
     if (i === 6) cap(t, '나머지 늑판 5장도 같은 순서로 세웁니다(시간 압축).');
     if (i === 11) cam(t, camHook('c3', [8, -9, 6], 3));
+    if (i === order.length - 1) SB.key.w3 = t;
     r = lift('c3', k, vW('sp', t, SB.spLocal[k], flat(k)), w, t, { zT: up ? 12.0 : 9.5, f: first ? 1 : 2.6, hold: up ? (first ? 1.8 : 0.8) : 0 });
     const w0 = r.tRel + 0.1, w1 = w0 + (first ? 1.2 : 0.6), half = ty === 'FL' ? 2.4 : 6.0, base = w.p.clone();
     base.z = ty === 'IB' ? BO.z + 1.7 : BO.z - 1.62;
@@ -3417,7 +3425,7 @@ function simPlan() {
     weldT.push([w0, w1]); t = Math.max(r.tRel + 0.2, w1 - 0.3);
   });
   SB.cnt.w3 = tt => { let d = 0; weldT.forEach(([a, b]) => d += clamp01((tt - a) / (b - a))); return `용접 ${(q[2] * d / weldT.length).toFixed(1)} / ${q[2]} m · 모형 판 ${weldT.filter(x => x[0] <= tt).length} / 15장`; };
-  const tDone = Math.max(t, last(SB.cr.c3)[0]) + 0.3; cap(tDone, `블록 ${SIM.block} 완성(세트 8개 = 부재 15장). 크레인이 블록째 들어 SPMT에 싣습니다.`);
+  const tDone = Math.max(t, last(SB.cr.c3)[0]) + 0.3; SB.key.blkDone = tDone; cap(tDone, `블록 ${SIM.block} 완성(세트 8개 = 부재 15장). 크레인이 블록째 들어 SPMT에 싣습니다.`);
   order.forEach(k => ob(k, { t: tDone, m: 'o', parent: 'blk', lp: O.ob[k].userData.local, lq: qI }));
   ob('blk', { t: tDone, m: 'w', p: BO.clone(), q: qI }); cam(tDone, camHook('c3', [8, -9, 6], 3));
   r = lift('c3', 'blk', { p: BO.clone(), q: qI }, { v: 'sp', lp: V(0, 0, 2.21 + 1.7), lq: qI }, tDone + 0.3, { zT: 13.0 });
@@ -3482,7 +3490,24 @@ function simPlan() {
   SB.ph.forEach(([k, a, b]) => { SIM_PH.find(x => x[0] === k)[1] = +(b - a).toFixed(2); });
   SIM_TOTAL = SIM_PH.reduce((a, p) => a + p[1], 0);
   SB.cam.sort((a, b) => a[0] - b[0]); SB.cap.sort((a, b) => a[0] - b[0]);
+  // ===== 30초 요약: 공정마다 핵심 장면만 잘라 이어 붙임(같은 동작 반복은 1번만, 운반 구간은 컷 전환) =====
+  // [시작 t, 끝 t, 요약에서 보일 초, 단계 번호, 자막]. 위치는 모두 시간 t의 함수라 장면을 건너뛰어도 앞 공정 결과가 그대로 남아 있다
+  const K = SB.key, I = SB.insp, Pn = SB.paint;
+  SB.hl = [
+    [K.cut0 - 0.6, K.cut0 + 4.6, 4.5, 0, `CNC 절단기가 강판을 부재 모양으로 자릅니다. 강판 12장 → 부재 ${q[0]}개 (같은 작업 반복은 1장만 표시).`],
+    [K.fcb + 0.3, K.fcb + 5.8, 3.5, 1, `판넬에 보강재를 붙여 용접하고, 부재를 세트 ${q[1]}개로 묶어 SPMT에 싣습니다.`],
+    [K.w3 - 5, K.blkDone + 0.6, 4.0, 2, `세트를 하나씩 쌓아 용접하면 블록 ${SIM.block}이 완성됩니다(마지막 내저판을 올리는 장면).`],
+    [I.iT[0] - 0.2, I.iT[0] + 2.6, 3.0, 3, `치수 6곳(레이저)과 용접 4곳(초음파)을 확인합니다 → 모두 합격.`],
+    [Pn.p0 - 0.3, Pn.p1 + 0.4, 3.5, 4, '녹을 벗겨 낸(블라스팅) 블록에 도료를 칠합니다.'],
+    [tArr - 3.2, tArr + 0.3, 3.0, 5, 'SPMT가 완성 블록을 도크 옆 골리앗 크레인 아래로 옮깁니다.'],
+    [SB.target.from - 1.6, SB.target.to + 3.2, 6.5, 5, '600 t 골리앗 크레인이 블록을 배 위 제자리에 내려놓습니다. 블록이 선체의 일부가 됩니다.'],
+  ].map(([a, b, d, step, cap]) => ({ a, b, d, step, cap }));
+  let h0 = 0; SB.hl.forEach(c => { c.h0 = h0; h0 += c.d; }); SB.hlTotal = h0;
 }
+// 30초 요약: 요약 시각 h → 장면(clip)과 원래 시각 t. 장면이 바뀌면 카메라를 바로 옮기고(컷) 화면을 잠깐 어둡게
+function simHlAt(h) { const L = SB.hl; let k = L.findIndex(c => h < c.h0 + c.d); if (k < 0) k = L.length - 1; const c = L[k]; return { k, t: c.a + (c.b - c.a) * clamp01((h - c.h0) / c.d) }; }
+function simHlSeek(h) { SIM.h = Math.max(0, Math.min(SB.hlTotal, h)); const { k, t } = simHlAt(SIM.h); SIM.t = t; if (k !== SIM.clip) { SIM.clip = k; SIM.camT = SIM.camP = null; const f = document.getElementById('simFade'); if (f) { f.classList.remove('on'); void f.offsetWidth; f.classList.add('on'); } } }
+function simTotal() { return SIM.hl ? SB.hlTotal : SIM_TOTAL; }
 
 // ---------- 시간 t의 상태 계산 ----------
 function simObPose(key, t) {
@@ -3545,14 +3570,14 @@ function simApply(dt) {
   // 자막·수량
   const c = SB.cap.filter(x => x[0] <= t).pop(), cnt = SB.cnt[key] ? SB.cnt[key](t) : '';
   const set = (id, v) => { const e = document.getElementById(id); if (e && e.textContent !== v) e.textContent = v; };
-  set('simT', SIM_PH[ph][3]); set('simD', (c && c[1]) || SIM_PH[ph][4]); set('simQ', cnt);
-  const bar = document.getElementById('simBar'); if (bar) bar.style.width = `${t / SIM_TOTAL * 100}%`;
+  set('simT', SIM_PH[ph][3]); set('simD', SIM.hl && SB.hl[SIM.clip] ? SB.hl[SIM.clip].cap : (c && c[1]) || SIM_PH[ph][4]); set('simQ', cnt);
+  const bar = document.getElementById('simBar'); if (bar) bar.style.width = `${(SIM.hl ? SIM.h / SB.hlTotal : t / SIM_TOTAL) * 100}%`;
   if (ph !== SIM.phase) { SIM.phase = ph; render(); }
 }
 function simStart() { if (!T3.ready) return; simBuild(); SIM.block = simBlockId(); simPlan();
   const O = SIM.obj; if (O.stencilFor !== SIM.block) { O.stencil.children.filter(c => c.geometry && c.geometry.type === 'PlaneGeometry').forEach(c => O.stencil.remove(c));
     const st = stencilMesh(T3.THREE, SIM.block, 3.0); st.position.set(-12.5 * .2, -0.06, 0); O.stencil.add(st); O.stencilFor = SIM.block; }
-  SIM.on = true; SIM.play = true; SIM.t = 0; SIM.phase = -1; SIM.camT = SIM.camP = null;
+  SIM.on = true; SIM.play = true; SIM.t = 0; SIM.phase = -1; SIM.camT = SIM.camP = null; SIM.clip = -1; if (SIM.hl) simHlSeek(0);
   T3.ctl.enabled = false; for (const n of SIM_HIDE) if (O.nodes[n]) O.nodes[n].visible = false; T3.dirty = true; render(); }
 function simStop(quiet) { if (!SIM.on) return; SIM.on = false; SIM.play = false; const O = SIM.obj;
   for (const k in O.ob) O.ob[k].visible = false; [O.laser, O.probe, O.probeCable, O.lift, O.target, O.sparkM].forEach(o => o.visible = false); for (const k in O.sling) O.sling[k].visible = false; O.spark.intensity = 0;
@@ -3562,22 +3587,26 @@ function simStop(quiet) { if (!SIM.on) return; SIM.on = false; SIM.play = false;
   T3.ctl.enabled = true; T3.ctl.update(); T3.dirty = true; if (!quiet) render(); }
 function simStep() { return SIM_PH[simPhaseAt(SIM.t).i][2]; }
 function simSide() {   // 오른쪽 패널: 시뮬레이션 블록의 공정별 수량과 재생 조작
-  const st = simStep(), q = simQty(), end = SIM.t >= SIM_TOTAL;
+  const st = simStep(), q = simQty(), end = SIM.hl ? SIM.h >= SB.hlTotal : SIM.t >= SIM_TOTAL;
   return `<aside class="txside"><div class="txsec">시뮬레이션 블록 · ${SIM.block}</div>
     <div class="txkv">${SIM_STEPS.map((s, k) => { const w = bkWos(SIM.block)[k]; return `<span>${s}</span><b class="${k < st || end ? 'done' : k === st ? 'on' : ''}">${k < st || end ? '✓ ' : k === st ? '● ' : ''}${q[k]} ${BK_UNIT_NAME[w?.unit] || ''}</b>`; }).join('')}</div>
     <div class="txsec">재생</div>
+    <div class="txctl simmode"><button class="txb ${SIM.hl ? 'fill w' : ''}" data-act="simMode" data-arg="hl">30초 요약</button><button class="txb ${SIM.hl ? '' : 'fill w'}" data-act="simMode" data-arg="full">전체 보기 · 약 ${Math.round(SIM_TOTAL / 60)}분</button></div>
     <div class="txctl"><button class="txb fill w" data-act="simPlay">${SIM.play ? '⏸ 일시정지' : end ? '↺ 다시 보기' : '▶ 계속'}</button><button class="txb" data-act="simNext" title="다음 단계로">다음 단계 ⏭</button>
-      <select data-sim="speed">${[1, 2, 4].map(v => `<option value="${v}" ${SIM.speed === v ? 'selected' : ''}>${v}x</option>`).join('')}</select></div>
+      ${SIM.hl ? '' : `<select data-sim="speed">${[1, 2, 4].map(v => `<option value="${v}" ${SIM.speed === v ? 'selected' : ''}>${v}x</option>`).join('')}</select>`}</div>
     <div class="txsec">이 재생은</div>
     <p class="txnote">블록 하나가 공정을 거쳐 배에 올라가는 <b>정상 흐름</b>을 보여 주는 시연용 재생입니다. 공중의 물체는 모두 크레인 훅에 걸려 있고, 02에서 만든 세트 8개(시연 모형 판 15장)가 그대로 03 블록이 됩니다. 실제 부재 수는 블록 내부 3D에 있습니다. 수량은 엑셀 데이터(블록 ${SIM.block})의 계획 수량, 검사 측정값은 시연용 가상값입니다. 실제 서버 데이터는 바꾸지 않습니다.</p>
-    <p class="txnote">왼쪽 위 단계 이름을 누르면 그 단계로 이동합니다. 전체 약 ${Math.round(SIM_TOTAL / 60)}분이며 오른쪽 배속(2x·4x)으로 줄일 수 있습니다.</p></aside>`;
+    <p class="txnote">${SIM.hl ? `30초 요약: 공정마다 핵심 장면만 이어 붙여 약 ${Math.round(SB.hlTotal)}초에 끝납니다. 같은 작업 반복은 한 번만 보여 주고, 운반 구간은 장면 전환으로 건너뜁니다. 자세한 흐름은 [전체 보기]에서 봅니다.` : `전체 약 ${Math.round(SIM_TOTAL / 60)}분이며 배속(2x·4x)으로 줄일 수 있습니다.`} 왼쪽 위 단계 이름을 누르면 그 단계로 이동합니다.</p></aside>`;
 }
 Object.assign(ACT, {
   simStart() { simStart(); },
   simEnd() { simStop(); },
-  simPlay() { if (SIM.t >= SIM_TOTAL) { SIM.t = 0; SIM.camT = SIM.camP = null; } SIM.play = !SIM.play; render(); },
-  simNext() { const { i } = simPhaseAt(SIM.t); const st = SIM_PH[i][2]; let a = 0; for (const p of SIM_PH) { if (p[2] > st) { SIM.t = a; break; } a += p[1]; } if (st >= 5) SIM.t = SIM_TOTAL - 0.01; SIM.camT = SIM.camP = null; T3.dirty = true; render(); },
-  simJump(k) { let a = 0; for (const p of SIM_PH) { if (p[2] === +k) { SIM.t = a; break; } a += p[1]; } SIM.camT = SIM.camP = null; T3.dirty = true; render(); },
+  simPlay() { if (SIM.hl ? SIM.h >= SB.hlTotal : SIM.t >= SIM_TOTAL) { SIM.t = 0; SIM.camT = SIM.camP = null; if (SIM.hl) { SIM.clip = -1; simHlSeek(0); } } SIM.play = !SIM.play; render(); },
+  simMode(m) { SIM.hl = m === 'hl'; SIM.t = 0; SIM.phase = -1; SIM.clip = -1; SIM.camT = SIM.camP = null; if (SIM.hl) simHlSeek(0); SIM.play = true; T3.dirty = true; render(); },
+  simNext() { if (SIM.hl) { const st = SB.hl[SIM.clip].step, c = SB.hl.find(x => x.step > st); simHlSeek(c ? c.h0 : SB.hlTotal - 0.01); T3.dirty = true; return render(); }
+    const { i } = simPhaseAt(SIM.t); const st = SIM_PH[i][2]; let a = 0; for (const p of SIM_PH) { if (p[2] > st) { SIM.t = a; break; } a += p[1]; } if (st >= 5) SIM.t = SIM_TOTAL - 0.01; SIM.camT = SIM.camP = null; T3.dirty = true; render(); },
+  simJump(k) { if (SIM.hl) { const c = SB.hl.find(x => x.step === +k); if (c) simHlSeek(c.h0); T3.dirty = true; return render(); }
+    let a = 0; for (const p of SIM_PH) { if (p[2] === +k) { SIM.t = a; break; } a += p[1]; } SIM.camT = SIM.camP = null; T3.dirty = true; render(); },
 });
 document.addEventListener('change', e => { if (e.target.dataset && e.target.dataset.sim === 'speed') SIM.speed = +e.target.value; });
 
