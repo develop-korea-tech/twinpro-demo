@@ -931,6 +931,142 @@ td .small { line-height: 18px; }
 .sidecard .isteps li.ictlrow textarea { height: 34px; min-height: 34px; resize: none; padding: 6px 8px; font-size: 12px; }
 .sidecard .isteps li.ictlrow .btn { padding: 5px 12px; font-size: 12.5px; }
 .sidecard .ipanel .ph { margin: 0; } .sidecard .ipanel > .ph + * { margin-top: -2px; }
+
+/* ===== 관리 화면 공통 틀(2026-10-30): 머리(제목+한 줄 설명) → 필터 칩 줄 → 본문(왼쪽 그림·목록 / 오른쪽 고른 것 상세) ===== */
+.content:has(> .pg) { padding: 0; background: none; border: 0; }
+.pg { display: flex; flex-direction: column; gap: 10px; flex: 1; min-height: 0; }
+.pghead { display: flex; align-items: baseline; gap: 12px; padding: 2px 2px 0; }
+.pghead h1 { margin: 0; font-size: 19px; display: flex; align-items: center; gap: 9px; white-space: nowrap; }
+.pghead h1::before { content: ''; width: 4px; height: 18px; border-radius: 2px; background: var(--pri); }
+.pgdesc { font-size: 13px; color: var(--fg2); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pghead .crumb { white-space: nowrap; }
+.pgbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; }
+.pgbar select, .pgbar input[type=text] { height: 32px; font-size: 13px; } .pgbar input[type=text] { width: 190px; }
+.pgsep { width: 1px; height: 22px; background: var(--line); margin: 0 2px; }
+.fchips { display: inline-flex; gap: 4px; flex-wrap: wrap; }
+.fchip { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border: 1px solid var(--line); border-radius: 16px; background: var(--card); font-size: 13px; color: var(--fg2); cursor: pointer; }
+.fchip b { font-size: 14px; color: var(--fg); } .fchip i { width: 8px; height: 8px; border-radius: 50%; background: #9AA6B6; }
+.fchip.b i { background: #3B82F6; } .fchip.r i { background: #E5484D; } .fchip.r b { color: var(--r); } .fchip.p i { background: #8B5CF6; } .fchip.o i { background: #F59E0B; } .fchip.g i { background: #22A06B; }
+.fchip:hover { border-color: #9DB6DA; } .fchip.on { background: var(--pri); border-color: var(--pri); color: #fff; } .fchip.on b { color: #fff; } .fchip.on i { box-shadow: 0 0 0 2px #fff; }
+.pgbody { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(380px, 0.62fr); gap: 10px; }
+.pgmain { display: flex; flex-direction: column; gap: 10px; min-height: 0; min-width: 0; }
+.pgmain > .panel, .pgbody > .panel { min-height: 0; }
+.pgside { overflow: auto; gap: 10px; }
+.sdh { margin: 2px 0 0; font-size: 13.5px; color: var(--fg); } .sdh small { font-weight: 400; color: var(--fg3); font-size: 11.5px; margin-left: 6px; }
+.pghis { flex: 1 1 auto; overflow: hidden; } .pghis .tw { flex: 1; min-height: 0; overflow: auto; }
+
+/* 설비 상태: 설비 카드 */
+.pgcards { flex: none; }
+.eqgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.eqc { display: flex; flex-direction: column; gap: 4px; text-align: left; border: 1px solid var(--line); border-left: 4px solid #9AA6B6; border-radius: 8px; background: #FBFCFE; padding: 8px 10px; cursor: pointer; min-width: 0; font: inherit; color: inherit; }
+.eqc.b { border-left-color: #3B82F6; } .eqc.r { border-left-color: #E5484D; background: #FFF6F6; } .eqc.p { border-left-color: #8B5CF6; }
+.eqc:hover { border-color: #9DB6DA; } .eqc.sel { border-color: var(--b); box-shadow: 0 0 0 2px var(--b-bg), inset 0 0 0 1px var(--b); }
+.eqc-h { display: flex; align-items: center; gap: 6px; min-width: 0; } .eqc-h b { font-size: 13px; } .eqc-h .nm { flex: 1; min-width: 0; font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.eqc-img { position: relative; height: 84px; display: flex; align-items: flex-end; justify-content: center; background: radial-gradient(90% 80% at 50% 70%, #E9EEF6 0%, rgba(233,238,246,0) 70%); border-radius: 6px; }
+.eqc-img .art { max-height: 100%; max-width: 92%; object-fit: contain; filter: drop-shadow(0 4px 5px rgba(20,30,50,.25)); }
+.eqc-img .lamp { position: absolute; right: 4px; top: 2px; height: 34px; }
+.eqc-p { font-size: 11.5px; color: var(--fg2); }
+.eqc .occ { display: flex; align-items: center; gap: 6px; font-size: 11.5px; } .eqc .occ em { font-style: normal; color: var(--fg3); }
+.eqc-w { display: flex; justify-content: space-between; gap: 6px; font-size: 11.5px; color: var(--fg2); } .eqc-w em { font-style: normal; color: var(--fg3); white-space: nowrap; } .eqc-w em.c-r { color: var(--r); font-weight: 600; }
+.sdhero { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 12px; align-items: center; background: #F6F8FB; border-radius: 8px; padding: 10px; }
+.sdhero .art { width: 100%; max-height: 100px; object-fit: contain; }
+.sdfacts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; } .sdfacts > div { display: flex; flex-direction: column; } .sdfacts span { font-size: 11.5px; color: var(--fg3); } .sdfacts b { font-size: 14px; } .sdfacts small { font-size: 11px; color: var(--fg3); }
+@media (max-height: 860px) { .pg { gap: 7px; } .pgbar { padding: 5px 10px; } .fchip, .pgbar select, .pgbar input[type=text] { height: 28px; } .eqc-img { height: 62px; } .eqc-img .lamp { height: 26px; } .eqc { padding: 6px 8px; gap: 2px; } .pghead h1 { font-size: 17px; } .pgdesc { font-size: 12px; } .sdhero .art { max-height: 74px; } }
+@media (max-width: 1500px) { .pgbody { grid-template-columns: minmax(0, 1fr) minmax(340px, 0.7fr); } .pgdesc { display: none; } }
+.pghead .grow { flex: 1; }
+.eqc .occ { white-space: nowrap; } .eqc-w { flex-wrap: wrap; } .eqc-w > :first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+@media (max-width: 1500px) { .eqc .occ em { display: none; } .eqc-p { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } }
+@media (max-height: 860px) {
+  .eqc-p { display: none; } .eqc-img { height: 56px; } .eqgrid { gap: 7px; }
+  .pgside { gap: 6px; } .sdhero { grid-template-columns: 110px minmax(0, 1fr); padding: 6px 8px; } .sdhero .art { max-height: 60px; } .sdfacts { gap: 4px 10px; } .sdfacts b { font-size: 13px; }
+  .pgside .tl .lane { height: 13px; } .pgside .tl { gap: 3px 8px; } .pgside .legend { display: none; }
+  .pgside .alertbox { padding: 8px 10px; gap: 4px; } .pgside .alertbox .small { font-size: 11px; }
+  .pghis .tw td, .pghis .tw th { padding-top: 4px; padding-bottom: 4px; }
+}
+
+/* 생산 현황: 지표 카드 4개(낮게) → 칩 줄 → 블록 흐름판(공정 6칸 + 이송 완료) / 오른쪽 선택 블록이 거쳐 온 길 */
+.pgkpi { flex: none; gap: 10px; }
+.pgkpi > .panel { padding: 10px 14px; gap: 2px !important; } .pgkpi > .panel b[style] { font-size: 24px !important; }
+.pgboard { overflow: hidden; }
+.board { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+.bcol { display: flex; flex-direction: column; min-height: 0; background: #F5F7FA; border-radius: 8px; overflow: hidden; }
+.bcol.done { background: #EEF7F1; }
+.bcolh { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 8px 8px; border-bottom: 1px solid var(--line); background: #fff; text-align: center; }
+.bcolh img { height: 46px; max-width: 100%; object-fit: contain; } .bcolh b { font-size: 12.5px; } .bcolh small { font-size: 11px; color: var(--fg3); }
+.bcolh .bdone { height: 46px; display: flex; align-items: center; font-size: 26px; color: var(--g); }
+.bcolh .pa { width: 100%; } .bcolh .pa .h { display: block; font-size: 10.5px; } .bcolh .pa .h span:first-child { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } .bcolh .pa .track { height: 5px; margin-top: 2px; }
+.bcolb { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 6px; padding: 8px; }
+.bempty { font-size: 11.5px; color: var(--fg3); text-align: center; padding-top: 10px; }
+.bchip { display: flex; flex-direction: column; gap: 4px; text-align: left; border: 1px solid var(--line); border-left: 4px solid #9AA6B6; border-radius: 7px; background: #fff; padding: 6px 8px; cursor: pointer; font: inherit; color: inherit; }
+.bchip.b { border-left-color: #3B82F6; } .bchip.r { border-left-color: #E5484D; background: #FFF6F6; } .bchip.g { border-left-color: #22A06B; }
+.bchip.sel { border-color: var(--b); box-shadow: 0 0 0 2px var(--b-bg), inset 0 0 0 1px var(--b); }
+.bchip .bh { display: flex; align-items: center; justify-content: space-between; gap: 4px; } .bchip .bh b { font-size: 13.5px; } .bchip .badge { font-size: 10.5px; }
+.bchip .bt { height: 5px; border-radius: 3px; background: #E6EAF0; overflow: hidden; } .bchip .bt i { display: block; height: 100%; background: #3B82F6; } .bchip.r .bt i { background: #E5484D; } .bchip.g .bt i { background: #22A06B; } .bchip.n .bt i { background: #9AA6B6; }
+.bchip .bf { display: flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--fg2); flex-wrap: wrap; } .bchip .bf em { font-style: normal; font-size: 10.5px; color: var(--r); border: 1px solid var(--r); border-radius: 8px; padding: 0 5px; } .bchip .bf small { width: 100%; font-size: 10.5px; color: var(--fg3); }
+.journey { display: flex; flex-direction: column; gap: 0; }
+.jstep { position: relative; display: grid; grid-template-columns: 28px minmax(0, 1fr) auto auto; gap: 10px; align-items: center; padding: 7px 8px; border-radius: 6px; cursor: pointer; }
+.jstep:not(:last-child)::after { content: ''; position: absolute; left: 21px; top: 34px; bottom: -6px; width: 2px; background: var(--line); }
+.jstep > i { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-style: normal; font-size: 12px; font-weight: 700; background: #E6EAF0; color: var(--fg2); z-index: 1; }
+.jstep.g > i { background: #DDF3E6; color: var(--g); } .jstep.r > i { background: var(--r); color: #fff; } .jstep.b > i { background: #3B82F6; color: #fff; }
+.jstep b { font-size: 13px; display: block; } .jstep small { font-size: 11px; color: var(--fg3); } .jstep .jq { font-size: 12.5px; color: var(--fg2); white-space: nowrap; }
+.jstep.cur { background: var(--b-bg); } .jstep:hover { background: #F2F5F9; }
+@media (max-height: 860px) { .pgkpi > .panel { padding: 6px 12px; } .pgkpi > .panel > span.small:last-child { display: none; } .pgkpi > .panel b[style] { font-size: 20px !important; } .bcolh img { height: 30px; } .bcolh .bdone { height: 30px; font-size: 20px; } .bchip { padding: 4px 7px; gap: 2px; } .bchip .bf small { display: none; } .jstep { padding: 4px 8px; } .jstep:not(:last-child)::after { top: 30px; } }
+
+.bchip .bh { flex-wrap: wrap; row-gap: 2px; } @media (max-width: 1500px) { .bchip .bh .badge { display: none; } .bcolh .pa .h { font-size: 10px; } }
+
+/* 작업 관리: 묶음 표(확인 필요 → 진행 → 계획 → 완료) / 오른쪽 ① 지금 상태 ② 바꿀 것 ③ 저장 */
+.pg-wo .subtabs { margin: -2px 0 0; }
+.pglist { overflow: hidden; } .pglist .tw { flex: 1; min-height: 0; overflow: auto; }
+.pglist tr.grp td { background: #F1F4F8; font-size: 12.5px; font-weight: 700; color: var(--fg); padding: 6px 12px; border-top: 2px solid #fff; }
+.pglist tr.grp td b { margin-left: 4px; color: var(--pri); } .pglist tr.grp td span { font-weight: 400; color: var(--fg3); font-size: 11.5px; margin-left: 10px; }
+.pglist tr.grp.need td { background: #FFF1F1; color: var(--r); } .pglist tr.grp.need td b { color: var(--r); }
+.pglist td b { font-size: 13px; }
+.woed .wofacts { background: #F6F8FB; border-radius: 8px; padding: 10px 12px; } .woed .wofacts .wide { grid-column: 1 / -1; }
+.woed .form .frow > span { min-width: 84px; }
+.pg-wo > .panel { flex: none; max-height: 40%; overflow: auto; }
+@media (max-height: 860px) { .woed { gap: 6px; } .woed .wofacts { padding: 6px 10px; } .woed .form .frow { min-height: 34px; } .woed .form input, .woed .form select { height: 30px; } .pglist td { padding-top: 5px; padding-bottom: 5px; } }
+@media (max-height: 860px) {
+  .woed .wofacts { grid-template-columns: repeat(4, minmax(0, 1fr)); } .woed .wofacts small { display: none; } .woed .wofacts b { font-size: 12.5px; } .woed .wofacts .wide b { font-size: 12px; }
+  .woed .wohis { display: none; } .woed .form .frow > div { padding-top: 3px; padding-bottom: 3px; } .woed .form .frow > div .small { font-size: 11px; }
+  .woed .form .frow > div:has(> .btn[data-act="goInc"]) { flex-wrap: nowrap; } .woed .form .frow > div > input[readonly][style] { min-width: 0; }
+  .woed .seg button { padding-top: 4px; padding-bottom: 4px; } .woed > .row .small { font-size: 11px; }
+}
+@media (max-height: 860px) { .woed .form .frow > div:has(> .btn[data-act="goInc"]) > .small { display: none; } .woed .form .frow > div:has(> .btn[data-act="goInc"]) > input { flex: 1; min-width: 120px; } }
+
+/* 기준정보: 공정 흐름(3D 그림) → 공정 목록 / 오른쪽 ① 공정 기준 ② 설비 ③ 바꿀 수 있나 */
+.pghead .admin { margin: 0; padding: 4px 10px; border-style: dashed; font-size: 12px; } .pghead .admin .small { display: none; } .pghead .admin .btn { padding: 3px 10px; font-size: 12px; }
+.pgflow { flex: none; }
+.pflow { display: flex; align-items: stretch; gap: 6px; }
+.pfarr { align-self: center; color: var(--fg3); font-size: 18px; }
+.pfc { flex: 1; min-width: 0; position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 8px 8px; border: 1px solid var(--line); border-top: 4px solid var(--pc); border-radius: 8px; background: #FBFCFE; cursor: pointer; font: inherit; color: inherit; text-align: center; }
+.pfc img { height: 74px; max-width: 100%; object-fit: contain; filter: drop-shadow(0 4px 5px rgba(20,30,50,.2)); }
+.pfc b { font-size: 14px; } .pfc small { font-size: 11px; color: var(--fg3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.pfc .pfn { position: absolute; left: 8px; top: 6px; font-size: 12px; font-weight: 800; color: var(--pc); }
+.pfm { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; } .pfm em { font-style: normal; font-size: 11px; background: #EEF2F7; border-radius: 9px; padding: 1px 7px; color: var(--fg2); }
+.pfc.sel { border-color: var(--pc); box-shadow: 0 0 0 2px color-mix(in srgb, var(--pc) 30%, transparent); background: #fff; } .pfc:hover { border-color: #9DB6DA; }
+.lkeq { display: flex; flex-direction: column; gap: 6px; }
+.lke { display: grid; grid-template-columns: 70px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: #FBFCFE; cursor: pointer; font: inherit; color: inherit; text-align: left; }
+.lke img { width: 70px; height: 44px; object-fit: contain; } .lke b { display: block; font-size: 13px; } .lke small { font-size: 11.5px; color: var(--fg3); } .lke:hover { border-color: #9DB6DA; }
+.pg-base .pglist { overflow: hidden; } .pg-base .pglist .tw { flex: 1; min-height: 0; overflow: auto; }
+.pg-base .pgbody { grid-template-columns: minmax(0, 1fr) minmax(380px, 0.7fr); }
+@media (max-height: 860px) { .pfc img { height: 46px; } .pfc { padding: 6px 6px 6px; gap: 1px; } .pfm { display: none; } .lke { padding: 4px 8px; } .lke img { height: 32px; } .pg-base .pgside .note { display: none; } }
+@media (max-height: 860px) { .pg-base .pgside .wofacts { grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 6px 10px; } .pg-base .pgside .wofacts b { font-size: 12.5px; } .pg-base .pgside { gap: 6px; } .pg-base .pgside .alertbox { padding: 6px 10px; gap: 2px; } .lkeq { gap: 4px; } }
+@media (max-height: 860px) { .pg-base .lke small { display: none; } .pg-base .lke { grid-template-columns: 50px minmax(0, 1fr) auto; padding: 2px 8px; } .pg-base .lke img { width: 50px; height: 28px; } .pg-base .pgside .alertbox span { font-size: 11px !important; } .pg-base .sdh { margin: 0; font-size: 12.5px; } }
+/* QC 1차(관리 화면) 반영 */
+.bcolh .pa { background: #F3F6FA; border-radius: 6px; padding: 3px 6px 5px; } .palbl { display: block; font-size: 10px; color: var(--fg3); }
+.tlleg { display: flex; gap: 10px; flex-wrap: wrap; font-size: 11.5px; color: var(--fg2); } .tlleg i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+.tlleg i.b { background: var(--b); } .tlleg i.n { background: var(--n); } .tlleg i.r { background: var(--r); } .tlleg i.p { background: var(--p); } .tlleg i.x { background: var(--n-bg); border: 1px dashed #B9C2CE; }
+.pgside .tl .lane { background: repeating-linear-gradient(135deg, #F3F5F8 0 6px, #E9EDF2 6px 7px); }
+.wolock { display: flex; flex-direction: column; gap: 4px; background: #FFF4F4; border: 1px solid #F3B9BA; border-radius: 8px; padding: 8px 12px; font-size: 12.5px; } .wolock b { color: var(--r); } .wolock span { color: var(--fg2); } .wolock .btn { align-self: flex-start; margin-top: 2px; }
+.rdonly { font-size: 12px; white-space: nowrap; }
+.pglist td { font-size: 12.5px; }
+@media (max-width: 1500px) { .pglist th:last-child, .pglist td:last-child:not([colspan]) { display: none; } }
+@media (max-height: 860px) { .pgside .tlleg { display: flex; font-size: 10.5px; gap: 6px; } .wolock { padding: 5px 10px; font-size: 11.5px; } .wolock span { display: none; } .woed .form .frow > div:has(> .btn[data-act="goInc"]) > .btn { display: none; } }
+@media (max-height: 860px) { .woed > .row .small { visibility: hidden; height: 0; } .woed > .row { justify-content: flex-end; } .woed .sdh { margin: 0; font-size: 12.5px; } .woed .wofacts { gap: 2px 10px; } }
+@media (max-height: 860px) { .wolock { flex-direction: row; align-items: center; flex-wrap: wrap; } .wolock b { flex: 1; min-width: 0; } .wolock .btn { margin: 0; padding: 3px 10px; font-size: 12px; } .woed .form .frow { min-height: 30px; } .woed .form input, .woed .form select { height: 28px; } .woed { padding-top: 10px; padding-bottom: 10px; } }
+@media (max-width: 1500px) { .palbl { display: none; } .bcolh b { font-size: 12px; } .bcolh .pa .h { font-size: 11.5px !important; line-height: 1.3; } }
+@media (max-height: 860px) { .wolock b { font-size: 11.5px; line-height: 1.35; } .woed .wofacts .wide b { font-size: 11.5px; } .woed .wofacts > div > span { font-size: 10.5px; } }
+@media (max-height: 860px) { .woed { gap: 5px; } }
 .iso{
   --anatomy-page:#0b0b0b;--anatomy-card:#131313;--anatomy-text:#a3a3a3;--anatomy-strong:#e6e6e6;--anatomy-muted:#6e6e6e;
   --anatomy-paper:#131313;--anatomy-face:#1b1b1b;--anatomy-top:#1c1c1c;
@@ -1416,6 +1552,12 @@ function playCtl() {
   const tip = UI.canWrite ? '가상 시간이 흐르며 작업이 진행됩니다(모든 화면에 반영)' : '내 화면에서만 가상 시간이 흐릅니다. 서버에 저장되지 않습니다';
   return `<span class="speed"><button class="pp ${UI.simOn ? 'on' : ''}" data-act="simToggle" title="${tip}">${UI.simOn ? '⏸' : '▶'}</button>${[1, 2, 4].map(v => `<button class="${(UI.speed || 1) === v ? 'on' : ''}" data-act="speed" data-arg="${v}">${v}×</button>`).join('')}</span>`;
 }
+// 관리 화면 공통 머리: 제목 + 이 화면이 무엇인지 한 줄 + 경로
+function pageHead(name, group, desc, right = '') { return `<div class="pghead"><h1>${name}</h1><span class="pgdesc">${desc}</span><span class="grow"></span>${right}<span class="crumb">⌂ &gt; ${group} &gt; ${name}</span></div>`; }
+// 필터 칩(요약 숫자 겸용): opts = [[값, 이름, 개수, 색]]
+const chips = (key, opts, val) => `<span class="fchips">${opts.map(([v, l, n, c]) => `<button class="fchip ${val === v ? 'on' : ''} ${c || ''}" data-act="fchip" data-arg="${key}:${v}">${c ? '<i></i>' : ''}${l}${n != null ? ` <b>${n}</b>` : ''}</button>`).join('')}</span>`;
+// 설비 그림(3D 렌더): 공정의 첫 설비는 공정 그림, 같은 공정의 대체·예비 설비는 이동식 용접기 그림
+const eqArtOf = e => { const art = window.EQ_ART || {}; const first = Object.values(S.equipment).filter(x => x.process_id === e.process_id).sort((a, b) => a.equipment_id < b.equipment_id ? -1 : 1)[0]; return art[first && first.equipment_id !== e.equipment_id ? 'SP' : e.process_id] || ''; };
 function title(name, group) { return `<div class="ptitle"><h1>${name}</h1><span class="crumb">⌂ &gt; ${group} &gt; ${name}</span></div>`; }
 
 // ---------- 1. 통합 관제(대시보드) ----------
@@ -1715,9 +1857,15 @@ function viewEq() {
   const f = UI.f.eq, list = eqRows();
   const e = eqOf(UI.sel.eq) || list[0]; const id = e.equipment_id;
   const occ = occupancy(id), fs = faultStats(id), since = statusSince(id);
-  const rows = list.map((x, n) => { const o = occupancy(x.equipment_id); return `<tr data-act="selEq" data-arg="${x.equipment_id}" class="${x.equipment_id === id ? 'sel' : ''}">
-    <td class="c">${n + 1}</td><td>${x.equipment_id}</td><td>${esc(x.equipment_name)}</td><td>${x.process_id.slice(1)} ${esc(proc(x.process_id).process_name)}</td><td class="c">${esc(x.resource_kind)}</td>
-    <td class="c">${badge('eq', x.status)}</td><td>${bar(o.pct / 100, STATUS.eq[x.status][1])}</td><td class="c">${x.work_order_id || '-'}</td></tr>`; }).join('');
+  const art = window.EQ_ART || {};
+  const cards = list.map(x => { const o = occupancy(x.equipment_id), c = STATUS.eq[x.status][1], w = x.work_order_id && S.wo[x.work_order_id];
+    return `<button class="eqc ${c} ${x.equipment_id === id ? 'sel' : ''}" data-act="selEq" data-arg="${x.equipment_id}">
+      <span class="eqc-h"><b>${x.equipment_id}</b><span class="nm">${esc(x.equipment_name)}</span>${badge('eq', x.status)}</span>
+      <span class="eqc-img"><img class="art" src="${eqArtOf(x)}" alt=""><img class="lamp" src="${art[c] || art.n || ''}" alt=""></span>
+      <span class="eqc-p">${x.process_id.slice(1)} ${esc(proc(x.process_id).process_name)} · ${esc(x.resource_kind)}</span>
+      <span class="occ"><em>점유율</em>${bar(o.pct / 100, c, 70)}</span>
+      <span class="eqc-w">${w ? `작업 ${w.work_order_id} · ${w.block_id}` : '배정된 작업 없음'}<em class="${x.status === 'FAULT' ? 'c-r' : ''}">${hm(fromM(S.now - statusSince(x.equipment_id)))}부터 ${STATUS.eq[x.status][0]}</em></span></button>`; }).join('');
+  const all = Object.values(S.equipment), cnt = st => all.filter(x => x.status === st).length;
   const segs = segments(id).filter(s => s.status !== 'OFFSHIFT').reverse().slice(0, 7);
   const his = segs.map(s => { const inc = s.inc && incById(s.inc); const w = s.wo && S.wo[s.wo];
     const note = inc ? `${inc.incident_id} ${inc.summary}` : s.status === 'RUNNING' && w ? `${w.block_id} ${proc(w.process_id).process_name}` : s.status === 'IDLE' ? '대기' : STATUS.eq[s.status][0];
@@ -1745,36 +1893,33 @@ function viewEq() {
         ${selectBox('faultSev', [['HIGH', 'HIGH'], ['MEDIUM', 'MEDIUM'], ['LOW', 'LOW']], draft('faultSev', 'HIGH'), 'data-draft')}<button class="btn danger" data-act="registerFault" data-arg="${id}">고장 등록</button><button class="btn" data-act="faultForm">취소</button>`
       : `<button class="btn danger" data-act="faultForm">고장 등록…</button><span class="small">고장 등록 시 이 설비의 진행 중 작업이 보류됩니다.</span>`;
   const allOpen = openIncidents();
-  return `${title('설비 상태', '모니터링')}
-  <div class="search">
-    <div class="field"><span class="lb">공정</span><div class="in">${selectBox('eqProc', procOpts(), f.proc)}</div></div>
-    <div class="field"><span class="lb">상태</span><div class="in">${radios('eqSt', [['', '전체'], ['RUNNING', '가동'], ['IDLE', '대기'], ['FAULT', '고장'], ['MAINTENANCE', '점검']], f.st)}</div></div>
-    <div class="field"><span class="lb">설비</span><div class="in"><input type="text" id="eqQ" data-filter="eqQ" value="${esc(f.q)}" placeholder="설비 코드·설비명"></div></div>
-    <div class="field"><span class="lb">자원 구분</span><div class="in">${radios('eqKind', [['', '전체'], ['설비', '설비'], ['검사자원', '검사자원']], f.kind)}</div></div>
-    <button class="btn pri" data-act="noop">검색</button><button class="btn" data-act="resetFilter" data-arg="eq">↻ 초기화</button></div>
-  <div class="grid g-eq">
-    <div class="grid">
-      <section class="panel"><div class="ph"><h2>설비 목록</h2><span class="sub">총 ${list.length}대 · 점유율 = 가동시간 ÷ 운영시간 ${(occ.den / 60).toFixed(1).replace('.0', '')}h(09/07 08:00~${hm(nowS())})</span><button class="btn line" data-act="csv" data-arg="eq">⭳ 엑셀(CSV)</button></div>
-        <div class="tw"><table><thead><tr><th class="c">No.</th><th>설비코드</th><th>설비명</th><th>공정</th><th class="c">자원</th><th class="c">상태</th><th>점유율</th><th class="c">연관 작업</th></tr></thead><tbody>${rows || '<tr><td colspan="8" class="c small">조건에 맞는 설비가 없습니다.</td></tr>'}</tbody></table></div></section>
-      ${UI.sub.eq === 'sig' ? signalPanel(id) : `<section class="panel"><div class="ph">${eqSubTabs()}<span class="sub">${id} · 최근 순 · 설비 구간(equipment_intervals)</span></div>
+  return `<div class="pg pg-eq">${pageHead('설비 상태', '모니터링', '설비 8대가 지금 어떤 상태인지, 지난 5일 동안 어떻게 돌았는지 봅니다. 설비를 누르면 오른쪽에 자세한 내용이 나옵니다.')}
+  <div class="pgbar">${chips('eqSt', [['', '전체', all.length], ['RUNNING', '가동', cnt('RUNNING'), 'b'], ['IDLE', '대기', cnt('IDLE'), 'n'], ['FAULT', '고장', cnt('FAULT'), 'r'], ['MAINTENANCE', '점검', cnt('MAINTENANCE'), 'p']], f.st)}
+    <span class="pgsep"></span>${selectBox('eqProc', procOpts(), f.proc)}${chips('eqKind', [['', '전체 자원'], ['설비', '설비'], ['검사자원', '검사자원']], f.kind)}
+    <input type="text" id="eqQ" data-filter="eqQ" value="${esc(f.q)}" placeholder="설비 코드·이름 찾기"><span class="grow"></span>
+    <button class="btn" data-act="resetFilter" data-arg="eq">↻ 초기화</button><button class="btn line" data-act="csv" data-arg="eq">⭳ 엑셀(CSV)</button></div>
+  <div class="pgbody">
+    <div class="pgmain">
+      <section class="panel pgcards"><div class="ph"><h2>설비 ${list.length}대</h2><span class="sub">점유율 = 운영시간 ${(occ.den / 60).toFixed(1).replace('.0', '')}h(09/07 08:00~${hm(nowS())}) 중 실제로 돌아간 비율 · 그림은 3D 조선소와 같은 모델</span></div>
+        <div class="eqgrid">${cards || '<div class="empty">조건에 맞는 설비가 없습니다.</div>'}</div></section>
+      ${UI.sub.eq === 'sig' ? signalPanel(id) : `<section class="panel pghis"><div class="ph">${eqSubTabs()}<span class="sub">${id} ${esc(e.equipment_name)} · 최근 순</span></div>
         <div class="tw"><table><thead><tr><th>시각</th><th class="c">상태</th><th>연관 작업</th><th>사건 · 메모</th></tr></thead><tbody>${his}</tbody></table></div></section>`}
     </div>
-    <section class="panel"><div class="ph"><h2>설비 상세</h2><span class="sub">${id} · 점유율·가동·고장 누계 = 09/07~시연 시각</span>${badge('eq', e.status)}</div>
-      <div class="det-top"><div class="det-ico">${icon(e.process_id)}</div>
-        <div class="info"><span>설비코드</span><b>${id}</b><span>설비명</span><b>${esc(e.equipment_name)}</b>
-          <span>공정</span><div>${e.process_id.slice(1)} ${esc(proc(e.process_id).process_name)}</div><span>작업구역</span><div>${e.zone_id} ${esc(S.zones[e.zone_id].zone_name)}</div>
-          <span>자원 구분</span><div>${esc(e.resource_kind)}</div><span>연관 작업</span><div>${e.work_order_id ? `${e.work_order_id} (${S.wo[e.work_order_id].block_id})` : '-'}</div>
-          <span>점유율</span><div>${pct(occ.pct)}</div><span>가동 시간</span><div>${(occ.run / 60).toFixed(1)} h</div>
-          <span>고장 누계</span><div class="${fs.count ? 'c-r' : ''}">${(fs.min / 60).toFixed(1)} h · ${fs.count}회</div><span>현재 상태 지속</span><div class="${e.status === 'FAULT' ? 'c-r' : ''}">${minLabel(since)}</div></div></div>
-      <b style="font-size:13px">상태 구간 타임라인 · 운영시간 08:00~16:00 · 기준시점 이전 5일(09/12~09/16)</b>
+    <section class="panel pgside"><div class="ph"><h2>${id} ${esc(e.equipment_name)}</h2>${badge('eq', e.status)}<span class="sub">${e.process_id.slice(1)} ${esc(proc(e.process_id).process_name)} · ${e.zone_id} ${esc(S.zones[e.zone_id].zone_name)}</span></div>
+      <div class="sdhero"><img class="art" src="${eqArtOf(e)}" alt=""><div class="sdfacts">
+        <div><span>지금</span><b class="${e.status === 'FAULT' ? 'c-r' : ''}">${STATUS.eq[e.status][0]} ${minLabel(since)}째</b></div>
+        <div><span>하는 작업</span><b>${e.work_order_id ? `${e.work_order_id} (${S.wo[e.work_order_id].block_id})` : '없음'}</b></div>
+        <div><span>점유율(가동 비율)</span><b>${pct(occ.pct)}</b><small>가동 ${(occ.run / 60).toFixed(1)} h ÷ 운영 ${(occ.den / 60).toFixed(0)} h</small></div>
+        <div><span>고장 누계</span><b class="${fs.count ? 'c-r' : ''}">${(fs.min / 60).toFixed(1)} h · ${fs.count}회</b></div></div></div>
+      <h3 class="sdh">① 지난 5일 가동 기록 <small>하루 08:00~16:00를 시간 순으로 · 왼쪽 → 오른쪽</small></h3>
       <div class="tl">${lanes}<span></span><div class="axis">${['08:00', '10:00', '12:00', '14:00', '16:00'].map((t, n) => `<span style="left:${n * 25}%">${t}</span>`).join('')}</div></div>
-      <div class="legend">${['RUNNING', 'IDLE', 'FAULT', 'MAINTENANCE'].map(s => badge('eq', s)).join('')}<span class="small">· 회색 = 시연 시각(${hm(nowS())}) 이후, 미집계</span></div>
-      <b style="font-size:13px">이상 · 조치 <span class="small">(선택 설비 ${incs.length}건 / 전체 미해소 ${allOpen.length}건)</span></b>
-      <div class="links">${allOpen.map(i => `<button class="btn ${incEquipment(i) === id ? 'line' : ''}" data-act="goInc" data-arg="${i.incident_id}">${i.incident_id} ${STATUS.cat[i.category][0]}</button>`).join('')}</div>
+      <div class="legend tlleg"><span><i class="b"></i>가동</span><span><i class="n"></i>대기</span><span><i class="r"></i>고장</span><span><i class="p"></i>점검</span><span><i class="x"></i>기록 없음(${hm(nowS())} 이후)</span></div>
+      <h3 class="sdh">② 이 설비의 사건 <small>${incs.length}건 · 전체 미해결 ${allOpen.length}건</small></h3>
       ${action}
+      <h3 class="sdh">③ 할 일</h3>
       <div class="row">${eqBtns}</div>
     </section>
-  </div>`;
+  </div></div>`;
 }
 const eqSubTabs = () => `<span class="ptabs"><button class="${UI.sub.eq !== 'sig' ? 'on' : ''}" data-act="sub" data-arg="eq:his">상태 변경 이력</button><button class="${UI.sub.eq === 'sig' ? 'on' : ''}" data-act="sub" data-arg="eq:sig">가상 설비 신호${S.signals.length ? ` <small>${S.signals.length}</small>` : ''}</button></span>`;
 const SIGNALS = [['COUNT', '생산 카운트'], ['RUN', '가동'], ['STOP', '정지'], ['FAULT', '이상 정지']];
@@ -1804,82 +1949,80 @@ function viewProd() {
   const sel = S.blocks[UI.sel.block] ? UI.sel.block : list[0]?.block_id;
   const card = (dot, l, v, u, extra, cls, scope) => `<div class="panel" style="gap:4px"><span><span class="badge ${dot}" style="background:none;padding:0 6px 0 0"></span>${l}</span>
     <div><b style="font-size:28px">${v}</b> <span class="small">${u}</span> <b class="${cls}" style="margin-left:14px">${extra}</b></div><span class="small">${scope}</span></div>`;
-  const rows = list.map((b, n) => { const ws = blockWos(b.block_id), c = currentWo(b.block_id); const st = c ? c.status : 'COMPLETED';
-    const stages = ws.map(w => w.status === 'COMPLETED' ? `<i style="background:${procColor(w.process_id)}"></i>` : w === c ? `<i class="cur" style="border-color:${w.status === 'BLOCKED' ? 'var(--r)' : procColor(w.process_id)}"></i>` : '<i></i>').join('');
-    const late = ws.some(isDelayed); const tw = transferWo(b.block_id);
-    return `<tr data-act="selBlock" data-arg="${b.block_id}" class="${b.block_id === sel ? 'sel' : ''}"><td class="c">${n + 1}</td><td>${b.block_id}</td><td>${esc(b.block_name)}</td><td>${b.vessel_id}</td><td class="num">${b.weight_t}t</td>
-      <td>${c ? `${proc(c.process_id).sequence_no ? p2(proc(c.process_id).sequence_no) : ''} ${esc(proc(c.process_id).process_name)}` : '이송 완료'}</td><td><span class="stages">${stages}</span></td><td class="c">${badge('wo', st)}</td>
-      <td>${bar(c ? c.progress_ratio : 1, st === 'BLOCKED' ? 'r' : st === 'COMPLETED' ? 'g' : st === 'PLANNED' ? 'n' : 'b')}</td><td>${md(b.target_transfer_at)} ${hm(b.target_transfer_at)}</td><td class="c">${late ? '<span class="badge delay">지연</span>' : '-'}</td></tr>`; }).join('');
-  const pa = processActual().map(x => `<div class="pa"><div class="h"><span>${esc(x.p.process_name)}</span><span style="color:${x.pct === 100 ? 'var(--g)' : 'var(--o)'}">${+x.a.toFixed(1)} / ${+x.pl.toFixed(1)} ${x.unit} ${pct(x.pct)}</span></div>
-    <div class="track"><em style="width:${x.pct || 0}%;background:${procColor(x.p.process_id)}"></em></div></div>`).join('');
   const b = S.blocks[sel]; const bws = blockWos(sel);
-  const det = bws.map(w => `<tr class="${currentWo(sel) === w ? 'sel' : ''}" data-act="goWo" data-arg="${w.work_order_id}"><td>${md(w.planned_start_at)}</td><td>${p2(proc(w.process_id).sequence_no)} ${esc(proc(w.process_id).process_name)}</td>
-    <td>${+w.accepted_qty.toFixed(1)} / ${w.planned_qty} ${unit(w.unit)}</td><td class="c">${badge('wo', w.status)}</td></tr>`).join('');
   const cw = currentWo(sel); const binc = S.incidents.filter(i => i.status === 'OPEN' && bws.some(w => w.work_order_id === i.work_order_id));
-  return `${title('생산 현황', '모니터링')}
-  <div class="search">
-    <div class="field"><span class="lb">호선</span><div class="in">${radios('prodVessel', [['', '전체'], ...Object.keys(S.vessels).map(v => [v, v])], f.vessel)}</div></div>
-    <div class="field"><span class="lb">현재 공정</span><div class="in">${selectBox('prodProc', procOpts(), f.proc)}</div></div>
-    <div class="field"><span class="lb">작업 상태</span><div class="in">${radios('prodSt', [['', '전체'], ['COMPLETED', '완료'], ['IN_PROGRESS', '진행'], ['BLOCKED', '보류'], ['PLANNED', '계획']], f.st)}</div></div>
-    <div class="field"><span class="lb">블록</span><div class="in"><input type="text" id="prodQ" data-filter="prodQ" value="${esc(f.q)}" placeholder="블록 번호"></div></div>
-    <button class="btn pri" data-act="noop">검색</button><button class="btn" data-act="resetFilter" data-arg="prod">↻ 초기화</button></div>
-  <div class="grid g-4">
-    ${card('b', '이송 완료 블록', k.transferred, `/ ${k.blocks}개`, pct(k.transferred / k.blocks * 100), 'c-b', '범위: 전체 12블록 · 이송 공정 완료만 · 1회 집계')}
-    ${card('g', '기한 도래 작업 완료', k.dueDone, `/ ${k.dueTotal}건`, k.dueTotal ? pct(k.dueDone / k.dueTotal * 100) : '—', 'c-g', `범위: 계획 종료 ≤ ${hm(nowS())} 작업 ${k.dueTotal}건 · 진행·보류 = 미완료`)}
-    ${card('b', '납기 준수율', k.transferred ? pct(k.onTime / k.transferred * 100, 0).replace('%', '') : '—', '%', `${k.onTime} / ${k.transferred}블록`, 'c-b', `범위: 이송 완료 ${k.transferred}블록 중 목표 이송시각 이내`)}
-    ${card('r', '검사 합격률', (k.inspPass / k.inspTotal * 100).toFixed(1), '%', `${k.inspPass} / ${k.inspTotal}차수`, 'c-r', '기준: 검사 차수 단위(불합격 0건 = 합격) · 재검사 차수 포함')}
+  const art = window.EQ_ART || {}, pas = processActual(), allB = Object.values(S.blocks);
+  const stOf = bb => { const c = currentWo(bb.block_id); return c ? c.status : 'COMPLETED'; };
+  const bcnt = st => allB.filter(bb => stOf(bb) === st).length;
+  const chip = bb => { const c = currentWo(bb.block_id), st = stOf(bb), late = blockWos(bb.block_id).some(isDelayed), cl = STATUS.wo[st][1];
+    return `<button class="bchip ${cl} ${bb.block_id === sel ? 'sel' : ''}" data-act="selBlock" data-arg="${bb.block_id}"><span class="bh"><b>${bb.block_id}</b>${badge('wo', st)}</span>
+      <span class="bt"><i style="width:${Math.round((c ? c.progress_ratio : 1) * 100)}%"></i></span><span class="bf">${c ? `진척 ${pct(c.progress_ratio * 100)}` : '이송 완료'}${late ? '<em>지연</em>' : ''}<small>${bb.vessel_id} · ${bb.weight_t}t</small></span></button>`; };
+  const cols = Object.values(S.processes).sort((a, b) => a.sequence_no - b.sequence_no).map(pp => { const x = pas.find(q => q.p.process_id === pp.process_id), here = list.filter(bb => currentWo(bb.block_id)?.process_id === pp.process_id);
+    return `<div class="bcol"><div class="bcolh"><img src="${art[pp.process_id] || ''}" alt=""><b>${p2(pp.sequence_no)} ${esc(pp.process_name)}</b>
+      ${x ? `<div class="pa"><small class="palbl">공정 전체 실적</small><div class="h"><span>${esc(x.p.process_name)}</span><span style="color:${x.pct === 100 ? 'var(--g)' : 'var(--o)'}">${nfmt(x.a)} / ${nfmt(x.pl)} ${x.unit} ${pct(x.pct)}</span></div><div class="track"><em style="width:${x.pct || 0}%;background:${procColor(x.p.process_id)}"></em></div></div>` : ''}</div>
+      <div class="bcolb">${here.map(chip).join('') || '<span class="bempty">없음</span>'}</div></div>`; }).join('');
+  const done = list.filter(bb => !currentWo(bb.block_id));
+  const steps = bws.map(w => { const cur = currentWo(sel) === w;
+    return `<div class="jstep ${STATUS.wo[w.status][1]} ${cur ? 'cur' : ''}" data-act="goWo" data-arg="${w.work_order_id}"><i>${w.status === 'COMPLETED' ? '✓' : proc(w.process_id).sequence_no}</i>
+      <div><b>${esc(proc(w.process_id).process_name)}</b><small>${md(w.planned_start_at)} · ${w.work_order_id} · ${w.equipment_id}</small></div>
+      <span class="jq">${+w.accepted_qty.toFixed(1)} / ${w.planned_qty} ${unit(w.unit)}</span>${badge('wo', w.status)}</div>`; }).join('');
+  return `<div class="pg pg-prod">${pageHead('생산 현황', '모니터링', '블록 12개가 6개 공정 중 어디에 있는지 봅니다. 블록은 왼쪽(강재 절단)에서 오른쪽(이송 완료)으로 흐릅니다.')}
+  <div class="grid g-4 pgkpi">
+    ${card('b', '이송 완료 블록', k.transferred, `/ ${k.blocks}개`, pct(k.transferred / k.blocks * 100), 'c-b', '전체 12블록 중 이송 공정을 마친 블록')}
+    ${card('g', '기한 도래 작업 완료', k.dueDone, `/ ${k.dueTotal}건`, k.dueTotal ? pct(k.dueDone / k.dueTotal * 100) : '—', 'c-g', `계획 종료 ≤ ${hm(nowS())} 작업 ${k.dueTotal}건 중 완료`)}
+    ${card('b', '납기 준수율', k.transferred ? pct(k.onTime / k.transferred * 100, 0).replace('%', '') : '—', '%', `${k.onTime} / ${k.transferred}블록`, 'c-b', `이송 완료 블록 중 목표 시각 이내`)}
+    ${card('r', '검사 합격률', (k.inspPass / k.inspTotal * 100).toFixed(1), '%', `${k.inspPass} / ${k.inspTotal}차수`, 'c-r', '검사 차수 단위 · 재검사 포함')}
   </div>
-  <div class="grid g-prod">
-    <section class="panel"><div class="ph"><h2>블록별 진행 현황</h2><span class="sub">${list.length}개 블록 · 선택: ${sel}</span><button class="btn line" data-act="csv" data-arg="prod">⭳ 엑셀(CSV)</button></div>
-      <div class="tw"><table><thead><tr><th class="c">No.</th><th>블록</th><th>블록명</th><th>호선</th><th class="num">중량</th><th>현재 공정</th><th>공정 진행(6단계)</th><th class="c">작업 상태</th><th>진척</th><th>목표 이송</th><th class="c">지연</th></tr></thead><tbody>${rows}</tbody></table></div>
-      <span class="small">공정 색 = 공정 구분 · 테두리 = 현재 공정(빨강 = 보류) · 지연 = 계획 종료시각 도래·미완료</span></section>
-    <div class="grid">
-      <section class="panel"><div class="ph"><h2>공정별 계획 대비 실적</h2><span class="sub">계획 종료 ≤ ${hm(nowS())} 작업분 · 공정별 자기 단위</span></div>${pa}</section>
-      <section class="panel"><div class="ph"><h2>선택 블록 · ${sel}</h2><span class="sub">${esc(b.block_name)} · ${b.vessel_id} · ${b.weight_t}t</span>${bws.some(isDelayed) ? '<span class="badge delay">지연</span>' : ''}</div>
-        <div class="tw"><table><thead><tr><th>계획일</th><th>공정</th><th>실적</th><th class="c">상태</th></tr></thead><tbody>${det}</tbody></table></div>
-        <div class="links">${cw ? `<button class="btn line" data-act="goEq" data-arg="${cw.equipment_id}">${cw.equipment_id} ›</button><button class="btn line" data-act="goWo" data-arg="${cw.work_order_id}">${cw.work_order_id} ›</button>` : ''}
-          ${binc.map(i => `<button class="btn line" data-act="goInc" data-arg="${i.incident_id}">${i.incident_id} ›</button>`).join('')}</div></section>
-    </div>
-  </div>`;
+  <div class="pgbar">${chips('prodSt', [['', '전체', allB.length], ['IN_PROGRESS', '진행', bcnt('IN_PROGRESS'), 'b'], ['BLOCKED', '보류', bcnt('BLOCKED'), 'r'], ['PLANNED', '계획', bcnt('PLANNED'), 'n'], ['COMPLETED', '이송 완료', bcnt('COMPLETED'), 'g']], f.st)}
+    <span class="pgsep"></span>${chips('prodVessel', [['', '전체 호선'], ...Object.keys(S.vessels).map(v => [v, v])], f.vessel)}${selectBox('prodProc', procOpts(), f.proc)}
+    <input type="text" id="prodQ" data-filter="prodQ" value="${esc(f.q)}" placeholder="블록 번호 찾기"><span class="grow"></span>
+    <button class="btn" data-act="resetFilter" data-arg="prod">↻ 초기화</button><button class="btn line" data-act="csv" data-arg="prod">⭳ 엑셀(CSV)</button></div>
+  <div class="pgbody">
+    <section class="panel pgboard"><div class="ph"><h2>블록 흐름판</h2><span class="sub">${list.length}개 블록 · 블록 카드는 지금 있는 공정 칸에 놓입니다 · 칸 머리 = 그 공정 전체 실적(계획 종료 ≤ ${hm(nowS())} 작업분) · 카드 막대 = 그 블록의 진척</span></div>
+      <div class="board">${cols}<div class="bcol done"><div class="bcolh"><span class="bdone">✓</span><b>다 끝난 블록</b><small>이송까지 완료 ${done.length}개</small></div><div class="bcolb">${done.map(chip).join('') || '<span class="bempty">없음</span>'}</div></div></div></section>
+    <section class="panel pgside"><div class="ph"><h2>${sel} 블록이 거쳐 온 길</h2>${bws.some(isDelayed) ? '<span class="badge delay">지연</span>' : ''}<span class="sub">${esc(b.block_name)} · ${b.vessel_id} · ${b.weight_t}t · 목표 이송 ${md(b.target_transfer_at)} ${hm(b.target_transfer_at)}</span></div>
+      <div class="journey">${steps}</div>
+      ${binc.length ? `<div class="alertbox"><b>멈춘 이유</b>${binc.map(i => `<div class="row"><span class="grow">${i.incident_id} ${STATUS.cat[i.category][0]} · ${esc(i.summary)}</span><button class="btn pri" data-act="goInc" data-arg="${i.incident_id}">관제에서 처리 ›</button></div>`).join('')}</div>` : ''}
+      <div class="links">${cw ? `<button class="btn line" data-act="goEq" data-arg="${cw.equipment_id}">설비 ${cw.equipment_id} 보기 ›</button><button class="btn line" data-act="goWo" data-arg="${cw.work_order_id}">작업지시 ${cw.work_order_id} 열기 ›</button>` : ''}</div></section>
+  </div></div>`;
 }
 
 // ---------- 4. 작업 관리 ----------
 const ST_ORDER = { BLOCKED: 0, IN_PROGRESS: 1, COMPLETED: 2, PLANNED: 3 };
+const nfmt = v => (+(+v).toFixed(1)).toLocaleString('en-US');   // 1,026.5 처럼 천 단위 쉼표
+const woNeed = w => w.status === 'BLOCKED' || (w.status !== 'COMPLETED' && isDelayed(w));   // 확인 필요 = 보류이거나 기한이 지났는데 안 끝난 작업
+const WO_GRP = [['NEED', '조치 필요', '보류 중이거나 계획보다 늦어진 작업'], ['IN_PROGRESS', '진행', ''], ['PLANNED', '계획', ''], ['COMPLETED', '완료', '']];
+const woGrp = w => woNeed(w) ? 'NEED' : w.status;
 function woRows() {
   const f = UI.f.wo;
   const inDate = w => f.date === '' ? true : f.date === '16-17' ? /2026-09-1[67]/.test(w.planned_start_at) : w.planned_start_at.startsWith(`2026-09-${f.date}`);
-  return woList().filter(w => inDate(w) && (!f.proc || w.process_id === f.proc) && (!f.st || w.status === f.st) && (!f.q || (w.block_id + w.work_order_id).toLowerCase().includes(f.q.toLowerCase())) && (!f.overdue || isDelayed(w)))
+  return woList().filter(w => inDate(w) && (!f.proc || w.process_id === f.proc) && (!f.st || (f.st === 'NEED' ? woNeed(w) : w.status === f.st)) && (!f.q || (w.block_id + w.work_order_id).toLowerCase().includes(f.q.toLowerCase())) && (!f.overdue || isDelayed(w)))
     .sort((a, b) => a.planned_start_at.localeCompare(b.planned_start_at) || ST_ORDER[a.status] - ST_ORDER[b.status] || b.work_order_id.localeCompare(a.work_order_id));
 }
 function viewWo() {
   const f = UI.f.wo;
   const tabs = `<div class="subtabs"><button class="${UI.sub.wo === 'list' ? 'on' : ''}" data-act="sub" data-arg="wo:list">작업 지시<small>${woList().length}</small></button><button class="${UI.sub.wo === 'his' ? 'on' : ''}" data-act="sub" data-arg="wo:his">작업 이력<small>${S.history.length}</small></button></div>`;
-  if (UI.sub.wo === 'his') return `${title('작업 관리', '관리')}${tabs}${viewHistory()}`;
-  const list = woRows(); const per = 10, pages = Math.max(1, Math.ceil(list.length / per)); UI.page.wo = Math.min(UI.page.wo, pages);
-  const shown = list.slice((UI.page.wo - 1) * per, UI.page.wo * per);
-  const w = S.wo[UI.sel.wo] || list[0];
-  const rows = shown.map(x => { const e = eqOf(x.equipment_id); const warn = x.status === 'PLANNED' && e.status === 'FAULT';
-    return `<tr data-act="selWo" data-arg="${x.work_order_id}" class="${w && x.work_order_id === w.work_order_id ? 'sel' : ''}"><td class="c"><input type="radio" name="woPick" ${w && x.work_order_id === w.work_order_id ? 'checked' : ''} tabindex="-1" aria-label="${x.work_order_id} 선택"></td>
-      <td>${x.work_order_id}</td><td>${x.block_id} · ${esc(proc(x.process_id).process_name)}</td><td>${esc(e.equipment_name)} ${badge('eq', e.status)}</td>
-      <td>${md(x.planned_start_at)}<div class="small">${hm(x.planned_start_at)}~${hm(x.planned_end_at)}</div></td><td class="c">${badge('wo', x.status)}</td><td class="c">${delayBadge(x)}</td>
+  if (UI.sub.wo === 'his') return `<div class="pg pg-wo">${pageHead('작업 관리', '관리', '작업지시마다 언제 무엇이 바뀌었는지 기록입니다.')}${tabs}${viewHistory()}</div>`;
+  const list = woRows(), w = S.wo[UI.sel.wo] || list.find(woNeed) || list[0];
+  const inRange = woList().filter(x => f.date === '' ? true : f.date === '16-17' ? /2026-09-1[67]/.test(x.planned_start_at) : x.planned_start_at.startsWith(`2026-09-${f.date}`));
+  const row = x => { const e = eqOf(x.equipment_id), warn = x.status === 'PLANNED' && e.status === 'FAULT', last = histText(lastHistory(x.work_order_id));
+    return `<tr data-act="selWo" data-arg="${x.work_order_id}" class="${w && x.work_order_id === w.work_order_id ? 'sel' : ''}">
+      <td><b>${x.block_id} · ${esc(proc(x.process_id).process_name)}</b><div class="small">${x.work_order_id}</div></td><td>${esc(e.equipment_name)} ${badge('eq', e.status)}</td>
+      <td>${md(x.planned_start_at)}<div class="small">${hm(x.planned_start_at)}~${hm(x.planned_end_at)}</div></td><td class="c">${badge('wo', x.status)} ${delayBadge(x).replace(/^-$/, '')}</td>
       <td>${bar(x.progress_ratio, x.status === 'BLOCKED' ? 'r' : x.status === 'COMPLETED' ? 'g' : 'b', 60)}</td>
-      <td><div class="ell" title="${warn ? '지정 설비 고장 — 확인 필요' : esc(histText(lastHistory(x.work_order_id)))}">${warn ? '<span class="warn-t">⚠ 지정 설비 고장 — 확인 필요</span>' : `<span class="small">${esc(histText(lastHistory(x.work_order_id)))}</span>`}</div></td></tr>`; }).join('');
-  return `${title('작업 관리', '관리')}${tabs}
-  <div class="search">
-    <div class="field"><span class="lb">공정</span><div class="in">${selectBox('woProc', procOpts(), f.proc)}</div></div>
-    <div class="field"><span class="lb">작업 상태</span><div class="in">${radios('woSt', [['', '전체'], ['PLANNED', '계획'], ['IN_PROGRESS', '진행'], ['BLOCKED', '보류'], ['COMPLETED', '완료']], f.st)}</div></div>
-    <div class="field"><span class="lb">계획일</span><div class="in">${selectBox('woDate', [['16-17', '09/16 ~ 09/17'], ['16', '09/16'], ['17', '09/17'], ['', '전체 기간']], f.date)}</div></div>
-    <div class="field"><span class="lb">블록</span><div class="in"><input type="text" id="woQ" data-filter="woQ" value="${esc(f.q)}" placeholder="블록·작업지시 번호"></div></div>
-    <label class="radios"><input type="checkbox" id="woOver" data-filter="woOver" ${f.overdue ? 'checked' : ''}> 기한 도래 미완료만 (${kpis().overdue.length})</label>
-    <button class="btn pri" data-act="noop">검색</button><button class="btn" data-act="resetFilter" data-arg="wo">↻ 초기화</button></div>
+      <td><div class="ell" title="${warn ? '지정 설비 고장 — 확인 필요' : esc(last)}">${warn ? '<span class="warn-t">⚠ 지정 설비 고장 — 확인 필요</span>' : `<span class="small">${esc(last)}</span>`}</div></td></tr>`; };
+  const body = WO_GRP.map(([g, l, d]) => { const rs = list.filter(x => woGrp(x) === g); return rs.length ? `<tr class="grp ${g === 'NEED' ? 'need' : ''}"><td colspan="6">${l} <b>${rs.length}</b>${d ? `<span>${d}</span>` : ''}</td></tr>${rs.map(row).join('')}` : ''; }).join('');
+  return `<div class="pg pg-wo">${pageHead('작업 관리', '관리', '작업지시를 조치가 필요한 것부터 보고, 골라서 상태·수량을 바꿉니다. 저장하면 관제·설비·생산 화면에 같이 반영됩니다.')}${tabs}
+  <div class="pgbar">${chips('woSt', [['', '전체', inRange.length], ['NEED', '조치 필요', inRange.filter(woNeed).length, 'r'], ['IN_PROGRESS', '진행', inRange.filter(x => x.status === 'IN_PROGRESS').length, 'b'], ['PLANNED', '계획', inRange.filter(x => x.status === 'PLANNED').length, 'n'], ['COMPLETED', '완료', inRange.filter(x => x.status === 'COMPLETED').length, 'g']], f.st)}
+    <span class="pgsep"></span>${selectBox('woDate', [['16-17', '계획일 09/16 ~ 09/17'], ['16', '계획일 09/16'], ['17', '계획일 09/17'], ['', '전체 기간']], f.date)}${selectBox('woProc', procOpts(), f.proc)}
+    <input type="text" id="woQ" data-filter="woQ" value="${esc(f.q)}" placeholder="블록·작업지시 번호 찾기"><span class="grow"></span>
+    <button class="btn" data-act="resetFilter" data-arg="wo">↻ 초기화</button><button class="btn line" data-act="impToggle">⭱ 실적 가져오기</button><button class="btn line" data-act="csv" data-arg="wo">⭳ 엑셀(CSV)</button></div>
   ${UI.imp ? importPanel() : ''}
-  <div class="grid g-wo">
-    <section class="panel"><div class="ph"><h2>작업지시 목록</h2><span class="sub">총 ${list.length}건</span>
-      <button class="btn" disabled title="해커톤 이후 구현">− 작업지시 삭제</button><button class="btn" disabled title="해커톤 이후 구현">⊕ 신규 작업지시 등록</button><button class="btn line" data-act="impToggle">⭱ 실적 가져오기</button><button class="btn line" data-act="csv" data-arg="wo">⭳ 엑셀(CSV)</button></div>
-      <div class="tw"><table><thead><tr><th></th><th>작업지시</th><th>블록 · 공정</th><th>설비</th><th>계획</th><th class="c">작업 상태</th><th class="c">지연</th><th>진행률</th><th>최근 이력</th></tr></thead><tbody>${rows || '<tr><td colspan="9" class="c small">조건에 맞는 작업지시가 없습니다.</td></tr>'}</tbody></table></div>
-      <div class="pager">${Array.from({ length: pages }, (_, n) => `<button class="${UI.page.wo === n + 1 ? 'on' : ''}" data-act="page" data-arg="wo:${n + 1}">${n + 1}</button>`).join('')}</div></section>
+  <div class="pgbody">
+    <section class="panel pglist"><div class="ph"><h2>작업지시 ${list.length}건</h2><span class="sub">조치 필요 → 진행 → 계획 → 완료 순 · 줄을 누르면 오른쪽에서 편집</span></div>
+      <div class="tw"><table><thead><tr><th>블록 · 공정 / 작업지시</th><th>설비</th><th>계획</th><th class="c">상태</th><th>진행률</th><th>최근 이력</th></tr></thead><tbody>${body || '<tr><td colspan="6" class="c small">조건에 맞는 작업지시가 없습니다.</td></tr>'}</tbody></table></div></section>
     ${w ? woEditor(w) : '<section class="panel"><div class="empty">작업지시를 선택하세요.</div></section>'}
-  </div>`;
+  </div></div>`;
 }
 // ---------- 실적 가져오기(엑셀/CSV) ----------
 // 파일의 각 행 = 작업지시 + 누적 인정수량. 화면은 미리 확인만 하고, 반영 여부는 서버 규칙(R6)이 한 트랜잭션으로 판단한다.
@@ -1945,23 +2088,25 @@ function woEditor(w) {
   const h = w.hold_incident && incById(w.hold_incident);
   const lockInc = S.incidents.find(i => i.status === 'OPEN' && (i.incident_id === w.hold_incident || i.work_order_id === id));   // 미해결 사건이 걸린 작업은 설비 칸 잠금
   const his = woHistory(id).slice().reverse().slice(0, 6).map(x => `<tr><td>${md(x.event_at)} ${hm(x.event_at)}</td><td>${esc(STATUS.his[x.event_type] || x.event_type)}</td><td>${esc(x.note || '')}${x.incident_id ? ' · ' + x.incident_id : ''}</td></tr>`).join('');
-  return `<section class="panel"><div class="ph"><h2>작업지시 편집</h2><span class="sub">${id} · ${w.block_id} · ${esc(p.process_name)}</span>${badge('wo', w.status)}${isDelayed(w) ? '<span class="badge delay">지연</span>' : ''}</div>
+  return `<section class="panel pgside woed"><div class="ph"><h2>${w.block_id} · ${esc(p.process_name)}</h2>${badge('wo', w.status)}${isDelayed(w) ? '<span class="badge delay">지연</span>' : ''}<span class="sub">${id}</span></div>
+    <h3 class="sdh">① 지금 상태</h3>
+    <div class="sdfacts wofacts"><div><span>블록</span><b>${w.block_id}</b><small>${esc(S.blocks[w.block_id].block_name)}</small></div><div><span>공정</span><b>${w.process_id.slice(1)} ${esc(p.process_name)}</b></div>
+      <div><span>계획 기간</span><b>${md(w.planned_start_at)} ${hm(w.planned_start_at)}~${hm(w.planned_end_at)}</b></div><div><span>진행</span><b>${+w.accepted_qty.toFixed(1)} / ${w.planned_qty} ${unit(w.unit)}</b><small>${pct(w.progress_ratio * 100)}</small></div>
+      ${h ? `<div class="wide"><span>멈춘 이유</span><b class="c-r">${h.incident_id} · ${esc(h.summary)} (${STATUS.inc[h.status][0]})</b></div>` : ''}</div>
+    ${lockInc ? `<div class="wolock"><b>${STATUS.cat[lockInc.category][0]} 사건 ${lockInc.incident_id} 미해결 → 이 작업을 '진행'으로 바꿀 수 없습니다.</b><span>관제에서 사건을 먼저 처리(${lockInc.category === 'EQUIPMENT' ? '설비 복구 또는 대체 설비 승인' : '조치 기록 → 해소'})하세요. 여기서 바로 바꾸면 서버가 거부합니다.</span><button class="btn pri" data-act="goInc" data-arg="${lockInc.incident_id}">${lockInc.incident_id} 사건 처리하기 ›</button></div>` : ''}
+    <h3 class="sdh">② 바꿀 것</h3>
     <div class="form">
-      <div class="frow"><span>작업지시 번호</span><div><input readonly value="${id}"></div></div>
-      <div class="frow"><span>블록</span><div><input readonly value="${w.block_id} · ${esc(S.blocks[w.block_id].block_name)}"></div></div>
-      <div class="frow"><span>공정</span><div><input readonly value="${w.process_id.slice(1)} ${esc(p.process_name)}"></div></div>
-      <div class="frow"><span class="req">설비</span><div>${lockInc ? `<input readonly value="${esc(eqName(w.equipment_id))}" style="width:auto;flex:1"><span class="small">🔒 ${lockInc.incident_id} 미해결 · 설비 변경은 승인 절차가 필요합니다</span><button class="btn line" data-act="goInc" data-arg="${lockInc.incident_id}">관제에서 처리 ›</button>`
+      <div class="frow"><span class="req">설비</span><div>${lockInc ? `<input readonly value="${esc(eqName(w.equipment_id))}" style="width:auto;flex:1"><span class="small">🔒 ${lockInc.incident_id} 미해결 중 · 설비 변경은 별도 승인 필요</span><button class="btn line" data-act="goInc" data-arg="${lockInc.incident_id}">관제에서 처리 ›</button>`
         : `${selectBox('woEq', eqOptions, draft('woEq', w.equipment_id), 'data-draft')}<span class="small">같은 공정 설비만 · 고장·점검 설비는 서버가 거부</span>`}</div></div>
-      <div class="frow"><span>계획 기간</span><div><input readonly value="${md(w.planned_start_at)} ${hm(w.planned_start_at)} ~ ${md(w.planned_end_at)} ${hm(w.planned_end_at)}"></div></div>
       <div class="frow"><span class="req">작업 상태</span><div><div class="seg">${['PLANNED', 'IN_PROGRESS', 'BLOCKED', 'COMPLETED'].map(s => `<button class="${st === s ? 'on' : ''}" data-act="woStatus" data-arg="${s}">${STATUS.wo[s][0]}</button>`).join('')}</div></div></div>
       <div class="frow"><span>인정수량</span><div><input type="number" id="woQty" data-draft="woQty" min="0" max="${w.planned_qty}" step="any" value="${esc(draft('woQty', w.accepted_qty))}" style="width:120px"><span class="small">/ ${w.planned_qty} ${unit(w.unit)} · 진행률 ${pct(w.progress_ratio * 100)}</span></div></div>
       <div class="frow"><span>보류 사유</span><div>${st === 'BLOCKED' && w.status !== 'BLOCKED' ? selectBox('woHold', holdOpts, draft('woHold', ''), 'data-draft') : `<input readonly value="${h ? `${h.incident_id} · ${esc(h.summary)} (${STATUS.inc[h.status][0]})` : '-'}">`}</div></div>
       <div class="frow"><span>메모</span><div><input type="text" id="woMemo" data-draft="woMemo" value="${esc(draft('woMemo', w.memo || ''))}" placeholder="메모(보류 사유를 직접 적을 때도 사용)"></div></div>
     </div>
-    <div class="row"><span class="grow small">수정자·수정 시각은 서버 이력에 자동 기록</span><button class="btn" data-act="woCancel">취소</button><button class="btn pri" data-act="woSave" data-arg="${id}">저장</button></div>
-    <div class="note"><b>저장하면 서버가 한 번에 처리합니다</b>① 규칙 검사(설비 고장·미해소 사건·선행 작업·수량 범위) ② 작업 이력 자동 기록 ③ 설비 상태·구간 갱신 → 관제·설비·생산 화면 동시 반영. 하나라도 실패하면 전부 취소됩니다.</div>
-    <b style="font-size:13px">이 작업의 이력</b>
-    <div class="tw"><table><thead><tr><th>시각</th><th>구분</th><th>내용</th></tr></thead><tbody>${his || '<tr><td colspan="3" class="small c">이력 없음</td></tr>'}</tbody></table></div>
+    <h3 class="sdh">③ 저장</h3>
+    <div class="row"><span class="grow small">저장하면 서버가 규칙 검사(설비 고장·미해결 사건·선행 작업·수량 범위) → 이력 기록 → 관제·설비·생산 화면 반영을 한 번에 합니다. 하나라도 걸리면 전부 취소됩니다.</span><button class="btn" data-act="woCancel">취소</button><button class="btn pri" data-act="woSave" data-arg="${id}">저장</button></div>
+    <h3 class="sdh wohis">이 작업의 이력</h3>
+    <div class="tw wohis"><table><thead><tr><th>시각</th><th>구분</th><th>내용</th></tr></thead><tbody>${his || '<tr><td colspan="3" class="small c">이력 없음</td></tr>'}</tbody></table></div>
   </section>`;
 }
 function viewHistory() {
@@ -1983,45 +2128,40 @@ function viewBase() {
   if (UI.sub.base === 'eq') {
     const fitTxt = e => { const f = S.fit.find(x => x.equipment_id === e.equipment_id); return f ? `${f.note} · WPS ${f.wps_state === 'OK' ? '적합' : '확인'} · 출력 ${f.power_state === 'OK' ? '적합' : '확인'} · 자격 ${f.cert_state === 'OK' ? '적합' : '확인'} · 위치 ${f.loc_state === 'OK' ? '적합' : f.loc_state === 'COND' ? `조건부(이동 ${f.move_min}분)` : '부적합'}` : '-'; };
     const rows = Object.values(S.equipment).map(e => `<tr data-act="goEq" data-arg="${e.equipment_id}"><td>${e.equipment_id}</td><td>${esc(e.equipment_name)}</td><td>${e.process_id} ${esc(proc(e.process_id).process_name)}</td><td>${e.zone_id} ${esc(S.zones[e.zone_id].zone_name)}</td><td>${esc(e.resource_kind)}</td><td>${esc(e.capacity_note)}</td><td class="clip" title="${esc(fitTxt(e))}">${esc(fitTxt(e))}</td><td class="c">${badge('eq', e.status)}</td></tr>`).join('');
-    return `${title('기준정보', '관리')}${adminRow()}${tabs}<section class="panel"><div class="ph"><h2>설비 목록</h2><span class="sub">받은 엑셀 equipment 시트 + 대체 적합성(가상 기준정보) · 상태는 서버 현재값 · 시연 중 읽기 전용</span><button class="btn line" data-act="csv" data-arg="baseEq">⭳ 엑셀(CSV)</button></div>
-      <div class="tw"><table><thead><tr><th>설비코드</th><th>설비명</th><th>공정</th><th>작업구역</th><th>자원</th><th>비고</th><th>대체 적합성</th><th class="c">상태</th></tr></thead><tbody>${rows}</tbody></table></div></section>`;
+    return `<div class="pg pg-base">${pageHead('기준정보', '관리', '설비 8대의 기준값(작업구역·자원·대체 적합성)입니다. 관제 판단의 기준이라 시연 중에는 읽기만 합니다.', `<span class="badge n rdonly">🔒 조회 전용</span>${adminRow()}`)}${tabs}<section class="panel pglist"><div class="ph"><h2>설비 목록</h2><span class="sub">받은 엑셀 equipment 시트 + 대체 적합성(가상 기준정보) · 상태는 서버 현재값 · 시연 중 읽기 전용</span><button class="btn line" data-act="csv" data-arg="baseEq">⭳ 엑셀(CSV)</button></div>
+      <div class="tw"><table><thead><tr><th>설비코드</th><th>설비명</th><th>공정</th><th>작업구역</th><th>자원</th><th>비고</th><th>대체 적합성</th><th class="c">상태</th></tr></thead><tbody>${rows}</tbody></table></div></section></div>`;
   }
   const sel = S.processes[UI.sel.proc] || procs[0];
   const linked = Object.values(S.equipment).filter(e => e.process_id === sel.process_id);
   const rows = procs.map(p => `<tr data-act="selProc" data-arg="${p.process_id}" class="${p.process_id === sel.process_id ? 'sel' : ''}"><td class="c">${p.sequence_no}</td><td>${p.process_id}</td><td>${esc(p.process_name)}</td><td>${p.zone_id} ${esc(S.zones[p.zone_id].zone_name)}</td>
     <td class="c">${unit(p.unit)}</td><td class="c">${p.standard_hours} h</td><td class="c">${Object.values(S.equipment).filter(e => e.process_id === p.process_id).length}대</td><td class="c"><span class="toggle" title="사용"></span></td><td><span class="sw" style="background:${procColor(p.process_id)}"></span><span class="small">고정</span></td></tr>`).join('');
-  const prev = procs.map(p => `<button class="step ${p.process_id === sel.process_id ? 'fault' : ''}" style="${p.process_id === sel.process_id ? 'border-color:var(--P03);background:#FFF8F1' : ''}" data-act="selProc" data-arg="${p.process_id}">
-    <span style="height:4px;border-radius:2px;background:${procColor(p.process_id)}"></span><span class="small" style="color:${procColor(p.process_id)};font-weight:700">${p.zone_id} · ${p.process_id}</span><span class="t">${esc(p.process_name)}</span>
-    <span class="ico">${icon(p.process_id)}</span><span class="small">${Object.values(S.equipment).filter(e => e.process_id === p.process_id).map(e => e.equipment_id).join(' · ')}</span></button>`).join('');
+  const art = window.EQ_ART || {};
+  const flow = procs.map((p, n) => { const eqs = Object.values(S.equipment).filter(e => e.process_id === p.process_id);
+    return `${n ? '<span class="pfarr">→</span>' : ''}<button class="pfc ${p.process_id === sel.process_id ? 'sel' : ''}" data-act="selProc" data-arg="${p.process_id}" style="--pc:${procColor(p.process_id)}">
+      <span class="pfn">${p2(p.sequence_no)}</span><img src="${art[p.process_id] || ''}" alt=""><b>${esc(p.process_name)}</b><small>${p.zone_id} ${esc(S.zones[p.zone_id].zone_name)}</small>
+      <span class="pfm"><em>단위 ${unit(p.unit)}</em><em>설비 ${eqs.length}대</em></span></button>`; }).join('');
   const woCount = woList().filter(w => w.process_id === sel.process_id).length;
-  return `${title('기준정보', '관리')}${adminRow()}${tabs}
-  <div class="grid g-wo">
-    <div class="grid">
-      <section class="panel"><div class="ph"><h2>공정 목록</h2><span class="sub">총 ${procs.length}건 · 시연 중 읽기 전용</span><button class="btn line" data-act="csv" data-arg="baseProc">⭳ 엑셀(CSV)</button></div>
-        <div class="tw"><table><thead><tr><th class="c">순서</th><th>공정 코드</th><th>공정명</th><th>작업구역</th><th class="c">단위</th><th class="c">기준 경과시간</th><th class="c">연결 설비</th><th class="c">사용</th><th>공정 색</th></tr></thead><tbody>${rows}</tbody></table></div>
-        <span class="small">기준 경과시간 4h는 제공 데이터의 단순화 값(실제 표준공수 아님)</span></section>
-      <section class="panel"><div class="ph"><h2>2D 공정 흐름 미리보기</h2><span class="sub">관제 공정·설비 연결망과 같은 순서</span></div><div class="flow">${prev}</div></section>
-    </div>
-    <section class="panel"><div class="ph"><h2>공정 상세</h2><span class="sub">${sel.process_id} · ${esc(sel.process_name)}</span></div>
-      <div class="form">
-        <div class="frow"><span>공정 코드</span><div><input readonly value="${sel.process_id}"></div></div>
-        <div class="frow"><span>순서 번호</span><div><input readonly value="${sel.sequence_no}"><span class="small">진행 중 작업이 있어 순서 변경은 해커톤 이후</span></div></div>
-        <div class="frow"><span>공정명</span><div><input readonly value="${esc(sel.process_name)}"></div></div>
-        <div class="frow"><span>작업구역</span><div><input readonly value="${sel.zone_id} ${esc(S.zones[sel.zone_id].zone_name)}"></div></div>
-        <div class="frow"><span>단위</span><div><input readonly value="${unit(sel.unit)}"></div></div>
-        <div class="frow"><span>기준 경과시간</span><div><input readonly value="${sel.standard_hours} h"></div></div>
-      </div>
-      <b style="font-size:13px">연결 설비 ${linked.length}대</b>
-      <div class="tw"><table><thead><tr><th>설비</th><th>설비명</th><th>비고</th><th class="c">상태</th></tr></thead><tbody>${linked.map(e => `<tr data-act="goEq" data-arg="${e.equipment_id}"><td>${e.equipment_id}</td><td>${esc(e.equipment_name)}</td><td>${esc(e.capacity_note)}</td><td class="c">${badge('eq', e.status)}</td></tr>`).join('')}</tbody></table></div>
-      <div class="alertbox" style="background:var(--o-bg);border-color:#F2C677"><b class="c-o" style="font-size:13px">삭제·사용 중지 불가</b><span style="font-size:12px">연결 설비 ${linked.length}대와 작업지시 ${woCount}건이 있어 삭제·사용 중지할 수 없습니다.</span></div>
+  return `<div class="pg pg-base">${pageHead('기준정보', '관리', '블록이 거치는 6개 공정과 공정마다 쓰는 설비의 기준값입니다. 공정을 누르면 오른쪽에 그 공정의 기준과 설비가 나옵니다.', `<span class="badge n rdonly">🔒 조회 전용</span>${adminRow()}`)}${tabs}
+  <section class="panel pgflow"><div class="ph"><h2>공정 흐름</h2><span class="sub">블록은 01 → 06 순서로 흐릅니다 · 관제 지도·3D 조선소와 같은 순서와 그림</span></div><div class="pflow">${flow}</div></section>
+  <div class="pgbody">
+    <section class="panel pglist"><div class="ph"><h2>공정 목록</h2><span class="sub">총 ${procs.length}건 · 시연 중 읽기 전용 · 기준 경과시간 4h는 제공 데이터의 단순화 값</span><button class="btn line" data-act="csv" data-arg="baseProc">⭳ 엑셀(CSV)</button></div>
+      <div class="tw"><table><thead><tr><th class="c">순서</th><th>공정 코드</th><th>공정명</th><th>작업구역</th><th class="c">단위</th><th class="c">기준 경과시간</th><th class="c">연결 설비</th><th class="c">사용</th><th>공정 색</th></tr></thead><tbody>${rows}</tbody></table></div></section>
+    <section class="panel pgside"><div class="ph"><h2>${p2(sel.sequence_no)} ${esc(sel.process_name)}</h2><span class="sub">${sel.process_id} · 시연 중 읽기 전용</span></div>
+      <h3 class="sdh">① 공정 기준</h3>
+      <div class="sdfacts wofacts"><div><span>공정 코드 · 순서</span><b>${sel.process_id} · ${sel.sequence_no}번째</b></div><div><span>작업구역</span><b>${sel.zone_id} ${esc(S.zones[sel.zone_id].zone_name)}</b></div>
+        <div><span>실적 단위</span><b>${unit(sel.unit)}</b></div><div><span>기준 경과시간</span><b>${sel.standard_hours} h</b></div></div>
+      <h3 class="sdh">② 이 공정의 설비 <small>${linked.length}대 · 누르면 설비 상태 화면</small></h3>
+      <div class="lkeq">${linked.map(e => `<button class="lke" data-act="goEq" data-arg="${e.equipment_id}"><img src="${eqArtOf(e)}" alt=""><span><b>${e.equipment_id} ${esc(e.equipment_name)}</b><small>${esc(e.capacity_note)}</small></span>${badge('eq', e.status)}</button>`).join('')}</div>
+      <h3 class="sdh">③ 바꿀 수 있나요?</h3>
+      <div class="alertbox" style="background:var(--o-bg);border-color:#F2C677"><b class="c-o" style="font-size:13px">삭제·사용 중지 불가</b><span style="font-size:12px">연결 설비 ${linked.length}대와 작업지시 ${woCount}건이 있어 삭제·사용 중지할 수 없습니다. 순서 변경은 해커톤 이후 지원합니다.</span></div>
       <div class="note"><b>시연 중 기준정보는 읽기 전용입니다</b>공정·설비·대체 적합성 값은 관제 판단의 기준이라 시연 중에는 바꾸지 않습니다.</div>
     </section>
-  </div>`;
+  </div></div>`;
 }
 const VIEW_RENDER = { dash: viewDash, eq: viewEq, prod: viewProd, wo: viewWo, base: viewBase };
 
 function adminRow() {
-  return `<div class="admin"><b>관리</b><span class="small">공용 데이터를 09/16 12:00 엑셀 원본으로 되돌립니다. 같은 서버를 보는 모든 화면에 적용됩니다.</span><span class="grow"></span>
+  return `<div class="admin"><b>관리</b><span class="small">공용 데이터를 09/16 12:00 엑셀 원본으로 되돌립니다(조작 권한 필요 · 두 번 눌러 확인).</span><span class="grow"></span>
     <button class="btn ${UI.resetArm ? 'danger' : ''}" data-act="reset" ${UI.canWrite ? '' : 'disabled title="조작 권한(시연 코드)이 필요합니다"'}>${UI.resetArm ? '한 번 더 누르면 초기화' : '데이터 초기화'}</button></div>`;
 }
 // ---------- CSV ----------
@@ -2066,6 +2206,7 @@ function render() {
 }
 const ACT = {
   noop() { render(); },
+  fchip(a) { const i = a.indexOf(':'); FILTER[a.slice(0, i)](a.slice(i + 1), {}); UI.page.wo = 1; render(); },
   go(v) { if (v === 'easy') v = 'dash'; if (v !== '3d' && SIM.on) simStop(true); UI.view = v; UI.menuOpen = false; try { history.replaceState(null, '', '#' + v); } catch (e) { /* file:// 등 */ } UI.resetArm = false; render(); window.scrollTo(0, 0); },
   topGo(v) { if (v === 'blk') return ACT.bkOpen(easyCase()?.work_order_id ? S.wo[easyCase().work_order_id].block_id : '');
     if (v === 'edu') { ACT.go('3d'); if (T3.ready) { simStart(); render(); } else T3.wantSim = true; return; }
