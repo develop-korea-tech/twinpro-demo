@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#0B1A33"/>
+  <!-- 디지털 쌍둥이(점선 윤곽) -->
+  <g fill="none" stroke="#6FD3FF" stroke-width="3.6" stroke-linejoin="round">
+    <path d="M37 9 L53 17 L53 34 L37 42 L21 34 L21 17 Z"/>
+    <path d="M21 17 L37 25 L53 17 M37 25 L37 42"/>
+  </g>
+  <!-- 실제 블록(입체) -->
+  <path d="M27 22 L43 30 L27 38 L11 30 Z" fill="#E6EEF8"/>
+  <path d="M11 30 L27 38 L27 55 L11 47 Z" fill="#9DB3D6"/>
+  <path d="M27 38 L43 30 L43 47 L27 55 Z" fill="#4E6E9E"/>
+  <path d="M27 22 L43 30 L27 38 L11 30 Z M11 30 L11 47 L27 55 L43 47 L43 30" fill="none" stroke="#0B1A33" stroke-width="1.6" stroke-linejoin="round"/>
+</svg>
