@@ -1349,7 +1349,7 @@ tr.iogrp td { border-top: 2px solid var(--line2); } td code { font: 12px/1.3 ui-
 .aisc { width: 100%; height: auto; overflow: visible; } .aisc line { stroke: var(--line2); } .aisc .g90 { stroke: #19A34A; stroke-dasharray: 4 4; } .aisc text { font-size: 13px; fill: var(--fg); } .aisc .ax { font-size: 11px; fill: var(--fg3); }
 .aisc circle.an { fill: #C96A3A; } .aisc circle.oa { fill: #10A37F; } .aisc circle.gg { fill: #4C7CF0; }
 .aifoot { color: var(--fg3); }
-@media (max-width: 1400px) { .aicards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 1400px) { .aicards { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 @media (max-width: 1100px) { .aicards, .airow { grid-template-columns: 1fr; } .aipipe { flex-wrap: wrap; } .aiarr { display: none; } }
 
 /* 움직임: 화면 전환 · 숫자 · 살아 있는 표시 · 카드 */
@@ -1359,6 +1359,22 @@ tr.iogrp td { border-top: 2px solid var(--line2); } td code { font: 12px/1.3 ui-
 .lvbar i { transition: width 1s linear; } .lvm .lvmv, .lvd .lvdv { transition: height .6s ease-out; }
 .panel, .pv-ec, .pv-pc, .lvk, .eqc { transition: box-shadow .2s, transform .2s; } .pv-ec:hover, .eqc:hover, .lvk:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(15,23,38,.08); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* 기준정보 · 설비 붙이기 / 없애기 */
+.btn.sm { padding: 3px 9px; font-size: 11px; }
+.eqform { border-left: 3px solid var(--pri); animation: eqin .25s ease-out; }
+@keyframes eqin { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+.eqform h2 small { font-weight: 500; color: var(--fg3); margin-left: 6px; font-size: 12px; }
+.eqfrow { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 14px; padding: 4px 0 8px; }
+.eqfrow label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; }
+.eqfrow label > span { color: var(--fg3); font-size: 11px; }
+.eqfrow input[type=text], .eqfrow input[type=number], .eqfrow select { height: 30px; border: 1px solid var(--line2); border-radius: 4px; padding: 0 8px; font-size: 12px; background: var(--card); }
+.eqfrow #eqfName { width: 200px; }
+.eqfrow em { font-style: normal; font-size: 11px; color: var(--fg3); align-self: center; }
+tr.eqoff td { color: var(--fg3); background: var(--n-bg); }
+td.eqbtns { white-space: nowrap; } td.eqbtns .btn + .btn { margin-left: 4px; }
+.eqnote { padding: 8px 2px 0; }
+@media (max-width: 700px) { .eqfrow label, .eqfrow #eqfName { width: 100%; } }
 .iso{
   --anatomy-page:#0b0b0b;--anatomy-card:#131313;--anatomy-text:#a3a3a3;--anatomy-strong:#e6e6e6;--anatomy-muted:#6e6e6e;
   --anatomy-paper:#131313;--anatomy-face:#1b1b1b;--anatomy-top:#1c1c1c;
@@ -1610,7 +1626,10 @@ function buildState(rows) {
   rows.zones.forEach(z => st.zones[z.zone_id] = z);
   rows.vessels.forEach(v => st.vessels[v.vessel_id] = v);
   byId(rows.blocks, 'block_id').forEach(b => st.blocks[b.block_id] = { ...b, weight_t: num(b.weight_t), target_transfer_at: ts(b.target_transfer_at) });
-  byId(rows.equipment, 'equipment_id').forEach(e => st.equipment[e.equipment_id] = { ...e });
+  // 설비: 사용 중지(active = false) 설비는 화면 목록에서 뺀다(eqAll에는 남겨 이력 표시에 씀). 서버에 설비 관리 확장(23)이 없으면 모두 사용으로 본다
+  st.eqAll = {}; byId(rows.equipment, 'equipment_id').forEach(e => { st.eqAll[e.equipment_id] = { ...e }; if (e.active !== false) st.equipment[e.equipment_id] = st.eqAll[e.equipment_id]; });
+  st.eqBase = new Set((rows.equipment_snapshot || []).map(e => e.equipment_id));   // 엑셀 원본 설비(시연 중 추가한 설비와 구분)
+  st.eqAdminReady = rows.equipment.length > 0 && 'active' in rows.equipment[0];
   byId(rows.work_orders, 'work_order_id').forEach(w => st.wo[w.work_order_id] = {
     ...w, planned_start_at: ts(w.planned_start_at), planned_end_at: ts(w.planned_end_at), actual_start_at: ts(w.actual_start_at), actual_end_at: ts(w.actual_end_at),
     forecast_end_at: ts(w.forecast_end_at), planned_qty: num(w.planned_qty), accepted_qty: num(w.accepted_qty), progress_ratio: num(w.progress_ratio),
@@ -1632,10 +1651,11 @@ function buildState(rows) {
   st.aiUsed = num((rows.ai_usage || []).find(u => String(u.day).slice(0, 10) === today)?.used) || 0;
   st.simLock = (rows.sim_lock || [])[0] || null;
   st.steps = (rows.incident_steps || []).slice().sort((a, b) => a.id - b.id).map(x => ({ ...x, at: ts(x.at) }));   // 사건 처리 단계 기록(대체 가능 확인·적합성·승인)
-  st.fit = rows.equipment_fit || [];                                                                                     // 대체 설비 적합성 기준정보
+  st.fitAll = rows.equipment_fit || []; st.fit = st.fitAll.filter(f => st.equipment[f.equipment_id]);   // 사용 중지 설비는 대체 후보에서 뺀다                                                                                     // 대체 설비 적합성 기준정보
   st.signals = (rows.signal_log || []).slice().sort((a, b) => b.id - a.id).slice(0, 8).map(g => ({ ...g, sim_at: ts(g.sim_at), value: num(g.value), source: g.source || 'SIM' }));
   // 현장 데이터 수집: 수집 포인트(서버 표가 없으면 화면 기본값) + 받은 신호의 출처별 집계
-  st.io = ((rows.io_point || []).length ? rows.io_point : typeof ioDefault === 'function' ? ioDefault() : []).slice().sort((a, b) => a.sort - b.sort);
+  st.ioAll = ((rows.io_point || []).length ? rows.io_point : typeof ioDefault === 'function' ? ioDefault() : []).slice().sort((a, b) => a.sort - b.sort);
+  st.io = st.ioAll.filter(p => st.equipment[p.equipment_id]);   // 사용 중지 설비의 수집 포인트는 화면에서 뺀다
   st.ioReady = !(typeof MISSING !== 'undefined' && MISSING.has('io_point'));
   const sg = (rows.signal_log || []).slice().sort((a, b) => a.id - b.id), sigStat = { n: sg.length, src: { SIM: 0, MODBUS: 0, ETOS: 0 }, byEq: {}, last: null, faultInc: {} };
   sg.forEach(g => { const src = g.source || 'SIM'; sigStat.src[src] = (sigStat.src[src] || 0) + 1; sigStat.byEq[g.equipment_id] = (sigStat.byEq[g.equipment_id] || 0) + 1;
@@ -1655,7 +1675,7 @@ function buildState(rows) {
 
 const nowS = () => fromM(S.now);
 const proc = id => S.processes[id];
-const eqOf = id => S.equipment[id];
+const eqOf = id => S.equipment[id] || (S.eqAll && S.eqAll[id]);
 const woList = () => Object.values(S.wo);
 const incById = id => S.incidents.find(i => i.incident_id === id);
 const openIncidents = () => S.incidents.filter(i => i.status === 'OPEN').sort((a, b) => CAT_ORDER[a.category] - CAT_ORDER[b.category] || toM(a.opened_at) - toM(b.opened_at));
@@ -1774,13 +1794,13 @@ function priorities() {
   const list = S.incidents.filter(i => i.status === 'OPEN').map(i => {
     const wo = relOut(T, i.incident_id, 'STOPS')[0] || null, w = wo ? S.wo[wo] : null;
     const eq = relOut(T, i.incident_id, 'ON_EQ')[0] || (wo ? relOut(T, wo, 'USES')[0] : null) || null;
-    const fault = i.category === 'EQUIPMENT' && !!eq && S.equipment[eq].status === 'FAULT';
+    const fault = i.category === 'EQUIPMENT' && !!eq && eqOf(eq).status === 'FAULT';
     const next = [];
     for (let x = wo && relOut(T, wo, 'NEXT')[0]; x; x = relOut(T, x, 'NEXT')[0]) if (S.wo[x].status !== 'COMPLETED') next.push(x);
     const same = fault ? relIn(T, eq, 'USES').filter(x => x !== wo && S.wo[x].status !== 'COMPLETED').sort() : [];
     const blocks = fault && (!w || w.equipment_id === eq);
     const stopped = !!w && w.status !== 'COMPLETED' && (w.status === 'BLOCKED' || i.category === 'QUALITY');
-    const pid = w ? w.process_id : eq ? S.equipment[eq].process_id : null;
+    const pid = w ? w.process_id : eq ? eqOf(eq).process_id : null;
     const subs = i.category === 'EQUIPMENT' && pid ? relIn(T, pid, 'CAN_SUB').filter(x => x !== eq).sort() : [];
     return { inc: i, wo, w, eq, pid, blocks, stopped, min: S.now - toM(i.opened_at), next, same, wait: next.length + same.length, subs };
   });
@@ -2231,7 +2251,7 @@ function viewEq() {
         ${selectBox('faultSev', [['HIGH', 'HIGH'], ['MEDIUM', 'MEDIUM'], ['LOW', 'LOW']], draft('faultSev', 'HIGH'), 'data-draft')}<button class="btn danger" data-act="registerFault" data-arg="${id}">고장 등록</button><button class="btn" data-act="faultForm">취소</button>`
       : `<button class="btn danger" data-act="faultForm">고장 등록…</button><span class="small">고장 등록 시 이 설비의 진행 중 작업이 보류됩니다.</span>`;
   const allOpen = openIncidents();
-  return `<div class="pg pg-eq">${pageHead('설비 상태', '모니터링', '설비 8대가 지금 어떤 상태인지, 지난 5일 동안 어떻게 돌았는지 봅니다. 설비를 누르면 오른쪽에 자세한 내용이 나옵니다.')}
+  return `<div class="pg pg-eq">${pageHead('설비 상태', '모니터링', `설비 ${Object.keys(S.equipment).length}대가 지금 어떤 상태인지, 지난 5일 동안 어떻게 돌았는지 봅니다. 설비를 누르면 오른쪽에 자세한 내용이 나옵니다.`)}
   <div class="pgbar">${chips('eqSt', [['', '전체', all.length], ['RUNNING', '가동', cnt('RUNNING'), 'b'], ['IDLE', '대기', cnt('IDLE'), 'n'], ['FAULT', '고장', cnt('FAULT'), 'r'], ['MAINTENANCE', '점검', cnt('MAINTENANCE'), 'p']], f.st)}
     <span class="pgsep"></span>${selectBox('eqProc', procOpts(), f.proc)}${chips('eqKind', [['', '전체 자원'], ['설비', '설비'], ['검사자원', '검사자원']], f.kind)}
     <input type="text" id="eqQ" data-filter="eqQ" value="${esc(f.q)}" placeholder="설비 코드·이름 찾기"><span class="grow"></span>
@@ -2461,15 +2481,41 @@ function viewHistory() {
 }
 
 // ---------- 5. 기준정보 ----------
+// 설비 탭: 설비 붙이기(추가) · 없애기(사용 중지 / 기록 없는 추가 설비만 삭제). 서버 규칙은 23_equipment_admin.sql
+const EQ_ROUTE = [['MODBUS', 'Modbus TCP · 개별 장비(PLC) 직결'], ['ETOS', 'ETOS 통신 서버 · 집약 라우팅 장비 경유'], ['INPUT', '시스템 입력만 · 센서 없음']];
+const eqIsBase = id => !S.eqBase || S.eqBase.has(id);
+function eqNextNo() { return Math.max(0, ...Object.keys(S.eqAll || S.equipment).map(k => +(/^EQ(\d+)$/.exec(k) || [])[1] || 0)) + 1; }
+function eqForm() {
+  const n = eqNextNo(), pid = draft('eqfProc', 'P03'), rt = draft('eqfRoute', 'MODBUS'), procs = Object.values(S.processes).sort((a, b) => a.sequence_no - b.sequence_no);
+  const conn = rt === 'MODBUS' ? `<label><span>장비 IP</span><input type="text" id="eqfIp" data-draft="eqfIp" value="${esc(draft('eqfIp', `192.168.10.${10 + n}`))}" style="width:140px"></label>
+      <label><span>Unit</span><input type="number" id="eqfUnit" data-draft="eqfUnit" min="1" max="247" value="${esc(draft('eqfUnit', 1))}" style="width:70px"></label><em>포트 502 · Coil 00001 가동 / HR 40001 수량 / DI 10001 이상</em>`
+    : rt === 'ETOS' ? `<label><span>%MW 시작</span><input type="number" id="eqfMw" data-draft="eqfMw" min="0" max="9997" value="${esc(draft('eqfMw', n * 100))}" style="width:100px"></label><em>ETOS-100XP 192.168.20.10:2004 · %MW 3개(가동 · 누적 수량 · 이상)</em>`
+    : '<em>센서 연결 없이 작업자가 화면에서 실적 · 상태를 입력합니다(수집 포인트 없음)</em>';
+  return `<section class="panel eqform"><div class="ph"><h2>설비 추가 <small>새 번호 EQ${String(n).padStart(2, '0')}</small></h2><span class="sub">대기 상태로 시작 · 대체 적합성은 「확인 필요」로 시작 · IP · 주소는 가상 기준정보</span><span class="grow"></span><button class="btn" data-act="eqFormTog">닫기</button></div>
+    <div class="eqfrow"><label><span>설비 이름</span><input type="text" id="eqfName" data-draft="eqfName" maxlength="30" value="${esc(draft('eqfName', ''))}" placeholder="예: 예비 용접기 2호"></label>
+      <label><span>공정</span>${selectBox('eqfProc', procs.map(p => [p.process_id, `${p.process_id} ${p.process_name}`]), pid, 'data-draft')}</label>
+      <label><span>작업구역</span>${selectBox('eqfZone', Object.values(S.zones).map(z => [z.zone_id, `${z.zone_id} ${z.zone_name}`]), draft('eqfZone', proc(pid).zone_id), 'data-draft')}</label>
+      <label><span>자원 종류</span>${selectBox('eqfKind', [['설비', '설비'], ['검사자원', '검사자원']], draft('eqfKind', pid === 'P04' ? '검사자원' : '설비'), 'data-draft')}</label></div>
+    <div class="eqfrow"><label><span>데이터 연결</span>${selectBox('eqfRoute', EQ_ROUTE, rt, 'data-draft')}</label>${conn}<span class="grow"></span>
+      <button class="btn pri" data-act="eqAdd" ${UI.canWrite ? '' : 'disabled title="조작 권한(시연 코드)이 필요합니다"'}>추가</button></div></section>`;
+}
+function viewBaseEq(tabs) {
+  const fitTxt = e => { const f = (S.fitAll || S.fit).find(x => x.equipment_id === e.equipment_id); return f ? `${f.note} · WPS ${f.wps_state === 'OK' ? '적합' : '확인'} · 출력 ${f.power_state === 'OK' ? '적합' : '확인'} · 자격 ${f.cert_state === 'OK' ? '적합' : '확인'} · 위치 ${f.loc_state === 'OK' ? '적합' : f.loc_state === 'COND' ? (f.move_min ? `조건부(이동 ${f.move_min}분)` : '확인') : '부적합'}` : '-'; };
+  const all = Object.values(S.eqAll || S.equipment), off = all.filter(e => e.active === false), ready = S.eqAdminReady, dis = UI.canWrite ? '' : 'disabled title="조작 권한(시연 코드)이 필요합니다"';
+  const conn = e => { const p = (S.ioAll || S.io).find(x => x.equipment_id === e.equipment_id); return p ? `<span class="iob ${IO_ROUTE[p.route][2]}">${p.route === 'MODBUS' ? 'Modbus' : 'ETOS'}</span>` : '<span class="iob s">시스템 입력</span>'; };
+  const btns = e => !ready ? '' : `${e.active === false ? `<button class="btn line sm" data-act="eqActive" data-arg="${e.equipment_id}:1" ${dis}>사용</button>` : `<button class="btn sm" data-act="eqActive" data-arg="${e.equipment_id}:0" ${dis}>사용 중지</button>`}${eqIsBase(e.equipment_id) ? '' : `<button class="btn sm ${UI.eqDelArm === e.equipment_id ? 'danger' : 'line'}" data-act="eqDel" data-arg="${e.equipment_id}" ${dis}>${UI.eqDelArm === e.equipment_id ? '한 번 더 누르면 삭제' : '삭제'}</button>`}`;
+  const rows = all.map(e => `<tr class="${e.active === false ? 'eqoff' : ''}" ${e.active === false ? '' : `data-act="goEq" data-arg="${e.equipment_id}"`}><td>${e.equipment_id}${eqIsBase(e.equipment_id) ? '' : ' <span class="badge b">추가</span>'}</td><td>${esc(e.equipment_name)}</td><td>${e.process_id} ${esc(proc(e.process_id).process_name)}</td><td>${e.zone_id} ${esc(S.zones[e.zone_id].zone_name)}</td><td>${esc(e.resource_kind)}</td><td>${conn(e)}</td><td class="clip" title="${esc(fitTxt(e))}">${esc(fitTxt(e))}</td><td class="c">${e.active === false ? '<span class="badge n">사용 중지</span>' : badge('eq', e.status)}</td>${ready ? `<td class="eqbtns">${btns(e)}</td>` : ''}</tr>`).join('');
+  const head = ready ? `<button class="btn pri" data-act="eqFormTog">${UI.eqForm ? '추가 닫기' : '+ 설비 추가'}</button>${adminRow()}` : `<span class="badge n rdonly">🔒 조회 전용</span>${adminRow()}`;
+  return `<div class="pg pg-base">${pageHead('기준정보', '관리', `설비 ${all.length - off.length}대의 기준값입니다. [+ 설비 추가]로 붙이고 [사용 중지]로 뺍니다. 작업 · 사건 기록이 있는 설비는 지우지 않고 사용 중지합니다(이력은 그대로).`, head)}${tabs}
+    ${ready && UI.eqForm ? eqForm() : ''}
+    <section class="panel pglist"><div class="ph"><h2>설비 목록</h2><span class="sub">엑셀 equipment 시트 ${S.eqBase ? S.eqBase.size : 8}대${all.length - (S.eqBase ? S.eqBase.size : 8) > 0 ? ` + 시연 중 추가 ${all.length - (S.eqBase ? S.eqBase.size : 8)}대` : ''}${off.length ? ` · 사용 중지 ${off.length}대(화면 5개 · 대체 후보 · 신호 입구에서 제외)` : ''} · 대체 적합성은 가상 기준정보${ready ? '' : ' · 서버에 설비 관리 확장(supabase_equipment.sql) 적용 전이라 읽기 전용'}</span><button class="btn line" data-act="csv" data-arg="baseEq">⭳ 엑셀(CSV)</button></div>
+      <div class="tw"><table><thead><tr><th>설비코드</th><th>설비명</th><th>공정</th><th>작업구역</th><th>자원</th><th>데이터 연결</th><th>대체 적합성</th><th class="c">상태</th>${ready ? '<th>관리</th>' : ''}</tr></thead><tbody>${rows}</tbody></table></div>
+      ${ready ? '<div class="small eqnote">사용 중지 거부: 진행 중 · 남은 작업이 배정된 설비, 미해결 사건 · 가동 · 고장 중인 설비 · 삭제는 시연 중 추가했고 기록이 없는 설비만 · [데이터 초기화]를 누르면 원본 8대로 돌아갑니다 · 운영 추이(1분 = 1일)는 원본 8대 기준 · 3D 조선소는 모델이 고정이라 추가 설비를 그리지 않습니다</div>' : ''}</section></div>`;
+}
 function viewBase() {
   const tabs = baseTabs();
   const procs = Object.values(S.processes).sort((a, b) => a.sequence_no - b.sequence_no);
-  if (UI.sub.base === 'eq') {
-    const fitTxt = e => { const f = S.fit.find(x => x.equipment_id === e.equipment_id); return f ? `${f.note} · WPS ${f.wps_state === 'OK' ? '적합' : '확인'} · 출력 ${f.power_state === 'OK' ? '적합' : '확인'} · 자격 ${f.cert_state === 'OK' ? '적합' : '확인'} · 위치 ${f.loc_state === 'OK' ? '적합' : f.loc_state === 'COND' ? `조건부(이동 ${f.move_min}분)` : '부적합'}` : '-'; };
-    const rows = Object.values(S.equipment).map(e => `<tr data-act="goEq" data-arg="${e.equipment_id}"><td>${e.equipment_id}</td><td>${esc(e.equipment_name)}</td><td>${e.process_id} ${esc(proc(e.process_id).process_name)}</td><td>${e.zone_id} ${esc(S.zones[e.zone_id].zone_name)}</td><td>${esc(e.resource_kind)}</td><td>${esc(e.capacity_note)}</td><td class="clip" title="${esc(fitTxt(e))}">${esc(fitTxt(e))}</td><td class="c">${badge('eq', e.status)}</td></tr>`).join('');
-    return `<div class="pg pg-base">${pageHead('기준정보', '관리', '설비 8대의 기준값(작업구역·자원·대체 적합성)입니다. 관제 판단의 기준이라 시연 중에는 읽기만 합니다.', `<span class="badge n rdonly">🔒 조회 전용</span>${adminRow()}`)}${tabs}<section class="panel pglist"><div class="ph"><h2>설비 목록</h2><span class="sub">받은 엑셀 equipment 시트 + 대체 적합성(가상 기준정보) · 상태는 서버 현재값 · 시연 중 읽기 전용</span><button class="btn line" data-act="csv" data-arg="baseEq">⭳ 엑셀(CSV)</button></div>
-      <div class="tw"><table><thead><tr><th>설비코드</th><th>설비명</th><th>공정</th><th>작업구역</th><th>자원</th><th>비고</th><th>대체 적합성</th><th class="c">상태</th></tr></thead><tbody>${rows}</tbody></table></div></section></div>`;
-  }
+  if (UI.sub.base === 'eq') return viewBaseEq(tabs);
   const sel = S.processes[UI.sel.proc] || procs[0];
   const linked = Object.values(S.equipment).filter(e => e.process_id === sel.process_id);
   const rows = procs.map(p => `<tr data-act="selProc" data-arg="${p.process_id}" class="${p.process_id === sel.process_id ? 'sel' : ''}"><td class="c">${p.sequence_no}</td><td>${p.process_id}</td><td>${esc(p.process_name)}</td><td>${p.zone_id} ${esc(S.zones[p.zone_id].zone_name)}</td>
@@ -2493,7 +2539,7 @@ function viewBase() {
       <div class="lkeq">${linked.map(e => `<button class="lke" data-act="goEq" data-arg="${e.equipment_id}"><img src="${eqArtOf(e)}" alt=""><span><b>${e.equipment_id} ${esc(e.equipment_name)}</b><small>${esc(e.capacity_note)}</small></span>${badge('eq', e.status)}</button>`).join('')}</div>
       <h3 class="sdh">③ 바꿀 수 있나요?</h3>
       <div class="alertbox" style="background:var(--o-bg);border-color:#F2C677"><b class="c-o" style="font-size:13px">삭제·사용 중지 불가</b><span style="font-size:12px">연결 설비 ${linked.length}대와 작업지시 ${woCount}건이 있어 삭제·사용 중지할 수 없습니다. 순서 변경은 해커톤 이후 지원합니다.</span></div>
-      <div class="note"><b>시연 중 기준정보는 읽기 전용입니다</b>공정·설비·대체 적합성 값은 관제 판단의 기준이라 시연 중에는 바꾸지 않습니다.</div>
+      <div class="note"><b>시연 중 공정 기준은 읽기 전용입니다</b>공정 값은 관제 판단의 기준이라 시연 중에는 바꾸지 않습니다. 설비는 [설비] 탭에서 추가 · 사용 중지할 수 있습니다.</div>
     </section>
   </div></div>`;
 }
@@ -2512,7 +2558,7 @@ function csvData(kind) {
   if (kind === 'his') return [['이력 ID', '시각', '작업지시', '구분', '사건', '내용', '출처'], ...S.history.slice().reverse().map(h => [h.history_id, h.event_at, h.work_order_id, STATUS.his[h.event_type] || h.event_type, h.incident_id || '', h.note || '', h.source === 'demo' ? '시연' : '엑셀'])];
   if (kind === 'baseIo') return [['포인트', '설비', '경로', '접속 주소', 'Unit', '주소·태그', '형식', '만드는 신호', '변환 규칙'], ...S.io.map(p => [p.point_id, p.equipment_id, p.route, p.endpoint, p.unit_id ?? '', p.address, p.data_type, p.signal, p.rule])];
   if (kind === 'baseProc') return [['순서', '공정 코드', '공정명', '작업구역', '단위', '기준 경과시간'], ...Object.values(S.processes).sort((a, b) => a.sequence_no - b.sequence_no).map(p => [p.sequence_no, p.process_id, p.process_name, p.zone_id, unit(p.unit), p.standard_hours])];
-  return [['설비코드', '설비명', '공정', '작업구역', '자원', '비고', '상태'], ...Object.values(S.equipment).map(e => [e.equipment_id, e.equipment_name, e.process_id, e.zone_id, e.resource_kind, e.capacity_note, STATUS.eq[e.status][0]])];
+  return [['설비코드', '설비명', '공정', '작업구역', '자원', '비고', '상태'], ...Object.values(S.eqAll || S.equipment).map(e => [e.equipment_id, e.equipment_name, e.process_id, e.zone_id, e.resource_kind, e.capacity_note, e.active === false ? '사용 중지' : STATUS.eq[e.status][0]])];
 }
 const CSV_NAME = { eq: '설비목록', prod: '블록별진행', wo: '작업지시', his: '작업이력', baseProc: '공정', baseEq: '설비', baseIo: '수집포인트' };
 function exportCsv(kind) {
@@ -2589,6 +2635,14 @@ const ACT = {
   reset() { if (!UI.resetArm) { UI.resetArm = true; render(); setTimeout(() => { if (UI.resetArm) { UI.resetArm = false; render(); } }, 4000); return; }
     UI.resetArm = false; call('tp_reset_demo', {}, () => { UI.draft = {}; UI.sel.inc = null; UI.sel.node = null; UI.pausedFor = ''; }); },
   registerFault(eq) { call('tp_register_fault', { p_eq: eq, p_summary: UI.draft.faultSum || '', p_severity: UI.draft.faultSev || 'HIGH' }, () => { delete UI.draft.faultSum; UI.faultForm = false; }); },
+  eqFormTog() { UI.eqForm = !UI.eqForm; render(); if (UI.eqForm) document.getElementById('eqfName')?.focus(); },
+  eqAdd() { const d = UI.draft, n = eqNextNo(), pid = d.eqfProc || 'P03', rt = d.eqfRoute || 'MODBUS';
+    call('tp_equipment_add', { p_name: d.eqfName || '', p_process: pid, p_zone: d.eqfZone || proc(pid).zone_id, p_kind: d.eqfKind || (pid === 'P04' ? '검사자원' : '설비'), p_route: rt,
+      p_ip: rt === 'MODBUS' ? (d.eqfIp ?? `192.168.10.${10 + n}`) : null, p_unit: rt === 'MODBUS' ? +(d.eqfUnit ?? 1) : null, p_mw: rt === 'ETOS' ? +(d.eqfMw ?? n * 100) : null },
+      () => { UI.eqForm = false; for (const k of Object.keys(UI.draft)) if (k.startsWith('eqf')) delete UI.draft[k]; }); },
+  eqActive(a) { const [id, on] = a.split(':'); UI.eqDelArm = null; call('tp_equipment_set_active', { p_eq: id, p_active: on === '1' }); },
+  eqDel(id) { if (UI.eqDelArm !== id) { UI.eqDelArm = id; render(); setTimeout(() => { if (UI.eqDelArm === id) { UI.eqDelArm = null; render(); } }, 4000); return; }
+    UI.eqDelArm = null; call('tp_equipment_delete', { p_eq: id }); },
   woSave(id) {
     const w = S.wo[id]; const d = UI.draft;
     const qty = 'woQty' in d && d.woQty !== '' && Number(d.woQty) !== w.accepted_qty ? Number(d.woQty) : null;
@@ -2683,7 +2737,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.target.i
 document.addEventListener('change', e => {
   const el = e.target;
   if (el.id === 'impFile' && el.files && el.files[0]) { readImportFile(el.files[0]); return; }
-  if (el.dataset.draft && el.tagName === 'SELECT') { UI.draft[el.dataset.draft] = el.value; if (el.id === 'sigType') render(); return; }
+  if (el.dataset.draft && el.tagName === 'SELECT') { UI.draft[el.dataset.draft] = el.value; if (el.id === 'eqfProc') { delete UI.draft.eqfZone; delete UI.draft.eqfKind; } if (['sigType', 'eqfProc', 'eqfRoute'].includes(el.id)) render(); return; }
   if (el.dataset.filter && el.type !== 'text') { FILTER[el.dataset.filter](el.value, el); UI.page.wo = 1; render(); }
 });
 
@@ -3158,9 +3212,9 @@ function viewProdTrend() {
     <div class="lvtop">
       <div class="lvk"><small>2026 누적 가동률</small><b>${cnt('lv-u', ytdU, 1)}<i>%</i></b><em>${[...new Set(yr.map(r => r.day))].length}일 집계</em></div>
       <div class="lvk"><small>2026 누적 완성 블록</small><b>${cnt('lv-b', blocks(yr))}<i>개</i></b><em>06 블록 이송 실적</em></div>
-      <div class="lvk"><small>2026 누적 고장</small><b>${cnt('lv-f', lvSum(yr, r => r.faults))}<i>건</i></b><em>설비 8대 합계</em></div>
+      <div class="lvk"><small>2026 누적 고장</small><b>${cnt('lv-f', lvSum(yr, r => r.faults))}<i>건</i></b><em>원본 설비 8대 합계</em></div>
       <div class="lvk lvnow" id="lvtoday">${lvTodayInner()}</div></div>
-    <section class="panel lvyear"><div class="ph"><h2>연간 · 월별 가동률</h2><span class="sub">막대 = 그 달 설비 8대 평균 가동률(20~70% 구간 확대) · 누르면 아래에 일별</span><span class="grow"></span>
+    <section class="panel lvyear"><div class="ph"><h2>연간 · 월별 가동률</h2><span class="sub">막대 = 그 달 원본 설비 8대 평균 가동률(20~70% 구간 확대) · 누르면 아래에 일별</span><span class="grow"></span>
       <span class="legend"><span><i class="lvlg hist"></i>가상 이력(01~09/15)</span><span><i class="lvlg base"></i>시연 기준일(09/16)</span><span><i class="lvlg live"></i>연출 진행(1분 = 1일)</span></span></div>
       <div class="lvms">${mBars}</div></section>
     <div class="lvrow"><section class="panel lvmonth"><div class="ph"><h2>${+selM}월 일별 가동률</h2><span class="sub">${days.length}일 집계 · 빨간 점 = 고장 발생일 · 일요일 휴무 · 토요일 반일</span></div><div class="lvds">${dBars || '<div class="empty">아직 쌓인 날이 없습니다.</div>'}</div></section>
@@ -3180,7 +3234,10 @@ if (false) module.exports = { lvDay, lvSignals, lvRnd, lvNow, LV };
 const AI_MODELS_DEFAULT = [   // 서버 tp_ai_model 표가 아직 없을 때 쓰는 같은 목록(단가 USD / 100만 토큰)
   ['claude-haiku-5-5', 'anthropic', 'Claude Haiku 5.5', '경량', 0.10, 0.50], ['claude-sonnet-5-5', 'anthropic', 'Claude Sonnet 5.5', '중간', 2.00, 10.00],
   ['claude-opus-5-5', 'anthropic', 'Claude Opus 5.5', '상위', 4.00, 20.00], ['gpt-6-luna', 'openai', 'OpenAI GPT-6 Luna', '경량', 0.10, 0.50],
-  ['gpt-6.1-terra', 'openai', 'OpenAI GPT-6.1 Terra', '중간', 1.00, 5.00], ['gemini-3.6-flash', 'google', 'Gemini 3.6 Flash', '경량', 0.75, 3.75],
+  ['gpt-6.1-terra', 'openai', 'OpenAI GPT-6.1 Terra', '중간', 1.00, 5.00], ['gpt-6.1-sol', 'openai', 'OpenAI GPT-6.1 Sol', '중간', 2.00, 10.00],
+  ['gpt-6-astra', 'openai', 'OpenAI GPT-6 Astra', '상위', 10.00, 50.00], ['gemini-3.1-flash-lite', 'google', 'Gemini 3.1 Flash-Lite', '경량', 0.25, 1.50],
+  ['gemini-3.6-flash', 'google', 'Gemini 3.6 Flash', '경량', 0.75, 3.75], ['gemini-3.1-pro-preview', 'google', 'Gemini 3.1 Pro', '상위', 2.00, 12.00],
+  ['gemini-4-argon', 'google', 'Gemini 4 Argon', '중간', 2.00, 10.00],
 ].map(([model_id, provider, label, tier, price_in, price_out], i) => ({ model_id, provider, label, tier, price_in, price_out, enabled: true, sort: i + 1, price_note: '공개 가격표 기준 2026-10 확인 · 변경 가능' }));
 const AI_KRW = 1400;   // 원화 환산(1 USD = 1,400원, 표시용 가정)
 const AI_PROV = { anthropic: ['Anthropic', 'an'], openai: ['OpenAI', 'oa'], google: ['Google', 'gg'] };
@@ -3227,7 +3284,10 @@ function viewAi() {
   // 비용(로그) × 정확도 산점도: 왼쪽 위일수록 싸고 정확함
   const pts = st.filter(s => s.ok).map(s => ({ s, x: Math.log10(Math.max(s.cost * AI_KRW, 0.01)), y: s.score })), xs = pts.map(p => p.x);
   const x0 = Math.min(...xs, 0) - 0.3, x1 = Math.max(...xs, 0) + 0.3, X = x => 50 + (x - x0) / (x1 - x0) * 490, Y = y => 190 - Math.max(0, y - 40) / 60 * 170;
-  const sc = pts.map((p, i) => `<g transform="translate(${X(p.x).toFixed(1)},${Y(p.y).toFixed(1)})"><circle r="7" class="${AI_PROV[p.s.m.provider][1]}"/><text x="${i % 2 ? -10 : 10}" y="${i % 2 ? 18 : -9}" text-anchor="${i % 2 ? 'end' : 'start'}">${esc(p.s.m.label.replace(/^(Claude|OpenAI|Gemini) /, ''))}</text></g>`).join('');
+  // 같은 자리(비용 · 정확도가 같은 모델)는 이름을 한 줄로 묶고, 오른쪽 끝 이름은 왼쪽으로 붙여 잘리지 않게 한다
+  const grp = []; pts.forEach(p => { const px = X(p.x), py = Y(p.y), g = grp.find(q => Math.abs(q.px - px) < 6 && Math.abs(q.py - py) < 6); if (g) g.ps.push(p); else grp.push({ px, py, ps: [p] }); });
+  const sc = grp.map((g, i) => { const left = i % 2 || g.px > 430, name = g.ps.map(p => esc(p.s.m.label.replace(/^(Claude|OpenAI|Gemini) /, ''))).join(' · ');
+    return `<g transform="translate(${g.px.toFixed(1)},${g.py.toFixed(1)})">${g.ps.map((p, k) => `<circle r="7" cx="${k * 5}" class="${AI_PROV[p.s.m.provider][1]}"/>`).join('')}<text x="${left ? -10 : 10}" y="${i % 2 ? 18 : -9}" text-anchor="${left ? 'end' : 'start'}">${name}</text></g>`; }).join('');
   return `<div class="pg pg-ai">${pvHead('AI 운영 센터', 'AI', '어떤 AI 모델이 우리 공장 요약을 가장 잘 하나?', '같은 서버 사실을 회사별 모델에 동시에 주고 응답 속도 · 비용 · 정확도를 실측합니다', '<span class="pvai">AI는 요약 문장만 씁니다 · 순위 · 판단 규칙은 서버</span>')}
     <section class="aipipe ${busy ? 'busy' : ''}">
       ${stepEl(1, '서버 사실 읽기', `tp_ai_facts · 사건 ${openIncidents().length}건 · 설비 ${Object.keys(S.equipment).length}대`)}<i class="aiarr"></i>
@@ -3289,6 +3349,7 @@ const T3_HQ = (() => { try { return !navigator.webdriver && !matchMedia('(pointe
 const T3_SUN = { el: 38, az: 205 };   // 해 높이(도)·방향(+y에서 +x 쪽으로 도). 기본 시점의 앞·왼쪽에서 비추는 맑은 낮(바다는 파랗게, 그림자는 또렷하게)
 const hex = c => '#' + c.toString(16).padStart(6, '0');
 
+const t3Hidden = () => S.eqBase && S.eqBase.size ? Object.keys(S.equipment).filter(id => !S.eqBase.has(id)).length : 0;   // 3D 모델에 없는 추가 설비 수
 function t3Url() { return window.TP_GLB || 'twinpro_shipyard.glb?v=' + (window.TP_GLB_V || ''); }
 function t3State() {   // 공정별 상태(쉬운 화면과 같은 기준)
   const out = {};
@@ -3325,7 +3386,7 @@ function t3Shell() {
   const sideOn = T3.panel && !(SIM.on && SIM.vid) && (SIM.on || (!T3X.inc && !T3X.tour && !T3X.plan));   // 16배속 영상은 화면을 넓게   // 사건·순회 중에는 3D를 넓게(전체 현황은 하단 KPI·알람에 있음)
   const side = !sideOn ? '' : SIM.on ? simSide() : `<aside class="txside">
       <div class="txsec">오늘 합계 · ${md(nowS())}</div>
-      <div class="txkv"><span>작업 중 공정</span><b>${Object.values(S3).filter(s => s.c === 'g').length} / 6</b><span>가동 기계</span><b>${k.running} / ${k.total}</b><span>오늘 끝난 작업</span><b>${k.todayDone} / ${k.todayTotal}</b><span>해결 안 된 문제</span><b class="${k.open ? 'r' : ''}">${k.open}</b></div>
+      <div class="txkv"><span>작업 중 공정</span><b>${Object.values(S3).filter(s => s.c === 'g').length} / 6</b><span>가동 기계</span><b>${k.running} / ${k.total}</b><span>오늘 끝난 작업</span><b>${k.todayDone} / ${k.todayTotal}</b><span>해결 안 된 문제</span><b class="${k.open ? 'r' : ''}">${k.open}</b>${t3Hidden() ? `<span>3D 미표시 설비</span><b title="시연 중 추가한 설비는 3D 모델이 없어 그리지 않습니다(공정 상태 · 합계에는 반영)">${t3Hidden()}대</b>` : ''}</div>
       <div class="txsec">공정별 블록 · DATA</div>
       <div class="txkv">${T3_PROC.map(p => S3[p] ? `<span>${p} ${EASY_NAME[p]}</span><b><i class="dot" style="background:${hex(T3_LINE[S3[p].c])}"></i>${S3[p].w.block_id} · ${pct(S3[p].w.progress_ratio * 100)}</b>` : '').join('')}</div>
       <div class="txsec">확인할 문제</div>

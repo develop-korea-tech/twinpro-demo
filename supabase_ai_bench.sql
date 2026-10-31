@@ -7,13 +7,18 @@ create table if not exists tp_ai_model (model_id text primary key, provider text
   label text not null, tier text not null, price_in double precision not null, price_out double precision not null,   -- USD / 100만 토큰
   price_note text not null, enabled boolean not null default true, sort int not null);
 insert into tp_ai_model (model_id, provider, label, tier, price_in, price_out, price_note, sort) values
-  ('claude-haiku-5-5',  'anthropic', 'Claude Haiku 5.5',  '경량', 0.10, 0.50, '공개 가격표 기준 2026-10 확인 · 변경 가능', 1),
+  ('claude-haiku-5-5', 'anthropic', 'Claude Haiku 5.5', '경량', 0.10, 0.50, '공개 가격표 기준 2026-10 확인 · 변경 가능', 1),
   ('claude-sonnet-5-5', 'anthropic', 'Claude Sonnet 5.5', '중간', 2.00, 10.00, '공개 가격표 기준 2026-10 확인 · 변경 가능', 2),
-  ('claude-opus-5-5',   'anthropic', 'Claude Opus 5.5',   '상위', 4.00, 20.00, '공개 가격표 기준 2026-10 확인 · 변경 가능', 3),
-  ('gpt-6-luna',        'openai',    'OpenAI GPT-6 Luna', '경량', 0.10, 0.50, '공개 가격표 기준 2026-10 확인 · 변경 가능', 4),
-  ('gpt-6.1-terra',     'openai',    'OpenAI GPT-6.1 Terra', '중간', 1.00, 5.00, '공개 가격표 기준 2026-10 확인 · 변경 가능', 5),
-  ('gemini-3.6-flash',  'google',    'Gemini 3.6 Flash',  '경량', 0.75, 3.75, '공개 가격표 기준 2026-10 확인 · 변경 가능', 6)
-on conflict (model_id) do nothing;
+  ('claude-opus-5-5', 'anthropic', 'Claude Opus 5.5', '상위', 4.00, 20.00, '공개 가격표 기준 2026-10 확인 · 변경 가능', 3),
+  ('gpt-6-luna', 'openai', 'OpenAI GPT-6 Luna', '경량', 0.10, 0.50, '공개 가격표 기준 2026-10 확인 · 변경 가능', 4),
+  ('gpt-6.1-terra', 'openai', 'OpenAI GPT-6.1 Terra', '중간', 1.00, 5.00, '공개 가격표 기준 2026-10 확인 · 변경 가능', 5),
+  ('gpt-6.1-sol', 'openai', 'OpenAI GPT-6.1 Sol', '중간', 2.00, 10.00, '공개 가격표 기준 2026-10 확인 · 변경 가능', 6),
+  ('gpt-6-astra', 'openai', 'OpenAI GPT-6 Astra', '상위', 10.00, 50.00, '공개 가격표 기준 2026-10 확인 · 변경 가능', 7),
+  ('gemini-3.1-flash-lite', 'google', 'Gemini 3.1 Flash-Lite', '경량', 0.25, 1.50, '공개 가격표 기준 2026-10 확인 · 변경 가능', 8),
+  ('gemini-3.6-flash', 'google', 'Gemini 3.6 Flash', '경량', 0.75, 3.75, '공개 가격표 기준 2026-10 확인 · 변경 가능', 9),
+  ('gemini-3.1-pro-preview', 'google', 'Gemini 3.1 Pro', '상위', 2.00, 12.00, '공개 가격표 기준 2026-10 확인 · 변경 가능', 10),
+  ('gemini-4-argon', 'google', 'Gemini 4 Argon', '중간', 2.00, 10.00, '공개 가격표 기준 2026-10 확인 · 변경 가능', 11)
+on conflict (model_id) do update set label = excluded.label, tier = excluded.tier, price_in = excluded.price_in, price_out = excluded.price_out, sort = excluded.sort;
 
 create table if not exists tp_ai_bench_run (run_id text primary key, day date not null, created_at timestamptz not null default now());
 create table if not exists tp_ai_bench (id bigserial primary key, created_at timestamptz not null default now(), run_id text not null, sim_at timestamp not null,
