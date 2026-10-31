@@ -1210,31 +1210,16 @@ td .small { line-height: 18px; }
 .pv-gax > div { position: relative; height: 18px; } .pv-gax > div span { position: absolute; transform: translateX(-50%); font-size: 11.5px; color: var(--fg3); }
 .pv-plan > .pvleg { padding-top: 4px; }
 
-/* 구조도 */
-.pv-base { display: flex; flex-direction: column; gap: 0; overflow: auto; }
-.pv-bcols { display: grid; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); flex: 1; min-height: 0; background: #fff; }
-.pv-bc { display: flex; flex-direction: column; align-items: stretch; padding: 0 0 14px; min-height: 0; }
-.pv-bp { position: relative; border: 0; text-align: left; background: #0E1726; color: #fff; padding: 18px 18px 18px; display: flex; flex-direction: column; gap: 2px; }
-.pv-bp .no { font-size: 46px; font-weight: 200; letter-spacing: -2px; line-height: 1; } .pv-bp b { font-size: 19px; margin-top: 8px; } .pv-bp small { font-size: 12px; color: #7F8BA3; }
-.pv-bc:not(:last-child) .pv-bp::after { content: '→'; position: absolute; right: -9px; top: 22px; font-size: 22px; color: #5D6B85; z-index: 2; }
-.pv-vl { display: block; width: 2px; height: 22px; background: #0F1726; margin: 0 auto; } .pv-vl.dash { background: none; border-left: 2px dashed #9AA6BA; width: 0; height: 16px; }
-.pv-be { margin: 0 10px; border: 1px solid var(--line); border-radius: 12px; background: #fff; padding: 0; overflow: hidden; text-align: left; display: flex; flex-direction: column; color: var(--fg); }
-.pv-be .pv-ph { height: clamp(130px, 28vh, 300px); background: linear-gradient(180deg, #F7F8FA, #EBEEF2); display: flex; align-items: center; justify-content: center; } .pv-be .pv-ph img { max-width: 88%; max-height: 88%; }
-.pv-bn { padding: 10px 14px; display: flex; flex-direction: column; } .pv-bn small { font-size: 12px; font-weight: 700; color: var(--fg3); } .pv-bn b { font-size: 17px; } .pv-bn em { font-style: normal; font-size: 12px; color: var(--fg3); margin-top: 2px; }
-.pv-be.sub { flex-direction: row; align-items: center; gap: 8px; border: 1.5px dashed #9AA6BA; background: #FAFBFC; padding: 6px 8px; } .pv-be.sub img { width: clamp(64px, 9vh, 110px); } .pv-be.sub .pv-bn { padding: 4px 4px; } .pv-be.sub .pv-bn b { font-size: 15px; }
-.pv-be:hover, .pv-bp:hover { filter: brightness(.97); }
-.pv-read { display: grid; grid-template-columns: auto repeat(3, auto) 1fr; gap: 18px; align-items: center; font-size: 13px; color: var(--fg2); padding: 10px 4px 0; } .pv-read b { color: var(--fg); }
 @media (max-height: 860px) {
   .pvhead .pvq { font-size: 18px; }
   .pv-eqmap { gap: 22px; padding: 12px 16px; } .pv-pct b { font-size: 21px; } .pv-cnt b { font-size: 38px; } .pv-sum p { font-size: 13px; line-height: 1.5; }
   .pv-big { font-size: 72px; } .pv-big span { font-size: 28px; } .pv-hero { padding: 14px 24px; } .pv-bi { height: 60px; } .pv-goal img { max-height: 80px; } .pv-goal b { font-size: 24px; }
   .pv-pph img { max-height: 110px; } .pv-pc { grid-template-columns: 80px 150px minmax(0, 1fr); } .pv-rk b { font-size: 42px; } .pv-pst { font-size: 15.5px; }
-  .pv-be .pv-ph { height: 120px; } .pv-be .pv-ph img { max-height: 108px; } .pv-bp .no { font-size: 34px; } .pv-bp { padding: 12px 14px; }
 }
 @media (max-width: 1100px) {
   .pv-row6, .pv-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } .pv-eqmap { grid-template-rows: auto; } .pv-zones { display: none; } .pv-bots > div { grid-column: auto !important; }
-  .pv-pri, .pv-hero { grid-template-columns: minmax(0, 1fr); } .pv-bcols { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } .pv-plan { --gh: 150px; } .pv-gi { display: none; }
-  .pv-pc { grid-template-columns: 64px minmax(0, 1fr); } .pv-pph { display: none; } .pvhead { flex-wrap: wrap; } .pv-read { grid-template-columns: 1fr; }
+  .pv-pri, .pv-hero { grid-template-columns: minmax(0, 1fr); } .pv-plan { --gh: 150px; } .pv-gi { display: none; }
+  .pv-pc { grid-template-columns: 64px minmax(0, 1fr); } .pv-pph { display: none; } .pvhead { flex-wrap: wrap; }
 }
 /* 공정 교육 재생 16배속 녹화 영상: 3D 화면 위를 덮고, 아래에 재생 · 배속 · 단계 · 진행 막대 */
 .simvid { position: absolute; inset: 0; z-index: 6; background: #0B1322; display: flex; flex-direction: column; }
@@ -2605,8 +2590,8 @@ async function boot() {
 //  작업 관리 = 우선순위 1·2·3(무엇부터 처리하나, 온톨로지 근거 + 처리 단계 실행) / 일정표(누가 언제 무엇을)
 //  기준정보 = 구조도(공정과 설비가 어떻게 짜여 있나)
 // 사진은 AI로 만든 예시 이미지(실제 설비·선박 아님)다. [표] 보기는 기존 화면(ui.js) 그대로다.
-UI.mode = { eq: 'pic', prod: 'pic', wo: 'pri', base: 'pic' };
-const MODES = { eq: [['pic', '그림'], ['table', '표']], prod: [['pic', '그림'], ['table', '표']], wo: [['pri', '우선순위'], ['plan', '일정표'], ['table', '표']], base: [['pic', '그림'], ['table', '표']] };
+UI.mode = { eq: 'pic', prod: 'pic', wo: 'pri' };   // 기준정보는 표만(그림은 다른 화면과 겹쳐서 뺌)
+const MODES = { eq: [['pic', '그림'], ['table', '표']], prod: [['pic', '그림'], ['table', '표']], wo: [['pri', '우선순위'], ['plan', '일정표'], ['table', '표']] };
 const modeTabs = v => MODES[v] ? `<span class="pvmode">${MODES[v].map(([k, l]) => `<button class="${UI.mode[v] === k ? 'on' : ''}" data-act="mode" data-arg="${v}:${k}">${l}</button>`).join('')}</span>` : '';
 const PHOTO = () => window.EQ_PHOTO || {};
 const mainEq = pid => Object.values(S.equipment).filter(x => x.process_id === pid).sort((a, b) => a.equipment_id < b.equipment_id ? -1 : 1)[0];
@@ -2783,20 +2768,6 @@ function viewWoPlan() {
       <div class="legend pvleg"><span><i style="background:#0F1726"></i>완료</span><span><i style="background:${EQC.b}"></i>진행(채운 만큼)</span><span><i style="background:${EQC.r}"></i>멈춤</span><span><i style="background:${EQC.o}"></i>자재·품질 대기</span><span><i class="dash"></i>예정</span><span class="small">막대를 누르면 작업지시 편집(표)으로 이동 · 계획 시간 기준 위치</span></div></div></div>`;
 }
 
-// ---------- 기준정보 · 구조도 ----------
-function viewBasePic() {
-  const procs = procsSorted();
-  const cols = procs.map(p => { const eqs = Object.values(S.equipment).filter(e => e.process_id === p.process_id).sort((a, b) => a.equipment_id < b.equipment_id ? -1 : 1);
-    const m = eqs[0], rest = eqs.slice(1);
-    return `<div class="pv-bc"><button class="pv-bp" data-act="pvProc" data-arg="${p.process_id}"><span class="no">${p2(p.sequence_no)}</span><b>${esc(p.process_name)}</b><small>작업구역 ${p.zone_id} · 실적 단위 ${unit(p.unit)}</small></button>
-      ${m ? `<i class="pv-vl"></i><button class="pv-be" data-act="goEq" data-arg="${m.equipment_id}"><span class="pv-ph"><img src="${eqPhoto(m)}" alt=""></span><span class="pv-bn"><small>${m.equipment_id}</small><b>${esc(m.equipment_name)}</b><em>기본 설비 · ${esc(m.resource_kind)}</em></span></button>` : ''}
-      ${rest.map(e => { const sub = S.fit.some(f => f.equipment_id === e.equipment_id && f.process_id === p.process_id);
-        return `<i class="pv-vl dash"></i><button class="pv-be sub" data-act="goEq" data-arg="${e.equipment_id}"><img src="${eqPhoto(e)}" alt=""><span class="pv-bn"><small>${e.equipment_id}</small><b>${esc(e.equipment_name)}</b><em class="${sub ? 'c-pri' : ''}">${sub ? '대체 설비 (적합성 등록)' : '추가 설비'}</em></span></button>`; }).join('')}</div>`; }).join('');
-  return `<div class="pg pg-basepic">${pvHead('기준정보', '관리', '공정과 설비는 어떻게 짜여 있나?', '', `<span class="badge n rdonly">🔒 조회 전용</span>${pvNote}`)}
-    <div class="pv pv-base"><div class="pv-bcols" style="grid-template-columns:repeat(${procs.length}, minmax(0, 1fr))">${cols}</div>
-      <div class="pv-read"><div class="cap">읽는 법</div><div><b>위 검은 띠</b> · 블록이 거치는 공정 ${procs.length}개, 왼쪽에서 오른쪽 순서</div><div><b>사진 카드</b> · 공정마다 정해진 기본 설비</div><div><b>점선 카드</b> · 기본 설비가 멈추면 대신 쓰는 설비(대체 적합성 기준정보)</div><div class="small">공정을 누르면 공정 기준(표), 설비를 누르면 설비 상태 · 시연 중에는 조회만 됩니다</div></div></div></div>`;
-}
-
 // ---------- 지시선·관계선 그리기(그린 뒤 실제 위치를 재서 SVG로) ----------
 function pvMount() {
   document.querySelectorAll('.pv-canvas').forEach(cv => {
@@ -2828,14 +2799,12 @@ Object.assign(VIEW_RENDER, {
   eq: () => UI.mode.eq === 'pic' ? viewEqPic() : viewEq(),
   prod: () => UI.mode.prod === 'pic' ? viewProdPic() : viewProd(),
   wo: () => UI.mode.wo === 'pri' ? viewWoPri() : UI.mode.wo === 'plan' ? viewWoPlan() : viewWo(),
-  base: () => UI.mode.base === 'pic' ? viewBasePic() : viewBase(),
 });
 // ---------- 동작 ----------
 Object.assign(ACT, {
   mode(a) { const [v, k] = a.split(':'); UI.mode[v] = k; render(); },
   pvEq(id) { UI.mode.eq = 'table'; ACT.goEq(id); },
   pvBlock(id) { UI.mode.prod = 'table'; ACT.goBlock(id); },
-  pvProc(id) { UI.mode.base = 'table'; UI.sub.base = 'proc'; UI.sel.proc = id; render(); },
   priSel(id) { UI.sel.pri = id; UI.sel.inc = id; delete UI.draft.subEq; delete UI.draft.wizNote; UI.figModal = false;   // 처리할 사건을 고르면 위쪽에 추적 칩, 재생은 자동으로 멈춤
     if (UI.simOn) { stopSim(); UI.pausedFor = '사건 확인 중'; } render(); },
   goPri(id) { if (id) { UI.sel.pri = id; UI.sel.inc = id; if (UI.simOn) { stopSim(); UI.pausedFor = '사건 확인 중'; } } ACT.go('wo'); },   // 관제·다른 화면 → 작업 관리 우선순위(그 사건 선택)
