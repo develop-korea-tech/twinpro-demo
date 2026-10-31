@@ -1311,6 +1311,54 @@ tr.iogrp td { border-top: 2px solid var(--line2); } td code { font: 12px/1.3 ui-
 .lvfoot { color: var(--fg3); }
 @media (max-width: 1100px) { .lvtop, .lvrow { grid-template-columns: 1fr; } .lvms { grid-template-columns: repeat(6, minmax(0, 1fr)); height: auto; } .lvm { height: 120px; } }
 @media (max-width: 760px) { .iochip { margin-left: 0; max-width: 100%; flex-wrap: wrap; } .iochip small, .lvchip > span:first-of-type small { max-width: 100%; white-space: normal; } .lvspark { display: none; } }
+
+/* AI 운영 센터 */
+.pg-ai { display: flex; flex-direction: column; gap: 12px; }
+.aipipe { display: flex; align-items: center; gap: 10px; background: #0F1726; border-radius: 12px; padding: 14px 18px; color: #DCE6F5; position: relative; overflow: hidden; }
+.aipipe.busy::after { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, rgba(77,155,255,.18) 50%, transparent 70%); animation: aishine 1.4s linear infinite; pointer-events: none; }
+@keyframes aishine { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+.aistep { display: flex; align-items: center; gap: 10px; opacity: .55; transition: opacity .3s; } .aistep b { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; border: 1.5px solid #5D6B85; font-size: 13px; }
+.aistep strong { display: block; font-size: 14px; color: #fff; } .aistep small { font-size: 11.5px; color: #9FB0C8; }
+.aistep.on { opacity: 1; } .aistep.on b { border-color: #4D9BFF; background: #4D9BFF; color: #fff; box-shadow: 0 0 0 4px rgba(77,155,255,.25); animation: aipulse 1.2s ease-in-out infinite; }
+.aistep.done { opacity: 1; } .aistep.done b { border-color: #19A34A; background: #19A34A; color: #fff; }
+@keyframes aipulse { 50% { box-shadow: 0 0 0 8px rgba(77,155,255,.08); } }
+.aiarr { width: 26px; height: 2px; background: linear-gradient(90deg, #5D6B85, #9FB0C8); flex: none; }
+.aigo { display: flex; flex-direction: column; align-items: center; padding: 8px 18px; font-size: 15px; } .aigo small { font-size: 11px; opacity: .85; }
+.aicards { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+.aicard { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; min-height: 230px; transition: transform .2s, box-shadow .2s; }
+.aicard:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(15,23,38,.08); }
+.aicard.an { border-top: 3px solid #C96A3A; } .aicard.oa { border-top: 3px solid #10A37F; } .aicard.gg { border-top: 3px solid #4C7CF0; }
+.aicard.call { border-color: #9DC1F5; } .aicard.skip { opacity: .7; }
+.aich { display: flex; align-items: center; gap: 6px; } .aich b { font-size: 14px; } .aich em { margin-left: auto; font-style: normal; font-size: 11px; color: var(--fg3); }
+.aipv { display: inline-block; font-size: 10.5px; font-weight: 700; padding: 1px 6px; border-radius: 4px; color: #fff; } .aipv.an { background: #C96A3A; } .aipv.oa { background: #10A37F; } .aipv.gg { background: #4C7CF0; }
+.aiid { display: flex; flex-direction: column; gap: 1px; } .aiid small { font-size: 10.5px; color: var(--fg3); }
+.aicall { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 6px; font-size: 12.5px; color: var(--fg2); } .aicall b { font-size: 22px; color: var(--pri); font-variant-numeric: tabular-nums; }
+.aidots { display: flex; gap: 4px; } .aidots i { width: 7px; height: 7px; border-radius: 50%; background: #4D9BFF; animation: aidot 1s infinite; } .aidots i:nth-child(2) { animation-delay: .15s; } .aidots i:nth-child(3) { animation-delay: .3s; }
+@keyframes aidot { 0%, 100% { opacity: .25; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-4px); } }
+.aires { display: flex; align-items: center; gap: 12px; animation: aiin .4s ease-out; } @keyframes aiin { from { opacity: 0; transform: scale(.96); } }
+.airing { width: 64px; height: 64px; flex: none; } .airing circle { fill: none; stroke: var(--line); stroke-width: 5; } .airing .v { stroke-linecap: round; transition: stroke-dasharray .8s; } .airing .v.g { stroke: #19A34A; } .airing .v.o { stroke: #E0912A; } .airing .v.r { stroke: var(--r); }
+.airing text { font-size: 13px; font-weight: 700; fill: var(--fg); }
+.aimet { display: flex; flex-direction: column; gap: 4px; } .aimet small { font-size: 11px; color: var(--fg3); margin-right: 6px; } .aimet b { font-size: 15px; }
+.aichk { display: flex; flex-wrap: wrap; gap: 4px; } .aichk span { font-size: 11px; padding: 1px 6px; border-radius: 4px; } .aichk .ok { background: var(--g-bg); color: var(--g); } .aichk .bad { background: var(--r-bg); color: var(--r); }
+.aitxt summary { font-size: 12px; color: var(--pri); cursor: pointer; } .aitxt pre { white-space: pre-wrap; font: 12px/1.5 var(--font); max-height: 180px; overflow: auto; background: var(--label); padding: 8px; border-radius: 6px; }
+.aiskip, .aierr, .aiidle { flex: 1; display: grid; place-items: center; text-align: center; font-size: 12px; color: var(--fg3); padding: 8px; } .aierr { color: var(--r); }
+.airow { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 12px; }
+.aitab td { vertical-align: middle; } .aitab tr.pick td { background: var(--g-bg); }
+.aibar { display: inline-block; width: 90px; height: 6px; background: var(--label); border-radius: 3px; margin-right: 8px; vertical-align: middle; overflow: hidden; } .aibar i { display: block; height: 100%; background: #9AA6BA; transition: width .6s; } .aibar.c i { background: #E0912A; } .aibar.s i { background: #19A34A; }
+.aipk { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 4px 0 8px; } .aipk b { font-size: 20px; } .aipk p { margin: 0; color: var(--fg2); }
+.aisc { width: 100%; height: auto; overflow: visible; } .aisc line { stroke: var(--line2); } .aisc .g90 { stroke: #19A34A; stroke-dasharray: 4 4; } .aisc text { font-size: 13px; fill: var(--fg); } .aisc .ax { font-size: 11px; fill: var(--fg3); }
+.aisc circle.an { fill: #C96A3A; } .aisc circle.oa { fill: #10A37F; } .aisc circle.gg { fill: #4C7CF0; }
+.aifoot { color: var(--fg3); }
+@media (max-width: 1400px) { .aicards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 1100px) { .aicards, .airow { grid-template-columns: 1fr; } .aipipe { flex-wrap: wrap; } .aiarr { display: none; } }
+
+/* 움직임: 화면 전환 · 숫자 · 살아 있는 표시 · 카드 */
+.content.enter > .pg, .content.enter > div > .pg { animation: pgin .28s ease-out; } @keyframes pgin { from { opacity: 0; transform: translateY(6px); } }
+.cnt.roll { color: var(--pri); }
+.iochip > i.on { animation: livepulse 1.6s ease-in-out infinite; } @keyframes livepulse { 50% { box-shadow: 0 0 0 6px rgba(25,163,74,.05); } }
+.lvbar i { transition: width 1s linear; } .lvm .lvmv, .lvd .lvdv { transition: height .6s ease-out; }
+.panel, .pv-ec, .pv-pc, .lvk, .eqc { transition: box-shadow .2s, transform .2s; } .pv-ec:hover, .eqc:hover, .lvk:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(15,23,38,.08); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 .iso{
   --anatomy-page:#0b0b0b;--anatomy-card:#131313;--anatomy-text:#a3a3a3;--anatomy-strong:#e6e6e6;--anatomy-muted:#6e6e6e;
   --anatomy-paper:#131313;--anatomy-face:#1b1b1b;--anatomy-top:#1c1c1c;
@@ -1598,6 +1646,10 @@ function buildState(rows) {
   st.dailyRows = (rows.daily || []).map(r => ({ ...r, day: String(r.day).slice(0, 10), qty: +r.qty })).sort((a, b) => a.day < b.day ? -1 : a.day > b.day ? 1 : a.equipment_id < b.equipment_id ? -1 : 1);
   st.liveSigRows = (rows.live_signal || []).map(r => ({ ...r, day: String(r.day).slice(0, 10) }));
   st.live = null;
+  // AI 운영 센터: 비교 모델 목록 · 실측 기록
+  st.aiModels = (rows.ai_model || []).map(m => ({ ...m, price_in: +m.price_in, price_out: +m.price_out }));
+  st.bench = (rows.ai_bench || []).map(r => ({ ...r, cost_usd: r.cost_usd == null ? null : +r.cost_usd, latency_ms: r.latency_ms == null ? null : +r.latency_ms, score: r.score == null ? null : +r.score }));
+  st.aiBenchReady = !(typeof MISSING !== 'undefined' && MISSING.has('ai_bench'));
   return st;
 }
 
@@ -1740,8 +1792,8 @@ if (false) module.exports = { buildState, setS: s => { S = s; }, kpis, processAc
 
 // 서버 연결 계층. 기본은 Supabase(supabase-js). 자동 테스트에서는 window.__TP_TEST_API(같은 SQL을 올린 로컬 Postgres)를 쓴다.
 const TABLES = ['vessels', 'zones', 'processes', 'equipment', 'equipment_snapshot', 'blocks', 'status_codes', 'work_orders', 'production_plan', 'production_actual',
-  'equipment_intervals', 'incidents', 'incident_actions', 'work_history', 'inspections', 'rework', 'sim_clock', 'event_log', 'ai_summary', 'ai_usage', 'signal_log', 'sim_lock', 'equipment_fit', 'incident_steps', 'ai_priority', 'io_point', 'daily', 'live_signal'];
-const OPTIONAL = new Set(['daily', 'live_signal', 'ai_summary', 'ai_usage', 'signal_log', 'sim_lock', 'equipment_fit', 'incident_steps', 'ai_priority', 'io_point']);   // 확장 SQL(3단계) 적용 전에도 화면이 열리도록: 없으면 빈 표
+  'equipment_intervals', 'incidents', 'incident_actions', 'work_history', 'inspections', 'rework', 'sim_clock', 'event_log', 'ai_summary', 'ai_usage', 'signal_log', 'sim_lock', 'equipment_fit', 'incident_steps', 'ai_priority', 'io_point', 'daily', 'live_signal', 'ai_model', 'ai_bench'];
+const OPTIONAL = new Set(['ai_model', 'ai_bench', 'daily', 'live_signal', 'ai_summary', 'ai_usage', 'signal_log', 'sim_lock', 'equipment_fit', 'incident_steps', 'ai_priority', 'io_point']);   // 확장 SQL(3단계) 적용 전에도 화면이 열리도록: 없으면 빈 표
 const MISSING = new Set();   // 서버에 아직 없는 확장 표(확장 SQL 적용 전) → 그 기능 버튼을 숨긴다
 const LS = k => { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } };
 const BUILT_URL = 'https://rrgvqgphhwzkeuvdwndu.supabase.co', BUILT_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZ3ZxZ3BoaHd6a2V1dmR3bmR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE4MDA3OTAsImV4cCI6MjEwNzM3Njc5MH0.6dnywttjbB77nPBOAPNY-SSPDH1onNmdgx80QRJ1mPU';
@@ -1754,6 +1806,7 @@ const API = NEEDS_SETUP ? null : window.__TP_TEST_API ? {
   load: () => window.__TP_TEST_API.load(),
   rpc: (fn, args) => window.__TP_TEST_API.rpc(fn, args, DEMO_CODE),
   ai: mode => window.__TP_TEST_API.ai(DEMO_CODE, mode),
+  aiBench: (model_id, run_id) => window.__TP_TEST_API.ai(DEMO_CODE, { mode: 'bench', model_id, run_id }),
   subscribe: () => {},
 } : (() => {
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
@@ -1772,6 +1825,9 @@ const API = NEEDS_SETUP ? null : window.__TP_TEST_API ? {
     async ai(mode) {          // AI 운영 요약(mode 없음) · AI 우선순위 요약(mode = 'priority'): Edge Function(tp-ai-summary)이 시연 코드 확인 → 하루 5회 차감 → Claude 호출 → DB 저장
       const r = await fetch(`${SUPABASE_URL}/functions/v1/tp-ai-summary`, { method: 'POST', headers: { Authorization: `Bearer ${SUPABASE_ANON_KEY}`, apikey: SUPABASE_ANON_KEY, 'x-demo-code': DEMO_CODE, 'Content-Type': 'application/json' }, body: JSON.stringify(mode ? { mode } : {}) });
       const j = await r.json().catch(() => null); if (!j) throw new Error(`AI 서버 응답 오류(HTTP ${r.status})`); return j; },
+    async aiBench(model_id, run_id) {   // AI 모델 비교 한 건(회사별 모델): Edge Function이 회차 확인 → 사실 → 호출 · 시간 측정 → 채점 · 저장
+      const r = await fetch(`${SUPABASE_URL}/functions/v1/tp-ai-summary`, { method: 'POST', headers: { Authorization: `Bearer ${SUPABASE_ANON_KEY}`, apikey: SUPABASE_ANON_KEY, 'x-demo-code': DEMO_CODE, 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'bench', model_id, run_id }) });
+      const j = await r.json().catch(() => null); if (!j) throw new Error(`AI 서버 응답 오류(HTTP ${r.status})`); return j; },
     subscribe(onChange, onStatus) {
       sb.channel('tp-all').on('postgres_changes', { event: '*', schema: 'public' }, p => { if (String(p.table).startsWith('tp_')) onChange(); })
         .subscribe(s => onStatus(s === 'SUBSCRIBED' ? '실시간 연결' : s === 'CLOSED' || s === 'CHANNEL_ERROR' || s === 'TIMED_OUT' ? '실시간 끊김 · 조작 후 다시 읽음' : '연결 중'));
@@ -1786,7 +1842,7 @@ const UI = {
   f: { eq: { proc: '', st: '', q: '', kind: '' }, prod: { vessel: '', proc: '', st: '', q: '' }, wo: { proc: '', st: '', date: '16-17', q: '', overdue: false }, base: { q: '', zone: '' } },
   faultForm: false, resetArm: false, codeOpen: false, canWrite: false, intro: false, menuOpen: false, pausedFor: '',
 };
-const VIEWS = [['dash', '관제 대시보드', '모니터링'], ['eq', '설비 상태', '모니터링'], ['prod', '생산 현황', '모니터링'], ['wo', '작업 관리', '관리'], ['base', '기준정보', '관리']];
+const VIEWS = [['dash', '관제 대시보드', '모니터링'], ['eq', '설비 상태', '모니터링'], ['prod', '생산 현황', '모니터링'], ['wo', '작업 관리', '관리'], ['base', '기준정보', '관리'], ['ai', 'AI 운영 센터', 'AI']];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const badge = (m, code, label) => { const [l, c] = STATUS[m][code] || [code, 'n']; return `<span class="badge ${c}">${esc(label || l)}</span>`; };
 const delayBadge = w => isDelayed(w) ? '<span class="badge delay">지연</span>' : '-';
@@ -1805,7 +1861,7 @@ const icon = pid => (ICONS[pid] || '');
 
 // ---------- 공통 틀: 모든 화면 위의 어두운 상단 바(사이드바 없음) ----------
 const TOP_TABS = [['dash', '통합 관제'], ['3d', '3D 조선소'], ['blk', '블록 내부 3D'], ['edu', '공정 교육 재생']];
-const MGMT = VIEWS.slice(1);
+const MGMT = VIEWS.slice(1).filter(v => v[2] === '관리' || v[2] === '모니터링');
 // 왼쪽 아이콘 사이드바(넓은 화면): 평소 아이콘만, 마우스를 올리면 펼쳐져 글자가 보인다. 좁은 화면(휴대폰)은 위쪽 탭·[관리 화면 ▾]를 그대로 쓴다
 const RAIL_ICO = {
   dash: '<rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>',
@@ -1816,6 +1872,7 @@ const RAIL_ICO = {
   prod: '<path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/>',
   wo: '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2h6v2M9 10h6M9 14h6M9 18h4"/>',
   base: '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
+  ai: '<path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M18 15l.8 2.2 2.2.8-2.2.8L18 21l-.8-2.2-2.2-.8 2.2-.8z"/>',
   intro: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17.5v.01"/>',
 };
 function railNav() {
@@ -1824,6 +1881,7 @@ function railNav() {
   return `<nav class="grail" aria-label="화면 메뉴"><div class="grlogo">TP<span>TWIN PRO</span></div>
     <div class="grsec">모니터링</div>${it('topGo', 'dash', '통합 관제', open ? `미해결 사건 ${open}건` : '')}
     <div class="grsec">관리</div>${MGMT.map(([v, l]) => it('go', v, l)).join('')}
+    <div class="grsec">AI</div>${it('go', 'ai', 'AI 운영 센터', '모델 비교')}
     <div class="grsec">3D</div>${it('topGo', '3d', '3D 조선소')}${it('topGo', 'blk', '블록 내부 3D')}${it('topGo', 'edu', '공정 교육 재생')}
     <span class="grow"></span><button class="gri" data-act="intro" title="안내"><svg viewBox="0 0 24 24">${RAIL_ICO.intro}</svg><span>안내</span></button></nav>`;
 }
@@ -1839,12 +1897,12 @@ function topBar() {
     <span class="grow"></span>${focus}<span class="grow"></span>
     <span class="gmode">${UI.canWrite ? '가상 데이터 · 조작 가능(저장됨)' : '가상 데이터 · 체험 모드'}</span>${code}
     <details class="gmenu" ${UI.menuOpen ? 'open' : ''}><summary data-act="menuTog" class="${VIEW_RENDER[UI.view] && UI.view !== 'dash' ? 'on' : ''}">관리 화면 ▾</summary>
-      <div>${MGMT.map(([v, l]) => `<button class="${UI.view === v ? 'on' : ''}" data-act="go" data-arg="${v}">${l}</button>`).join('')}</div></details>
+      <div>${VIEWS.slice(1).map(([v, l]) => `<button class="${UI.view === v ? 'on' : ''}" data-act="go" data-arg="${v}">${l}</button>`).join('')}</div></details>
     <button class="gbtn" data-act="intro">? 안내</button></header>
     ${UI.trial ? `<div class="trialbar">🧪 <b>체험 중</b> · 지금 보이는 결과는 서버에 저장되지 않고 내 화면에만 보입니다.<span class="grow"></span><button class="btn" data-act="endTrial">체험 끝내기 (원래대로)</button></div>` : ''}`;
 }
 function shell() {
-  return `${topBar()}<main class="content" id="content">${VIEW_RENDER[UI.view]()}</main>${UI.intro ? introBox() : ''}${UI.figModal ? figModal() : ''}${UI.ioModal ? ioModal() : ''}`;
+  return `${topBar()}<main class="content ${UI.view !== UI.lastView ? 'enter' : ''}" id="content">${VIEW_RENDER[UI.view]()}</main>${UI.intro ? introBox() : ''}${UI.figModal ? figModal() : ''}${UI.ioModal ? ioModal() : ''}`;
 }
 // 재생 조작: ⏸/▶ + 배속(1× = 실제 10초당 가상 5분). 16:00이면 '처음부터', 다른 화면이 재생 중이면 잠금
 const simMs = () => 10000 / (UI.speed || 1);
@@ -1923,10 +1981,10 @@ function statusBar() {   // 위: 가상 시각·재생 / 아래: 지표 띠(설�
   const eqc = [['가동', k.running, 'b'], ['대기', k.idle, 'n'], ['고장', k.fault, 'r'], ['점검', k.maint, 'p']];
   return `<div class="sbar"><div class="sclock"><span>가상 시각</span><b class="clock">${md(now)} (${wd(now)}) ${hm(now)}</b></div>${state}
     ${playCtl()}<span class="small">1× = 실제 10초당 가상 5분</span>${ioChip()}${lvChip()}<span class="grow"></span>
-    <div class="kpi"><span>설비 가동</span><b>${k.running} / ${k.total}<small class="eqcnt">${eqc.slice(1).map(([l, v, c]) => `<i class="${v ? c : ''}">${l} ${v}</i>`).join('')}</small></b><small class="kpis2">설비 ${k.total}대 = 가동 ${k.running} + 대기 ${k.idle} + 고장 ${k.fault} + 점검 ${k.maint} (설비 기준)</small></div>
-    <div class="kpi"><span>진행률 (실적 / 계획)</span><b>${pct(g.a, 0)}<small>/ ${pct(g.p, 0)}</small>${g.gap >= 0.5 ? `<em class="gap">지연 ${g.gap.toFixed(0)}%p</em>` : ''}</b></div>
-    <div class="kpi"><span>멈춘 작업</span><b class="${stopped ? 'c-r' : ''}">${stopped}<small>/ ${todayWos().length}</small></b></div>
-    <div class="kpi"><span>미해결 사건</span><b class="${k.open ? 'c-r' : ''}">${k.open}</b></div></div>`;
+    <div class="kpi"><span>설비 가동</span><b>${cnt('k-run', k.running)} / ${k.total}<small class="eqcnt">${eqc.slice(1).map(([l, v, c]) => `<i class="${v ? c : ''}">${l} ${v}</i>`).join('')}</small></b><small class="kpis2">설비 ${k.total}대 = 가동 ${k.running} + 대기 ${k.idle} + 고장 ${k.fault} + 점검 ${k.maint} (설비 기준)</small></div>
+    <div class="kpi"><span>진행률 (실적 / 계획)</span><b>${cnt('k-prog', Math.round(+g.a || 0))}%<small>/ ${pct(g.p, 0)}</small>${g.gap >= 0.5 ? `<em class="gap">지연 ${g.gap.toFixed(0)}%p</em>` : ''}</b></div>
+    <div class="kpi"><span>멈춘 작업</span><b class="${stopped ? 'c-r' : ''}">${cnt('k-stop', stopped)}<small>/ ${todayWos().length}</small></b></div>
+    <div class="kpi"><span>미해결 사건</span><b class="${k.open ? 'c-r' : ''}">${cnt('k-open', k.open)}</b></div></div>`;
 }
 function gauge(ratio, c) {   // 공정 카드의 원형 게이지(실적 비율)
   const R = 21, C = 2 * Math.PI * R, a = Math.max(0, Math.min(1, ratio));
@@ -2483,7 +2541,7 @@ function render() {
   const app = document.getElementById('app'); const sx = window.scrollX, sy = window.scrollY;
   const focus = document.activeElement && document.activeElement.id;
   app.innerHTML = UI.view === '3d' ? t3Shell() : UI.view === 'blk' ? bkShell() : shell();
-  if (UI.view === '3d') { t3Mount(); simVidMount(); } if (UI.view === 'blk') bkMount(); if (UI.figModal) figMount(); if (UI.view !== '3d' && UI.view !== 'blk') pvMount();
+  if (UI.view === '3d') { t3Mount(); simVidMount(); } if (UI.view === 'blk') bkMount(); if (UI.figModal) figMount(); if (UI.view !== '3d' && UI.view !== 'blk') pvMount(); cntMount(); UI.lastView = UI.view;   // 화면이 바뀔 때만 들어오는 움직임
   if (focus) { const el = document.getElementById(focus); if (el && el.focus) { el.focus(); if (el.setSelectionRange && el.type === 'text') { const n = el.value.length; el.setSelectionRange(n, n); } } }
   window.scrollTo(sx, sy);
 }
@@ -3098,9 +3156,9 @@ function viewProdTrend() {
   const proc6 = LV.EQ.slice(0, 6).map((eq, i) => `<div><span>${p2(i + 1)} ${esc(proc('P0' + (i + 1))?.process_name || '')}</span><b>${lvRound(lvSum(mr.filter(r => r.equipment_id === eq || (i === 2 && ['EQ07', 'EQ08'].includes(r.equipment_id))), r => r.qty), LV.DEC[i]).toLocaleString()}</b><em>${LV.UNIT[i]}</em></div>`).join('');
   return `<div class="pg pg-trend">${pvHead('생산 현황', '모니터링', '공장은 1년 동안 어떻게 돌았나?', '실제 1분 = 현장 1일로 계속 쌓이는 운영 추이 연출(가상)', `<span class="pvai">가상 이력 · 연출 데이터</span>`)}
     <div class="lvtop">
-      <div class="lvk"><small>2026 누적 가동률</small><b>${ytdU.toFixed(1)}<i>%</i></b><em>${[...new Set(yr.map(r => r.day))].length}일 집계</em></div>
-      <div class="lvk"><small>2026 누적 완성 블록</small><b>${blocks(yr)}<i>개</i></b><em>06 블록 이송 실적</em></div>
-      <div class="lvk"><small>2026 누적 고장</small><b>${lvSum(yr, r => r.faults)}<i>건</i></b><em>설비 8대 합계</em></div>
+      <div class="lvk"><small>2026 누적 가동률</small><b>${cnt('lv-u', ytdU, 1)}<i>%</i></b><em>${[...new Set(yr.map(r => r.day))].length}일 집계</em></div>
+      <div class="lvk"><small>2026 누적 완성 블록</small><b>${cnt('lv-b', blocks(yr))}<i>개</i></b><em>06 블록 이송 실적</em></div>
+      <div class="lvk"><small>2026 누적 고장</small><b>${cnt('lv-f', lvSum(yr, r => r.faults))}<i>건</i></b><em>설비 8대 합계</em></div>
       <div class="lvk lvnow" id="lvtoday">${lvTodayInner()}</div></div>
     <section class="panel lvyear"><div class="ph"><h2>연간 · 월별 가동률</h2><span class="sub">막대 = 그 달 설비 8대 평균 가동률(20~70% 구간 확대) · 누르면 아래에 일별</span><span class="grow"></span>
       <span class="legend"><span><i class="lvlg hist"></i>가상 이력(01~09/15)</span><span><i class="lvlg base"></i>시연 기준일(09/16)</span><span><i class="lvlg live"></i>연출 진행(1분 = 1일)</span></span></div>
@@ -3116,6 +3174,105 @@ Object.assign(ACT, {
   lvOpen() { UI.mode.prod = 'trend'; UI.keepMode = true; ACT.go('prod'); },
 });
 if (false) module.exports = { lvDay, lvSignals, lvRnd, lvNow, LV };
+
+// ---------- AI 운영 센터: 같은 서버 사실을 여러 회사 모델에 주고 응답 속도 · 비용 · 정확도를 실측 비교 ----------
+// 버튼을 눌렀을 때만 호출한다(자동 호출 없음). 모델마다 따로 호출해 각자 끝나는 대로 화면에 채운다(응답 시간은 서버에서 잰 값).
+const AI_MODELS_DEFAULT = [   // 서버 tp_ai_model 표가 아직 없을 때 쓰는 같은 목록(단가 USD / 100만 토큰)
+  ['claude-haiku-5-5', 'anthropic', 'Claude Haiku 5.5', '경량', 0.10, 0.50], ['claude-sonnet-5-5', 'anthropic', 'Claude Sonnet 5.5', '중간', 2.00, 10.00],
+  ['claude-opus-5-5', 'anthropic', 'Claude Opus 5.5', '상위', 4.00, 20.00], ['gpt-6-luna', 'openai', 'OpenAI GPT-6 Luna', '경량', 0.10, 0.50],
+  ['gpt-6.1-terra', 'openai', 'OpenAI GPT-6.1 Terra', '중간', 1.00, 5.00], ['gemini-3.6-flash', 'google', 'Gemini 3.6 Flash', '경량', 0.75, 3.75],
+].map(([model_id, provider, label, tier, price_in, price_out], i) => ({ model_id, provider, label, tier, price_in, price_out, enabled: true, sort: i + 1, price_note: '공개 가격표 기준 2026-10 확인 · 변경 가능' }));
+const AI_KRW = 1400;   // 원화 환산(1 USD = 1,400원, 표시용 가정)
+const AI_PROV = { anthropic: ['Anthropic', 'an'], openai: ['OpenAI', 'oa'], google: ['Google', 'gg'] };
+const aiModels = () => (S.aiModels && S.aiModels.length ? S.aiModels : AI_MODELS_DEFAULT).filter(m => m.enabled !== false).sort((a, b) => a.sort - b.sort);
+const won = usd => usd == null ? '-' : usd * AI_KRW < 1 ? `${(usd * AI_KRW).toFixed(2)}원` : `${(usd * AI_KRW).toFixed(1)}원`;
+UI.bench = UI.bench || null;
+
+// 모델별 누적 통계(서버 기록 tp_ai_bench)
+function aiStats() {
+  return aiModels().map(m => { const rs = (S.bench || []).filter(r => r.model_id === m.model_id), ok = rs.filter(r => r.ok);
+    const avg = f => ok.length ? ok.reduce((s, r) => s + (+f(r) || 0), 0) / ok.length : null;
+    return { m, n: rs.length, ok: ok.length, rate: rs.length ? ok.length / rs.length * 100 : null, lat: avg(r => r.latency_ms), cost: avg(r => r.cost_usd), score: avg(r => r.score) }; });
+}
+// 추천: 평균 정확도 90점 이상 중 건당 비용이 가장 싼 모델(같으면 더 빠른 모델)
+function aiPick(st) { const c = st.filter(s => s.ok && s.score >= 90).sort((a, b) => a.cost - b.cost || a.lat - b.lat); return c[0] || null; }
+
+function aiCard(m) {
+  const b = UI.bench && UI.bench.items[m.model_id], last = !b && (S.bench || []).filter(r => r.model_id === m.model_id).sort((x, y) => y.id - x.id)[0], sk = !b && (UI.benchSkip || {})[m.model_id];
+  const st = b ? b.status : sk ? 'skip' : last ? (last.ok ? 'done' : 'err') : 'idle';
+  const r = b ? b.res || {} : sk ? { msg: sk } : last ? { latency_ms: last.latency_ms, cost_usd: last.cost_usd, score: last.score, checks: typeof last.checks === 'string' ? JSON.parse(last.checks) : last.checks, text: last.text, msg: last.err } : {};
+  const ck = r.checks || {}, sc = r.score, p = AI_PROV[m.provider];
+  const ring = sc == null ? '' : `<svg class="airing" viewBox="0 0 44 44"><circle cx="22" cy="22" r="18"/><circle class="v ${sc >= 90 ? 'g' : sc >= 70 ? 'o' : 'r'}" cx="22" cy="22" r="18" stroke-dasharray="${(sc / 100 * 113.1).toFixed(1)} 113.1" transform="rotate(-90 22 22)"/><text x="22" y="26" text-anchor="middle">${sc}</text></svg>`;
+  const body = st === 'call' ? `<div class="aicall"><span class="aidots"><i></i><i></i><i></i></span>응답 기다리는 중 <b id="bt-${m.model_id}">0.0초</b></div>`
+    : st === 'skip' ? `<div class="aiskip">${esc(r.msg || '키 미등록')}</div>`
+    : st === 'err' ? `<div class="aierr">${esc(r.msg || '호출 실패')}</div>`
+    : st === 'done' ? `<div class="aires">${ring}<div class="aimet"><span><small>응답</small><b>${(r.latency_ms / 1000).toFixed(1)}초</b></span><span><small>비용</small><b>${won(r.cost_usd)}</b></span></div></div>
+        <div class="aichk"><span class="${(ck.missing || []).length ? 'bad' : 'ok'}">필수 사실 ${(ck.required || []).length - (ck.missing || []).length}/${(ck.required || []).length}</span><span class="${(ck.fabricated || []).length ? 'bad' : 'ok'}">지어낸 ID ${(ck.fabricated || []).length}${(ck.fabricated || []).length ? ` (${ck.fabricated.join(', ')})` : ''}</span><span class="${ck.heads === 3 ? 'ok' : 'bad'}">형식 ${ck.heads ?? 0}/3</span></div>
+        ${r.text ? `<details class="aitxt"><summary>답변 보기</summary><pre>${esc(r.text)}</pre></details>` : ''}`
+    : `<div class="aiidle">아직 실행 기록이 없습니다.</div>`;
+  return `<div class="aicard ${st} ${p[1]}"><div class="aich"><span class="aipv ${p[1]}">${p[0]}</span><b>${esc(m.label)}</b><em>${m.tier}</em></div>
+    <div class="aiid"><code>${esc(m.model_id)}</code><small>단가 $${m.price_in} / $${m.price_out} (100만 토큰 입력/출력)</small></div>${body}</div>`;
+}
+function viewAi() {
+  const ms = aiModels(), st = aiStats(), pick = aiPick(st), run = UI.bench, busy = run && Object.values(run.items).some(x => x.status === 'call');
+  const runsToday = new Set((S.bench || []).filter(r => String(r.created_at || '').slice(0, 10) === new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 10)).map(r => r.run_id)).size;
+  const step = !run ? 0 : busy ? 2 : 4, done = run ? Object.values(run.items).filter(x => x.status !== 'call').length : 0;
+  const stepEl = (n, t, s) => `<div class="aistep ${step === n ? 'on' : step > n ? 'done' : ''}"><b>${step > n ? '✓' : n}</b><span><strong>${t}</strong><small>${s}</small></span></div>`;
+  const mx = k => Math.max(...st.map(s => s[k] || 0), 0.000001);
+  const rows = st.map(s => `<tr class="${pick && pick.m === s.m ? 'pick' : ''}"><td><span class="aipv ${AI_PROV[s.m.provider][1]}">${AI_PROV[s.m.provider][0]}</span> ${esc(s.m.label)}${pick && pick.m === s.m ? ' <span class="badge g">추천</span>' : ''}</td><td class="c">${s.n || '-'}</td>
+    <td class="c">${s.rate == null ? '-' : s.rate.toFixed(0) + '%'}</td>
+    <td><span class="aibar"><i style="width:${s.lat == null ? 0 : s.lat / mx('lat') * 100}%"></i></span>${s.lat == null ? '-' : (s.lat / 1000).toFixed(1) + '초'}</td>
+    <td><span class="aibar c"><i style="width:${s.cost == null ? 0 : s.cost / mx('cost') * 100}%"></i></span>${won(s.cost)}</td>
+    <td><span class="aibar s"><i style="width:${s.score == null ? 0 : s.score}%"></i></span>${s.score == null ? '-' : s.score.toFixed(0) + '점'}</td></tr>`).join('');
+  // 비용(로그) × 정확도 산점도: 왼쪽 위일수록 싸고 정확함
+  const pts = st.filter(s => s.ok).map(s => ({ s, x: Math.log10(Math.max(s.cost * AI_KRW, 0.01)), y: s.score })), xs = pts.map(p => p.x);
+  const x0 = Math.min(...xs, 0) - 0.3, x1 = Math.max(...xs, 0) + 0.3, X = x => 50 + (x - x0) / (x1 - x0) * 490, Y = y => 190 - Math.max(0, y - 40) / 60 * 170;
+  const sc = pts.map((p, i) => `<g transform="translate(${X(p.x).toFixed(1)},${Y(p.y).toFixed(1)})"><circle r="7" class="${AI_PROV[p.s.m.provider][1]}"/><text x="${i % 2 ? -10 : 10}" y="${i % 2 ? 18 : -9}" text-anchor="${i % 2 ? 'end' : 'start'}">${esc(p.s.m.label.replace(/^(Claude|OpenAI|Gemini) /, ''))}</text></g>`).join('');
+  return `<div class="pg pg-ai">${pvHead('AI 운영 센터', 'AI', '어떤 AI 모델이 우리 공장 요약을 가장 잘 하나?', '같은 서버 사실을 회사별 모델에 동시에 주고 응답 속도 · 비용 · 정확도를 실측합니다', '<span class="pvai">AI는 요약 문장만 씁니다 · 순위 · 판단 규칙은 서버</span>')}
+    <section class="aipipe ${busy ? 'busy' : ''}">
+      ${stepEl(1, '서버 사실 읽기', `tp_ai_facts · 사건 ${openIncidents().length}건 · 설비 ${Object.keys(S.equipment).length}대`)}<i class="aiarr"></i>
+      ${stepEl(2, `모델 ${ms.length}개 동시 호출`, run ? `${done}/${ms.length} 응답` : '같은 지시문 · 같은 데이터')}<i class="aiarr"></i>
+      ${stepEl(3, '자동 채점', '필수 사실 50 · 지어낸 ID 없음 30 · 형식 20')}<i class="aiarr"></i>
+      ${stepEl(4, '저장 · 추천', '서버 tp_ai_bench에 기록 → 누적 비교')}
+      <span class="grow"></span>
+      <button class="btn pri aigo" data-act="benchRun" ${busy || !UI.canWrite ? 'disabled' : ''} title="${UI.canWrite ? '' : '시연 코드(조작 권한)가 있어야 실행할 수 있습니다'}">${busy ? '비교 실행 중…' : '▶ 모델 비교 실행'}<small>오늘 ${Math.min(runsToday, 3)}/3회</small></button></section>
+    <div class="aicards">${ms.map(aiCard).join('')}</div>
+    <div class="airow">
+      <section class="panel"><div class="ph"><h2>누적 비교</h2><span class="sub">서버 기록 ${(S.bench || []).length}건 · 응답 성공률 = 정상 응답 ÷ 호출 · 비용은 실제 토큰 × 단가(1 USD = ${AI_KRW.toLocaleString()}원 가정)</span></div>
+        <div class="tw"><table class="aitab"><thead><tr><th>모델</th><th class="c">호출</th><th class="c">응답 성공률</th><th>평균 응답 시간</th><th>건당 비용</th><th>평균 정확도</th></tr></thead><tbody>${rows}</tbody></table></div></section>
+      <section class="panel aipick"><div class="ph"><h2>추천 모델</h2><span class="sub">정확도 90점 이상 중 가장 싼 모델</span></div>
+        ${pick ? `<div class="aipk"><span class="aipv ${AI_PROV[pick.m.provider][1]}">${AI_PROV[pick.m.provider][0]}</span><b>${esc(pick.m.label)}</b><p>정확도 ${pick.score.toFixed(0)}점 · 건당 ${won(pick.cost)} · ${(pick.lat / 1000).toFixed(1)}초</p></div>` : '<div class="empty">기준을 넘은 모델이 아직 없습니다. 비교를 실행하세요.</div>'}
+        <svg class="aisc" viewBox="0 0 560 220"><line x1="50" y1="190" x2="550" y2="190"/><line x1="50" y1="12" x2="50" y2="190"/><line class="g90" x1="50" y1="${Y(90)}" x2="550" y2="${Y(90)}"/><text x="46" y="${Y(90) + 4}" class="ax" text-anchor="end">90점</text><text x="46" y="${Y(100) + 4}" class="ax" text-anchor="end">100</text><text x="46" y="194" class="ax" text-anchor="end">40</text><text x="550" y="212" class="ax" text-anchor="end">건당 비용 → (로그 눈금, 왼쪽이 쌈)</text>${sc}</svg></section></div>
+    <div class="small aifoot">단가는 각 회사 공개 가격표 기준(2026-10 확인, 바뀔 수 있음)이며 서버 tp_ai_model 표에서 고칩니다. 키가 없는 회사 모델은 '키 미등록'으로 건너뜁니다(ANTHROPIC_API_KEY · OPENAI_API_KEY · GEMINI_API_KEY는 Supabase 비밀값에만 둠).${S.aiBenchReady ? '' : ' · 서버에 비교 표(supabase_ai_bench.sql)가 아직 없어 실행 기록을 남길 수 없습니다.'}</div></div>`;
+}
+let benchTimer = null;
+Object.assign(VIEW_RENDER, { ai: viewAi });
+Object.assign(ACT, {
+  async benchRun() {
+    if (!UI.canWrite) { UI.codeOpen = true; render(); return; }
+    const run = Date.now().toString(36) + Math.random().toString(36).slice(2, 6), ms = aiModels();
+    UI.bench = { run, items: Object.fromEntries(ms.map(m => [m.model_id, { status: 'call', t0: performance.now() }])) }; render();
+    clearInterval(benchTimer); benchTimer = setInterval(() => { if (!UI.bench) return; for (const [k, x] of Object.entries(UI.bench.items)) { const el = document.getElementById('bt-' + k); if (el && x.status === 'call') el.textContent = ((performance.now() - x.t0) / 1000).toFixed(1) + '초'; } }, 100);
+    await Promise.all(ms.map(async m => { let r; try { r = await API.aiBench(m.model_id, run); } catch (e) { r = { ok: false, msg: String(e.message || e) }; }
+      UI.bench.items[m.model_id] = { status: r.skipped ? 'skip' : r.ok ? 'done' : 'err', res: r }; if (r.skipped) (UI.benchSkip ||= {})[m.model_id] = r.msg; if (UI.view === 'ai') render(); }));
+    clearInterval(benchTimer);
+    const quota = Object.values(UI.bench.items).find(x => /하루 3회|시연 코드/.test(x.res?.msg || ''));
+    toast(quota ? quota.res.msg : `모델 비교 완료: ${Object.values(UI.bench.items).filter(x => x.status === 'done').length}개 응답 · 서버에 기록했습니다.`, !!quota);
+    await reload(); UI.bench = null; render();
+  },
+});
+
+// ---------- 움직임: 숫자가 바뀌면 이전 값에서 새 값까지 굴러가듯 바뀜(처음 볼 때는 0부터) ----------
+// 동작 줄이기 설정(prefers-reduced-motion)을 켠 화면과 자동 테스트에서는 바로 새 값만 보인다.
+const CNT_PREV = {};
+const cnt = (key, v, d = 0) => `<span class="cnt" data-cnt="${key}" data-v="${+v}" data-d="${d}">${(+v).toLocaleString('ko-KR', { minimumFractionDigits: d, maximumFractionDigits: d })}</span>`;
+function cntMount() {
+  const still = navigator.webdriver || typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;   // 자동 테스트(webdriver)는 값을 바로 읽도록 움직임 끔
+  document.querySelectorAll('[data-cnt]').forEach(el => { const k = el.dataset.cnt, v = +el.dataset.v, d = +el.dataset.d, p = CNT_PREV[k] ?? 0; CNT_PREV[k] = v;
+    if (still || p === v) return; const t0 = performance.now(), fmt = x => x.toLocaleString('ko-KR', { minimumFractionDigits: d, maximumFractionDigits: d });
+    el.classList.add('roll'); const step = t => { const a = Math.min(1, (t - t0) / 700), e = 1 - Math.pow(1 - a, 3); el.textContent = fmt(p + (v - p) * e); if (a < 1) requestAnimationFrame(step); else el.classList.remove('roll'); };
+    requestAnimationFrame(step); });
+}
 
 // ---------- 3D 확장 데모(과제 제외범위 · 팀 자체 시연 구현) ----------
 // Blender 코드로 만든 조선소 모델(twinpro_shipyard.glb)을 Three.js로 띄우고, 서버 데이터(공정별 작업·설비 상태)로 공정 윤곽 상자·이름표·경광등·움직임을 바꾼다.
