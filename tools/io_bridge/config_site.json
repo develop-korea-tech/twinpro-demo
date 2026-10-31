@@ -1,0 +1,59 @@
+{
+ "_설명": "현장용 예시: 기준정보 → 수집 포인트 표의 가상 IP입니다. 실제 현장 IP로 바꿔 쓰세요.",
+ "etos": {
+  "host": "192.168.20.10",
+  "port": 2004
+ },
+ "devices": [
+  {
+   "equipment_id": "EQ01",
+   "route": "MODBUS",
+   "host": "192.168.10.11",
+   "port": 502,
+   "unit": 1
+  },
+  {
+   "equipment_id": "EQ02",
+   "route": "ETOS",
+   "mw": 200
+  },
+  {
+   "equipment_id": "EQ03",
+   "route": "MODBUS",
+   "host": "192.168.10.13",
+   "port": 502,
+   "unit": 1
+  },
+  {
+   "equipment_id": "EQ04",
+   "route": "ETOS",
+   "mw": 400
+  },
+  {
+   "equipment_id": "EQ05",
+   "route": "MODBUS",
+   "host": "192.168.10.15",
+   "port": 502,
+   "unit": 1
+  },
+  {
+   "equipment_id": "EQ06",
+   "route": "ETOS",
+   "mw": 600
+  },
+  {
+   "equipment_id": "EQ07",
+   "route": "MODBUS",
+   "host": "192.168.10.17",
+   "port": 502,
+   "unit": 1
+  },
+  {
+   "equipment_id": "EQ08",
+   "route": "MODBUS",
+   "host": "192.168.10.18",
+   "port": 502,
+   "unit": 1
+  }
+ ]
+}

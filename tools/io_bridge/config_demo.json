@@ -1,0 +1,59 @@
+{
+ "_설명": "시연·테스트용: field_sim.py가 이 컴퓨터(127.0.0.1)에 띄운 가상 장비를 읽습니다.",
+ "etos": {
+  "host": "127.0.0.1",
+  "port": 12004
+ },
+ "devices": [
+  {
+   "equipment_id": "EQ01",
+   "route": "MODBUS",
+   "host": "127.0.0.1",
+   "port": 15021,
+   "unit": 1
+  },
+  {
+   "equipment_id": "EQ02",
+   "route": "ETOS",
+   "mw": 200
+  },
+  {
+   "equipment_id": "EQ03",
+   "route": "MODBUS",
+   "host": "127.0.0.1",
+   "port": 15023,
+   "unit": 1
+  },
+  {
+   "equipment_id": "EQ04",
+   "route": "ETOS",
+   "mw": 400
+  },
+  {
+   "equipment_id": "EQ05",
+   "route": "MODBUS",
+   "host": "127.0.0.1",
+   "port": 15025,
+   "unit": 1
+  },
+  {
+   "equipment_id": "EQ06",
+   "route": "ETOS",
+   "mw": 600
+  },
+  {
+   "equipment_id": "EQ07",
+   "route": "MODBUS",
+   "host": "127.0.0.1",
+   "port": 15027,
+   "unit": 1
+  },
+  {
+   "equipment_id": "EQ08",
+   "route": "MODBUS",
+   "host": "127.0.0.1",
+   "port": 15028,
+   "unit": 1
+  }
+ ]
+}
