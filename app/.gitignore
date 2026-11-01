@@ -1,0 +1,5 @@
+node_modules/
+dist/
+shots/
+config.json
+e2e_result.json

@@ -1,5 +1,7 @@
 # TWIN PRO — 조선 블록 공정 디지털트윈 운영 모니터링
 
+[![test](https://github.com/develop-korea-tech/twinpro-demo/actions/workflows/test.yml/badge.svg)](https://github.com/develop-korea-tech/twinpro-demo/actions/workflows/test.yml)
+
 <!-- TOP:START -->
 조선 블록 제작 공정(강재 절단 → 소조립·취부 → 블록 용접 → 치수·용접 검사 → 표면처리·도장 → 블록 이송)의 운영 상태를 한 화면에서 보고, 설비 고장·자재 대기 같은 문제를 처리 순서대로 해결해 보는 시연 시스템입니다. 2026 울산 청년 AX 리더십 프로젝트에서 팀 TWIN PRO의 과제(디지털트윈 기반 제조 운영 모니터링 플랫폼)로 만들었습니다.
 
@@ -7,6 +9,7 @@
 - 구성: 화면 파일 `index.html` 하나 + Supabase(Postgres) 서버 + 3D 조선소 모델 `twinpro_shipyard.glb`
 - 기술: JavaScript, Supabase(Postgres · RPC · Realtime · Edge Function), Three.js 0.160(3D), Blender Python(3D 모델 제작)
 - 데이터: 과제에서 제공한 조선 블록 제작 가상 데이터(엑셀 15개 시트)
+- 소스 · 테스트: [`app/`](app/) — 화면 소스 13개 모듈, 서버 SQL(테이블 33 · 뷰 3 · 서버 함수 51), 자동 테스트 179개 + 연결 프로그램 테스트 4개. GitHub Actions가 소스가 바뀔 때마다 빌드하고 테스트합니다(위 배지).
 
 ### 소개 영상
 
@@ -63,6 +66,8 @@
 | 파일 | 크기 | 설명 |
 |---|---|---|
 | `index.html` | 약 2.1MB | 시연 화면(2026-11-01 빌드: 휴대폰 화면 3개만 · AI 요약 하루 10회 · AI 운영 센터 상대평가 종합 점수와 가상 예시 표시). 화면 코드(계산 · 서버 연결 · 화면 · 3D), 그림 자료(사건 설명도 3개, 공정 썸네일 6장, 아이콘), 서버 주소와 공개(anon) 키가 한 파일에 들어 있습니다. 데이터 행은 들어 있지 않고, 열 때마다 서버에서 읽습니다. 전체 소스 패키지의 `twinpro.html`과 같은 빌드 결과물입니다. |
+| `app/` | 약 2.6MB | 화면 소스 · 서버 SQL · 자동 테스트 · 빌드 스크립트(2026-11-02 공개). 실행 방법과 구조는 [`app/README.md`](app/README.md) |
+| `.github/workflows/test.yml` | 약 1KB | 자동 테스트: 빌드 → 화면 테스트 179개 → 연결 프로그램 테스트 4개(PGlite · Playwright, 외부 서버 없음) |
 | `twinpro_shipyard.glb` | 약 7.5MB | 3D 조선소 모델(Blender에서 내보낸 glTF). `index.html`과 **같은 폴더**에 있어야 3D 조선소 · 공정 교육 재생 화면이 열립니다. |
 | `favicon.svg` · `favicon.png` | 약 1KB · 9KB | 브라우저 탭 아이콘 원본(어두운 남색 바탕에 실제 블록(입체) + 디지털 쌍둥이(하늘색 윤곽)). `index.html` 안에 이미 넣어 두어 이 파일이 없어도 탭에 아이콘이 나옵니다. |
 | `supabase_priority.sql` | 약 8KB | 작업 관리 우선순위 확장 SQL(2026-10-31): 온톨로지 뷰 `tp_v_ontology`, 순위 함수 `tp_priority()`, AI 우선순위 요약 저장 표 `tp_ai_priority`와 함수, 보안 설정. 기존 표 · 함수는 바꾸지 않고 추가만 합니다(2-1). |

@@ -1,0 +1,17 @@
+{
+  "name": "twinpro-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TWIN PRO 조선 블록 공정 운영 모니터링 화면 소스와 자동 테스트",
+  "scripts": {
+    "build": "python3 build.py",
+    "test": "node e2e.js"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "0.5.9"
+  },
+  "devDependencies": {
+    "playwright": "1.56.0",
+    "three": "0.160.0"
+  }
+}

@@ -1,0 +1,50 @@
+# 소스(app/)나 연결 프로그램(tools/io_bridge/)이 바뀌면 빌드하고 자동 테스트를 돌립니다.
+# 외부 서버 없이 돕니다: 서버는 PGlite(로컬 Postgres)에 같은 SQL을 올려 대신하고, AI 호출은 고정 문장으로 대신합니다.
+name: test
+
+on:
+  push:
+    branches: [main]
+    paths: ['app/**', 'tools/io_bridge/**', '.github/workflows/test.yml']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: 라이브러리 설치
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: 빌드
+        run: |
+          cp config.example.json config.json
+          python3 build.py
+      - name: 화면 자동 테스트(179개)
+        run: node e2e.js
+      - name: 연결 프로그램 테스트(가상 PLC Modbus · ETOS)
+        working-directory: .
+        run: node tools/io_bridge/test_bridge.js
+      - name: 결과 · 화면 캡처 보관
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-result
+          path: |
+            app/e2e_result.json
+            app/shots/
+          retention-days: 7

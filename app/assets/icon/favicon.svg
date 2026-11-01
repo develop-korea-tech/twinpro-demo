@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#0B1A33"/>
+  <!-- 디지털 쌍둥이: 굵은 하늘색 윤곽(작은 크기에서도 보이게 선 2개만) -->
+  <path d="M22 17 L39 8 L56 17 L56 36 L39 45" fill="none" stroke="#6FD3FF" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M39 8 L39 20" fill="none" stroke="#6FD3FF" stroke-width="5" stroke-linecap="round"/>
+  <!-- 실제 블록: 큰 입체 -->
+  <path d="M27 20 L46 30 L27 40 L8 30 Z" fill="#F2F6FB"/>
+  <path d="M8 30 L27 40 L27 59 L8 49 Z" fill="#A9BEDD"/>
+  <path d="M27 40 L46 30 L46 49 L27 59 Z" fill="#4A6C9F"/>
+</svg>
