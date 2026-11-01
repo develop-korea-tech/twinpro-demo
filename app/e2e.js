@@ -1,5 +1,5 @@
 // 브라우저 자동 테스트: 실제 화면(dist/twinpro_test.html)을 띄우고, 서버(로컬 Postgres, Supabase와 같은 SQL)에 붙여 시연 시나리오를 클릭으로 진행한다.
-const { chromium } = require('/opt/node22/lib/node_modules/playwright');
+const { chromium } = require('playwright');
 const { makeServer } = require('./lib_local.js'); const fs = require('fs'); const path = require('path');
 const OUT = 'shots'; fs.mkdirSync(OUT, { recursive: true });
 const results = []; let n = 0;
