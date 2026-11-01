@@ -47,21 +47,22 @@ const json = (o: unknown, status = 200) => new Response(JSON.stringify(o), { sta
 // 키는 Supabase 비밀값에만 둔다: ANTHROPIC_API_KEY · OPENAI_API_KEY · GEMINI_API_KEY. 키가 없는 회사 모델은 '키 미등록'으로 건너뛴다.
 const KEY_NAME: Record<string, string> = { anthropic: 'ANTHROPIC_API_KEY', openai: 'OPENAI_API_KEY', google: 'GEMINI_API_KEY' };
 type Out = { text: string; inTok: number; outTok: number };
+// 출력 한도는 4000: 최신 모델은 답 전에 생각(thinking) 토큰을 먼저 쓰므로 1000이면 본문이 비는 일이 있다(2026-11-01 실측)
 async function callModel(provider: string, model: string, key: string, system: string, user: string): Promise<Out> {
   if (provider === 'anthropic') {
     const r = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-      body: JSON.stringify({ model, max_tokens: 1000, system, messages: [{ role: 'user', content: user }] }) });
+      body: JSON.stringify({ model, max_tokens: 4000, system, messages: [{ role: 'user', content: user }] }) });
     const b = await r.json(); if (!r.ok) throw new Error(b?.error?.message || `HTTP ${r.status}`);
     return { text: (b.content || []).filter((c: { type: string }) => c.type === 'text').map((c: { text: string }) => c.text).join('').trim(), inTok: b.usage?.input_tokens || 0, outTok: b.usage?.output_tokens || 0 };
   }
   if (provider === 'openai') {
     const r = await fetch('https://api.openai.com/v1/chat/completions', { method: 'POST', headers: { Authorization: `Bearer ${key}`, 'content-type': 'application/json' },
-      body: JSON.stringify({ model, max_completion_tokens: 1000, messages: [{ role: 'system', content: system }, { role: 'user', content: user }] }) });
+      body: JSON.stringify({ model, max_completion_tokens: 4000, messages: [{ role: 'system', content: system }, { role: 'user', content: user }] }) });
     const b = await r.json(); if (!r.ok) throw new Error(b?.error?.message || `HTTP ${r.status}`);
     return { text: (b.choices?.[0]?.message?.content || '').trim(), inTok: b.usage?.prompt_tokens || 0, outTok: b.usage?.completion_tokens || 0 };
   }
   const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, { method: 'POST', headers: { 'x-goog-api-key': key, 'content-type': 'application/json' },
-    body: JSON.stringify({ systemInstruction: { parts: [{ text: system }] }, contents: [{ role: 'user', parts: [{ text: user }] }], generationConfig: { maxOutputTokens: 1000 } }) });
+    body: JSON.stringify({ systemInstruction: { parts: [{ text: system }] }, contents: [{ role: 'user', parts: [{ text: user }] }], generationConfig: { maxOutputTokens: 4000 } }) });
   const b = await r.json(); if (!r.ok) throw new Error(b?.error?.message || `HTTP ${r.status}`);
   return { text: (b.candidates?.[0]?.content?.parts || []).map((p: { text?: string }) => p.text || '').join('').trim(), inTok: b.usageMetadata?.promptTokenCount || 0, outTok: b.usageMetadata?.candidatesTokenCount || 0 };
 }
@@ -108,7 +109,7 @@ Deno.serve(async (req: Request) => {
       method: 'POST',
       headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
       body: JSON.stringify({
-        model: MODEL, max_tokens: mode === 'priority' ? 500 : 1000, system: mode === 'priority' ? SYSTEM_PRIORITY : SYSTEM,
+        model: MODEL, max_tokens: mode === 'priority' ? 2000 : 4000, system: mode === 'priority' ? SYSTEM_PRIORITY : SYSTEM,
         messages: [{ role: 'user', content: (mode === 'priority' ? '현재 처리 우선순위 데이터(JSON)입니다.\n' : '현재 운영 데이터(JSON)입니다.\n') + JSON.stringify(facts.data) }],
       }),
     });

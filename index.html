@@ -1314,7 +1314,7 @@ tr.iogrp td { border-top: 2px solid var(--line2); } td code { font: 12px/1.3 ui-
 
 /* AI 운영 센터 */
 .pg-ai { display: flex; flex-direction: column; gap: 12px; }
-.aipipe { display: flex; align-items: center; gap: 10px; background: #0F1726; border-radius: 12px; padding: 14px 18px; color: #DCE6F5; position: relative; overflow: hidden; }
+.aipipe { flex: none; display: flex; align-items: center; gap: 10px; background: #0F1726; border-radius: 12px; padding: 14px 18px; color: #DCE6F5; position: relative; overflow: hidden; }
 .aipipe.busy::after { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, rgba(77,155,255,.18) 50%, transparent 70%); animation: aishine 1.4s linear infinite; pointer-events: none; }
 @keyframes aishine { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
 .aistep { display: flex; align-items: center; gap: 10px; opacity: .55; transition: opacity .3s; } .aistep b { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; border: 1.5px solid #5D6B85; font-size: 13px; }
@@ -1329,7 +1329,7 @@ tr.iogrp td { border-top: 2px solid var(--line2); } td code { font: 12px/1.3 ui-
 .aicard:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(15,23,38,.08); }
 .aicard.an { border-top: 3px solid #C96A3A; } .aicard.oa { border-top: 3px solid #10A37F; } .aicard.gg { border-top: 3px solid #4C7CF0; }
 .aicard.call { border-color: #9DC1F5; } .aicard.skip { opacity: .7; }
-.aich { display: flex; align-items: center; gap: 6px; } .aich b { font-size: 14px; } .aich em { margin-left: auto; font-style: normal; font-size: 11px; color: var(--fg3); }
+.aich { display: flex; align-items: center; gap: 6px; } .aich b { font-size: 14px; } .aich em { margin-left: auto; font-style: normal; font-size: 11px; color: var(--fg3); white-space: nowrap; }
 .aipv { display: inline-block; font-size: 10.5px; font-weight: 700; padding: 1px 6px; border-radius: 4px; color: #fff; } .aipv.an { background: #C96A3A; } .aipv.oa { background: #10A37F; } .aipv.gg { background: #4C7CF0; }
 .aiid { display: flex; flex-direction: column; gap: 1px; } .aiid small { font-size: 10.5px; color: var(--fg3); }
 .aicall { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 6px; font-size: 12.5px; color: var(--fg2); } .aicall b { font-size: 22px; color: var(--pri); font-variant-numeric: tabular-nums; }
