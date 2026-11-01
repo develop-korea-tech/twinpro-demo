@@ -1,5 +1,5 @@
 // TWIN PRO AI 운영 요약 (Supabase Edge Function)
-// 순서: 시연 코드 확인·1회 차감(tp_ai_claim, 하루 5회) → DB에서 사실 읽기(tp_ai_facts) → Claude 호출 → 결과 저장(tp_ai_save)
+// 순서: 시연 코드 확인·1회 차감(tp_ai_claim, 하루 10회) → DB에서 사실 읽기(tp_ai_facts) → Claude 호출 → 결과 저장(tp_ai_save)
 // mode = 'bench': AI 모델 비교 한 건(회사별 모델, 하루 3회차) → 응답 시간 · 토큰 · 비용 · 자동 채점 저장(tp_ai_bench_save)
 // 실패하면 차감한 1회를 되돌린다(tp_ai_refund). API 키는 Supabase 비밀값 ANTHROPIC_API_KEY에만 있다(화면·저장소에 없음).
 import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
@@ -118,7 +118,7 @@ Deno.serve(async (req: Request) => {
     const saved = await db.rpc(mode === 'priority' ? 'tp_ai_save_priority' : 'tp_ai_save', { p_text: text, p_model: body.model || MODEL });
     if (saved.error) throw new Error(saved.error.message);
     if (!saved.data.ok) throw new Error(saved.data.msg);
-    return json({ ok: true, msg: `${mode === 'priority' ? 'AI 우선순위 요약' : 'AI 운영 요약'}을 생성했습니다. 오늘 남은 횟수 ${5 - claim.data.used}/5` });
+    return json({ ok: true, msg: `${mode === 'priority' ? 'AI 우선순위 요약' : 'AI 운영 요약'}을 생성했습니다. 오늘 남은 횟수 ${10 - claim.data.used}/10` });
   } catch (e) {
     await db.rpc('tp_ai_refund');
     return json({ ok: false, msg: 'AI 요약 생성 실패(횟수는 차감되지 않았습니다): ' + (e instanceof Error ? e.message : String(e)) });

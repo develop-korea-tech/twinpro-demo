@@ -58,7 +58,7 @@ create or replace function tp_priority() returns json language sql stable securi
 $$;
 
 -- ========== (3) AI 우선순위 요약 ==========
--- 하루 5회 한도는 AI 운영 요약과 함께 쓴다(tp_ai_claim). 결과는 별도 표에 저장한다.
+-- 하루 10회 한도는 AI 운영 요약과 함께 쓴다(tp_ai_claim). 결과는 별도 표에 저장한다.
 create table if not exists tp_ai_priority (id bigserial primary key, created_at timestamptz not null default now(), sim_at timestamp not null, text text not null, model text);
 
 create or replace function tp_ai_save_priority(p_text text, p_model text) returns json language plpgsql security definer as $$
