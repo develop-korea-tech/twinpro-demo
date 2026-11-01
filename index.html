@@ -1347,6 +1347,10 @@ tr.iogrp td { border-top: 2px solid var(--line2); } td code { font: 12px/1.3 ui-
 .aibar { display: inline-block; width: 90px; height: 6px; background: var(--label); border-radius: 3px; margin-right: 8px; vertical-align: middle; overflow: hidden; } .aibar i { display: block; height: 100%; background: #9AA6BA; transition: width .6s; } .aibar.c i { background: #E0912A; } .aibar.s i { background: #19A34A; }
 .aipk { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 4px 0 8px; } .aipk b { font-size: 20px; } .aipk p { margin: 0; color: var(--fg2); }
 .aisc { width: 100%; height: auto; overflow: visible; } .aisc line { stroke: var(--line2); } .aisc .g90 { stroke: #19A34A; stroke-dasharray: 4 4; } .aisc text { font-size: 13px; fill: var(--fg); } .aisc .ax { font-size: 11px; fill: var(--fg3); }
+.aisimb { flex: none; font-size: 10.5px; font-weight: 600; color: #8A5A00; background: #FFF4D6; border: 1px dashed #E0A526; border-radius: 999px; padding: 0 6px; line-height: 16px; white-space: nowrap; }
+.aicard.sim { border-style: dashed; } .aiidc { display: flex; align-items: center; gap: 6px; } .aisimn { font-size: 11.5px; color: var(--fg3); }
+.airel { font-size: 12.5px; white-space: nowrap; } .airw { display: flex; flex-direction: column; align-items: center; gap: 2px; } .airl { font-size: 11px; color: var(--fg3); white-space: nowrap; } .airel.best { color: var(--g); }
+.aisc circle.sim { fill-opacity: .25; stroke-width: 2; stroke-dasharray: 3 2; } .aisc circle.sim.an { stroke: #C96A3A; } .aisc circle.sim.oa { stroke: #10A37F; } .aisc circle.sim.gg { stroke: #4C7CF0; }
 .aisc circle.an { fill: #C96A3A; } .aisc circle.oa { fill: #10A37F; } .aisc circle.gg { fill: #4C7CF0; }
 .aifoot { color: var(--fg3); }
 @media (max-width: 1400px) { .aicards { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
@@ -3265,49 +3269,58 @@ const aiModels = () => (S.aiModels && S.aiModels.length ? S.aiModels : AI_MODELS
 const won = usd => usd == null ? '-' : usd * AI_KRW < 1 ? `${(usd * AI_KRW).toFixed(2)}원` : `${(usd * AI_KRW).toFixed(1)}원`;
 UI.bench = UI.bench || null;
 
-// 모델별 누적 통계(서버 기록 tp_ai_bench)
+// 모델별 누적 통계(서버 기록 tp_ai_bench). 가상 예시(simulated) 행이 있는 모델은 가상 예시 행만으로 계산하고 sim 표시
 function aiStats() {
-  return aiModels().map(m => { const rs = (S.bench || []).filter(r => r.model_id === m.model_id), ok = rs.filter(r => r.ok);
-    const avg = f => ok.length ? ok.reduce((s, r) => s + (+f(r) || 0), 0) / ok.length : null;
-    return { m, n: rs.length, ok: ok.length, rate: rs.length ? ok.length / rs.length * 100 : null, lat: avg(r => r.latency_ms), cost: avg(r => r.cost_usd), score: avg(r => r.score) }; });
+  const st = aiModels().map(m => { let rs = (S.bench || []).filter(r => r.model_id === m.model_id); const sim = rs.some(r => r.simulated); if (sim) rs = rs.filter(r => r.simulated);
+    const ok = rs.filter(r => r.ok), avg = f => ok.length ? ok.reduce((s, r) => s + (+f(r) || 0), 0) / ok.length : null;
+    return { m, sim, n: rs.length, ok: ok.length, rate: rs.length ? ok.length / rs.length * 100 : null, lat: avg(r => r.latency_ms), cost: avg(r => r.cost_usd), score: avg(r => r.score) }; });
+  // 상대평가 종합 점수 = 평균 정확도(KPI) × 속도 순위 계수 × 비용 순위 계수. 계수는 1위 1.00 → 꼴찌 0.75(등 간격)
+  // 가장 빠르면서 가장 싸고 정확도 100인 모델만 100점이 되므로, 정확도가 같아도 속도 · 비용에서 차이가 난다
+  const has = st.filter(s => s.ok), N = has.length, cf = i => 1 - 0.25 * i / Math.max(N - 1, 1);
+  const rk = k => [...has].sort((a, b) => a[k] - b[k]).forEach((s, i) => s[k + 'C'] = cf(i));
+  rk('lat'); rk('cost'); has.forEach(s => s.total = s.score * s.latC * s.costC);
+  [...has].sort((a, b) => b.total - a.total).forEach((s, i) => s.rel = i + 1);
+  return st;
 }
-// 추천: 평균 정확도 90점 이상 중 건당 비용이 가장 싼 모델(같으면 더 빠른 모델)
-function aiPick(st) { const c = st.filter(s => s.ok && s.score >= 90).sort((a, b) => a.cost - b.cost || a.lat - b.lat); return c[0] || null; }
+// 추천: 실측 모델 중 종합 점수가 가장 높은 모델. 가상 예시는 추천에서 뺀다
+function aiPick(st) { const c = st.filter(s => s.ok && !s.sim).sort((a, b) => b.total - a.total); return c[0] || null; }
 
-function aiCard(m) {
+function aiCard(m, s) {
   const b = UI.bench && UI.bench.items[m.model_id], last = !b && (S.bench || []).filter(r => r.model_id === m.model_id).sort((x, y) => y.id - x.id)[0], sk = !b && (UI.benchSkip || {})[m.model_id];
   const st = b ? b.status : sk ? 'skip' : last ? (last.ok ? 'done' : 'err') : 'idle';
   const r = b ? b.res || {} : sk ? { msg: sk } : last ? { latency_ms: last.latency_ms, cost_usd: last.cost_usd, score: last.score, checks: typeof last.checks === 'string' ? JSON.parse(last.checks) : last.checks, text: last.text, msg: last.err } : {};
-  const ck = r.checks || {}, sc = r.score, p = AI_PROV[m.provider];
-  const ring = sc == null ? '' : `<svg class="airing" viewBox="0 0 44 44"><circle cx="22" cy="22" r="18"/><circle class="v ${sc >= 90 ? 'g' : sc >= 70 ? 'o' : 'r'}" cx="22" cy="22" r="18" stroke-dasharray="${(sc / 100 * 113.1).toFixed(1)} 113.1" transform="rotate(-90 22 22)"/><text x="22" y="26" text-anchor="middle">${sc}</text></svg>`;
+  const ck = r.checks || {}, tot = !b && s && s.total != null, sc = tot ? Math.round(s.total) : r.score, p = AI_PROV[m.provider], sim = !b && last && last.simulated;
+  const ring = sc == null ? '' : `<svg class="airing" viewBox="0 0 44 44"><circle cx="22" cy="22" r="18"/><circle class="v ${sc >= 90 ? 'g' : sc >= 70 ? 'o' : 'r'}" cx="22" cy="22" r="18" stroke-dasharray="${(sc / 100 * 113.1).toFixed(1)} 113.1" transform="rotate(-90 22 22)"/><text x="22" y="26" text-anchor="middle">${sc}</text></svg>${tot ? `<small class="airl">종합 ${s.rel}위</small>` : ''}`;
   const body = st === 'call' ? `<div class="aicall"><span class="aidots"><i></i><i></i><i></i></span>응답 기다리는 중 <b id="bt-${m.model_id}">0.0초</b></div>`
     : st === 'skip' ? `<div class="aiskip">${esc(r.msg || '키 미등록')}</div>`
     : st === 'err' ? `<div class="aierr">${esc(r.msg || '호출 실패')}</div>`
-    : st === 'done' ? `<div class="aires">${ring}<div class="aimet"><span><small>응답</small><b>${(r.latency_ms / 1000).toFixed(1)}초</b></span><span><small>비용</small><b>${won(r.cost_usd)}</b></span></div></div>
+    : st === 'done' ? `<div class="aires"><span class="airw">${ring}</span><div class="aimet">${tot ? `<span><small>정확도</small><b>${s.score.toFixed(0)}점</b></span>` : ''}<span><small>응답</small><b>${(r.latency_ms / 1000).toFixed(1)}초</b></span><span><small>비용</small><b>${won(r.cost_usd)}</b></span></div></div>
         <div class="aichk"><span class="${(ck.missing || []).length ? 'bad' : 'ok'}">필수 사실 ${(ck.required || []).length - (ck.missing || []).length}/${(ck.required || []).length}</span><span class="${(ck.fabricated || []).length ? 'bad' : 'ok'}">지어낸 ID ${(ck.fabricated || []).length}${(ck.fabricated || []).length ? ` (${ck.fabricated.join(', ')})` : ''}</span><span class="${ck.heads === 3 ? 'ok' : 'bad'}">형식 ${ck.heads ?? 0}/3</span></div>
-        ${r.text ? `<details class="aitxt"><summary>답변 보기</summary><pre>${esc(r.text)}</pre></details>` : ''}`
+        ${sim ? '<div class="aisimn">가상 예시 값 · 실제 호출 아님(결제 전 모델)</div>' : r.text ? `<details class="aitxt"><summary>답변 보기</summary><pre>${esc(r.text)}</pre></details>` : ''}`
     : `<div class="aiidle">아직 실행 기록이 없습니다.</div>`;
-  return `<div class="aicard ${st} ${p[1]}"><div class="aich"><span class="aipv ${p[1]}">${p[0]}</span><b>${esc(m.label)}</b><em>${m.tier}</em></div>
-    <div class="aiid"><code>${esc(m.model_id)}</code><small>단가 $${m.price_in} / $${m.price_out} (100만 토큰 입력/출력)</small></div>${body}</div>`;
+  return `<div class="aicard ${st} ${p[1]}${sim ? ' sim' : ''}"><div class="aich"><span class="aipv ${p[1]}">${p[0]}</span><b>${esc(m.label)}</b><em>${m.tier}</em></div>
+    <div class="aiid"><span class="aiidc"><code>${esc(m.model_id)}</code>${sim ? '<span class="aisimb">가상 예시</span>' : ''}</span><small>단가 $${m.price_in} / $${m.price_out} (100만 토큰 입력/출력)</small></div>${body}</div>`;
 }
 function viewAi() {
   const ms = aiModels(), st = aiStats(), pick = aiPick(st), run = UI.bench, busy = run && Object.values(run.items).some(x => x.status === 'call');
-  const runsToday = new Set((S.bench || []).filter(r => String(r.created_at || '').slice(0, 10) === new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 10)).map(r => r.run_id)).size;
+  const runsToday = new Set((S.bench || []).filter(r => !r.simulated && String(r.created_at || '').slice(0, 10) === new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 10)).map(r => r.run_id)).size;
   const step = !run ? 0 : busy ? 2 : 4, done = run ? Object.values(run.items).filter(x => x.status !== 'call').length : 0;
   const stepEl = (n, t, s) => `<div class="aistep ${step === n ? 'on' : step > n ? 'done' : ''}"><b>${step > n ? '✓' : n}</b><span><strong>${t}</strong><small>${s}</small></span></div>`;
   const mx = k => Math.max(...st.map(s => s[k] || 0), 0.000001);
-  const rows = st.map(s => `<tr class="${pick && pick.m === s.m ? 'pick' : ''}"><td><span class="aipv ${AI_PROV[s.m.provider][1]}">${AI_PROV[s.m.provider][0]}</span> ${esc(s.m.label)}${pick && pick.m === s.m ? ' <span class="badge g">추천</span>' : ''}</td><td class="c">${s.n || '-'}</td>
+  const rows = st.map(s => `<tr class="${pick && pick.m === s.m ? 'pick' : ''}"><td><span class="aipv ${AI_PROV[s.m.provider][1]}">${AI_PROV[s.m.provider][0]}</span> ${esc(s.m.label)}${s.sim ? ' <span class="aisimb">가상 예시</span>' : ''}${pick && pick.m === s.m ? ' <span class="badge g">추천</span>' : ''}</td><td class="c">${s.n || '-'}</td>
     <td class="c">${s.rate == null ? '-' : s.rate.toFixed(0) + '%'}</td>
     <td><span class="aibar"><i style="width:${s.lat == null ? 0 : s.lat / mx('lat') * 100}%"></i></span>${s.lat == null ? '-' : (s.lat / 1000).toFixed(1) + '초'}</td>
     <td><span class="aibar c"><i style="width:${s.cost == null ? 0 : s.cost / mx('cost') * 100}%"></i></span>${won(s.cost)}</td>
-    <td><span class="aibar s"><i style="width:${s.score == null ? 0 : s.score}%"></i></span>${s.score == null ? '-' : s.score.toFixed(0) + '점'}</td></tr>`).join('');
+    <td><span class="aibar s"><i style="width:${s.score == null ? 0 : s.score}%"></i></span>${s.score == null ? '-' : s.score.toFixed(0) + '점'}</td>
+    <td class="c">${s.rel ? `<b class="airel${s.rel <= 3 ? ' best' : ''}">${s.total.toFixed(1)}점 · ${s.rel}위</b>` : '-'}</td></tr>`).join('');
   // 비용(로그) × 정확도 산점도: 왼쪽 위일수록 싸고 정확함
   const pts = st.filter(s => s.ok).map(s => ({ s, x: Math.log10(Math.max(s.cost * AI_KRW, 0.01)), y: s.score })), xs = pts.map(p => p.x);
-  const x0 = Math.min(...xs, 0) - 0.3, x1 = Math.max(...xs, 0) + 0.3, X = x => 50 + (x - x0) / (x1 - x0) * 490, Y = y => 190 - Math.max(0, y - 40) / 60 * 170;
+  const lo = Math.min(70, Math.floor(Math.min(...pts.map(p => p.y), 100) / 10) * 10 - 10);   // 세로 눈금 아래 끝: 점수가 몰려 있으면 70점부터 그려 점이 겹치지 않게
+  const x0 = Math.min(...xs, 0) - 0.3, x1 = Math.max(...xs, 0) + 0.3, X = x => 50 + (x - x0) / (x1 - x0) * 490, Y = y => 190 - Math.max(0, y - lo) / (100 - lo) * 170;
   // 같은 자리(비용 · 정확도가 같은 모델)는 이름을 한 줄로 묶고, 오른쪽 끝 이름은 왼쪽으로 붙여 잘리지 않게 한다
-  const grp = []; pts.forEach(p => { const px = X(p.x), py = Y(p.y), g = grp.find(q => Math.abs(q.px - px) < 6 && Math.abs(q.py - py) < 6); if (g) g.ps.push(p); else grp.push({ px, py, ps: [p] }); });
-  const sc = grp.map((g, i) => { const left = i % 2 || g.px > 430, name = g.ps.map(p => esc(p.s.m.label.replace(/^(Claude|OpenAI|Gemini) /, ''))).join(' · ');
-    return `<g transform="translate(${g.px.toFixed(1)},${g.py.toFixed(1)})">${g.ps.map((p, k) => `<circle r="7" cx="${k * 5}" class="${AI_PROV[p.s.m.provider][1]}"/>`).join('')}<text x="${left ? -10 : 10}" y="${i % 2 ? 18 : -9}" text-anchor="${left ? 'end' : 'start'}">${name}</text></g>`; }).join('');
+  const grp = []; pts.filter(p => !p.s.sim).forEach(p => { const px = X(p.x), py = Y(p.y), g = grp.find(q => Math.abs(q.px - px) < 6 && Math.abs(q.py - py) < 6); if (g) g.ps.push(p); else grp.push({ px, py, ps: [p] }); });
+  const sc = grp.sort((a, b) => a.px - b.px).map((g, i) => { const anc = g.px > 470 ? 'end' : g.px < 110 ? 'start' : 'middle', name = g.ps.map(p => esc(p.s.m.label.replace(/^(Claude|OpenAI|Gemini) /, ''))).join(' · ');
+    return `<g transform="translate(${g.px.toFixed(1)},${g.py.toFixed(1)})">${g.ps.map((p, k) => `<circle r="7" cx="${k * 5}" class="${AI_PROV[p.s.m.provider][1]}${p.s.sim ? ' sim' : ''}"/>`).join('')}<text x="${anc === 'end' ? 6 : anc === 'start' ? -6 : 0}" y="${i % 2 ? 22 : -12}" text-anchor="${anc}">${name}</text></g>`; }).join('') + pts.filter(p => p.s.sim).map(p => `<circle r="6" cx="${X(p.x).toFixed(1)}" cy="${Y(p.y).toFixed(1)}" class="${AI_PROV[p.s.m.provider][1]} sim"><title>${esc(p.s.m.label)} · 가상 예시</title></circle>`).join('');
   return `<div class="pg pg-ai">${pvHead('AI 운영 센터', 'AI', '어떤 AI 모델이 우리 공장 요약을 가장 잘 하나?', '같은 서버 사실을 회사별 모델에 동시에 주고 응답 속도 · 비용 · 정확도를 실측합니다', '<span class="pvai">AI는 요약 문장만 씁니다 · 순위 · 판단 규칙은 서버</span>')}
     <section class="aipipe ${busy ? 'busy' : ''}">
       ${stepEl(1, '서버 사실 읽기', `tp_ai_facts · 사건 ${openIncidents().length}건 · 설비 ${Object.keys(S.equipment).length}대`)}<i class="aiarr"></i>
@@ -3316,14 +3329,14 @@ function viewAi() {
       ${stepEl(4, '저장 · 추천', '서버 tp_ai_bench에 기록 → 누적 비교')}
       <span class="grow"></span>
       <button class="btn pri aigo" data-act="benchRun" ${busy || !UI.canWrite ? 'disabled' : ''} title="${UI.canWrite ? '' : '시연 코드(조작 권한)가 있어야 실행할 수 있습니다'}">${busy ? '비교 실행 중…' : '▶ 모델 비교 실행'}<small>오늘 ${Math.min(runsToday, 3)}/3회</small></button></section>
-    <div class="aicards">${ms.map(aiCard).join('')}</div>
+    <div class="aicards">${ms.map(m => aiCard(m, st.find(x => x.m === m))).join('')}</div>
     <div class="airow">
-      <section class="panel"><div class="ph"><h2>누적 비교</h2><span class="sub">서버 기록 ${(S.bench || []).length}건 · 응답 성공률 = 정상 응답 ÷ 호출 · 비용은 실제 토큰 × 단가(1 USD = ${AI_KRW.toLocaleString()}원 가정)</span></div>
-        <div class="tw"><table class="aitab"><thead><tr><th>모델</th><th class="c">호출</th><th class="c">응답 성공률</th><th>평균 응답 시간</th><th>건당 비용</th><th>평균 정확도</th></tr></thead><tbody>${rows}</tbody></table></div></section>
-      <section class="panel aipick"><div class="ph"><h2>추천 모델</h2><span class="sub">정확도 90점 이상 중 가장 싼 모델</span></div>
-        ${pick ? `<div class="aipk"><span class="aipv ${AI_PROV[pick.m.provider][1]}">${AI_PROV[pick.m.provider][0]}</span><b>${esc(pick.m.label)}</b><p>정확도 ${pick.score.toFixed(0)}점 · 건당 ${won(pick.cost)} · ${(pick.lat / 1000).toFixed(1)}초</p></div>` : '<div class="empty">기준을 넘은 모델이 아직 없습니다. 비교를 실행하세요.</div>'}
-        <svg class="aisc" viewBox="0 0 560 220"><line x1="50" y1="190" x2="550" y2="190"/><line x1="50" y1="12" x2="50" y2="190"/><line class="g90" x1="50" y1="${Y(90)}" x2="550" y2="${Y(90)}"/><text x="46" y="${Y(90) + 4}" class="ax" text-anchor="end">90점</text><text x="46" y="${Y(100) + 4}" class="ax" text-anchor="end">100</text><text x="46" y="194" class="ax" text-anchor="end">40</text><text x="550" y="212" class="ax" text-anchor="end">건당 비용 → (로그 눈금, 왼쪽이 쌈)</text>${sc}</svg></section></div>
-    <div class="small aifoot">단가는 각 회사 공개 가격표 기준(2026-10 확인, 바뀔 수 있음)이며 서버 tp_ai_model 표에서 고칩니다. 키가 없는 회사 모델은 '키 미등록'으로 건너뜁니다(ANTHROPIC_API_KEY · OPENAI_API_KEY · GEMINI_API_KEY는 Supabase 비밀값에만 둠).${S.aiBenchReady ? '' : ' · 서버에 비교 표(supabase_ai_bench.sql)가 아직 없어 실행 기록을 남길 수 없습니다.'}</div></div>`;
+      <section class="panel"><div class="ph"><h2>누적 비교</h2><span class="sub">서버 기록 ${(S.bench || []).length}건(실측 ${(S.bench || []).filter(r => !r.simulated).length} · 가상 예시 ${(S.bench || []).filter(r => r.simulated).length}) · 종합 점수 = 평균 정확도 × 속도 순위 계수 × 비용 순위 계수(1위 1.00 → 꼴찌 0.75) · 응답 성공률 = 정상 응답 ÷ 호출 · 비용은 실제 토큰 × 단가(1 USD = ${AI_KRW.toLocaleString()}원 가정)</span></div>
+        <div class="tw"><table class="aitab"><thead><tr><th>모델</th><th class="c">호출</th><th class="c">응답 성공률</th><th>평균 응답 시간</th><th>건당 비용</th><th>평균 정확도</th><th class="c">종합 점수(상대평가)</th></tr></thead><tbody>${rows}</tbody></table></div></section>
+      <section class="panel aipick"><div class="ph"><h2>추천 모델</h2><span class="sub">실측 모델 중 종합 점수 1위</span></div>
+        ${pick ? `<div class="aipk"><span class="aipv ${AI_PROV[pick.m.provider][1]}">${AI_PROV[pick.m.provider][0]}</span><b>${esc(pick.m.label)}</b><p>종합 ${pick.total.toFixed(1)}점(전체 ${pick.rel}위) · 정확도 ${pick.score.toFixed(0)}점 · 건당 ${won(pick.cost)} · ${(pick.lat / 1000).toFixed(1)}초</p></div>` : '<div class="empty">기준을 넘은 모델이 아직 없습니다. 비교를 실행하세요.</div>'}
+        <svg class="aisc" viewBox="0 0 560 220"><line x1="50" y1="190" x2="550" y2="190"/><line x1="50" y1="12" x2="50" y2="190"/><line class="g90" x1="50" y1="${Y(90)}" x2="550" y2="${Y(90)}"/><text x="46" y="${Y(90) + 4}" class="ax" text-anchor="end">90점</text><text x="46" y="${Y(100) + 4}" class="ax" text-anchor="end">100</text><text x="46" y="194" class="ax" text-anchor="end">${lo}</text><text x="50" y="212" class="ax">실측 = 색 점(이름) · 가상 예시 = 점선 점</text><text x="550" y="212" class="ax" text-anchor="end">건당 비용 → (로그 눈금, 왼쪽이 쌈)</text>${sc}</svg></section></div>
+    <div class="small aifoot">단가는 각 회사 공개 가격표 기준(2026-10 확인, 바뀔 수 있음)이며 서버 tp_ai_model 표에서 고칩니다. 「가상 예시」는 결제 전 모델의 화면 예시 값으로 실제 호출이 아니며 추천에서 뺍니다. 키가 없는 회사 모델은 '키 미등록'으로 건너뜁니다(ANTHROPIC_API_KEY · OPENAI_API_KEY · GEMINI_API_KEY는 Supabase 비밀값에만 둠).${S.aiBenchReady ? '' : ' · 서버에 비교 표(supabase_ai_bench.sql)가 아직 없어 실행 기록을 남길 수 없습니다.'}</div></div>`;
 }
 let benchTimer = null;
 Object.assign(VIEW_RENDER, { ai: viewAi });
