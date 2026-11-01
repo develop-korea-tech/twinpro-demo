@@ -1375,6 +1375,22 @@ tr.eqoff td { color: var(--fg3); background: var(--n-bg); }
 td.eqbtns { white-space: nowrap; } td.eqbtns .btn + .btn { margin-left: 4px; }
 .eqnote { padding: 8px 2px 0; }
 @media (max-width: 700px) { .eqfrow label, .eqfrow #eqfName { width: 100%; } }
+/* ---------- 휴대폰(폭 760px 이하): 화면은 통합 관제 · 블록 내부 3D · 공정 교육 재생 3개만(3D 조선소 · 관리 화면 버튼 숨김) ---------- */
+@media (max-width: 760px) {
+  .gtabs [data-arg="3d"], .gmenu, .btn[data-act^="go"]:not([data-arg="dash"]) { display: none !important; }
+  .gtabs button { padding: 8px 10px; font-size: 14px; }
+  /* 블록 내부 3D: 3D 화면과 재생 조작을 위로, 부재 표 · 상세는 아래로 */
+  .bk { padding: 0 8px 12px; } .bk > .gbar, .bk > .trialbar, .bktop { margin: 0 -8px; }
+  .bkmain { display: contents; }
+  .bk > .gbar { order: 0; } .bk > .trialbar { order: 1; } .bktop { order: 2; } .bkcards { order: 3; } .bkc { order: 4; height: 52vh; min-height: 280px; } .bkbottom { order: 5; } .bkl { order: 6; } .bkr { order: 7; }
+  .bktop .bkchip.warn { display: none; }
+  .bkcards { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; } .bkcard { flex: 0 0 132px; }
+  .bkctl { order: -1; flex-wrap: wrap; } .bkctl button { white-space: nowrap; } .bkctl input[type=range] { flex: 1 1 100%; } .bkctl .small { flex: 1 1 100%; }
+  /* 공정 교육 재생: 재생에 필요 없는 버튼 숨김 */
+  .txbar .txb.fill.g, .txbar [data-act="t3tog"] { display: none; }
+  .simvchips { flex-wrap: wrap; } .simvchips button { white-space: nowrap; }
+  .tx .txview { height: 440px; min-height: 0; }   /* 16배속 영상(16:9)과 조작 줄이 빈칸 없이 들어가는 높이 */
+}
 .iso{
   --anatomy-page:#0b0b0b;--anatomy-card:#131313;--anatomy-text:#a3a3a3;--anatomy-strong:#e6e6e6;--anatomy-muted:#6e6e6e;
   --anatomy-paper:#131313;--anatomy-face:#1b1b1b;--anatomy-top:#1c1c1c;
@@ -1882,6 +1898,9 @@ const icon = pid => (ICONS[pid] || '');
 // ---------- 공통 틀: 모든 화면 위의 어두운 상단 바(사이드바 없음) ----------
 const TOP_TABS = [['dash', '통합 관제'], ['3d', '3D 조선소'], ['blk', '블록 내부 3D'], ['edu', '공정 교육 재생']];
 const MGMT = VIEWS.slice(1).filter(v => v[2] === '관리' || v[2] === '모니터링');
+// 휴대폰(폭 760px 이하): 화면은 통합 관제 · 블록 내부 3D · 공정 교육 재생 3개만. 3D 조선소와 관리 화면은 넓은 화면에서만 연다
+const isMob = () => window.matchMedia('(max-width: 760px)').matches;
+const mobOk = () => UI.view === 'dash' || UI.view === 'blk' || (UI.view === '3d' && (SIM.on || T3.wantSim));
 // 왼쪽 아이콘 사이드바(넓은 화면): 평소 아이콘만, 마우스를 올리면 펼쳐져 글자가 보인다. 좁은 화면(휴대폰)은 위쪽 탭·[관리 화면 ▾]를 그대로 쓴다
 const RAIL_ICO = {
   dash: '<rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>',
@@ -2586,6 +2605,7 @@ function render() {
   if (UI.ptrDown) { UI.renderPending = true; return; }   // 누르는 중에 화면을 다시 그리면 클릭이 사라지므로, 손을 뗀 뒤 그린다
   const app = document.getElementById('app'); const sx = window.scrollX, sy = window.scrollY;
   const focus = document.activeElement && document.activeElement.id;
+  if (isMob() && !mobOk()) { if (SIM.on) simStop(true); UI.view = 'dash'; UI.menuOpen = false; try { history.replaceState(null, '', '#dash'); } catch (e) { /* file:// 등 */ } }   // 휴대폰에서 없는 화면으로 가려 하면(사건 선택 등) 관제에 머문다
   app.innerHTML = UI.view === '3d' ? t3Shell() : UI.view === 'blk' ? bkShell() : shell();
   if (UI.view === '3d') { t3Mount(); simVidMount(); } if (UI.view === 'blk') bkMount(); if (UI.figModal) figMount(); if (UI.view !== '3d' && UI.view !== 'blk') pvMount(); cntMount(); UI.lastView = UI.view;   // 화면이 바뀔 때만 들어오는 움직임
   if (focus) { const el = document.getElementById(focus); if (el && el.focus) { el.focus(); if (el.setSelectionRange && el.type === 'text') { const n = el.value.length; el.setSelectionRange(n, n); } } }
@@ -2597,7 +2617,7 @@ const ACT = {
   // 메뉴로 들어오면 [그림] 보기, 다른 화면에서 특정 설비·작업을 열면(keepMode) [표] 보기
   go(v) { if (v === 'easy') v = 'dash'; if (!UI.keepMode && MODES[v]) UI.mode[v] = MODES[v][0][0]; UI.keepMode = false; if (v !== '3d' && SIM.on) simStop(true); UI.view = v; UI.menuOpen = false; try { history.replaceState(null, '', '#' + v); } catch (e) { /* file:// 등 */ } UI.resetArm = false; render(); window.scrollTo(0, 0); },
   topGo(v) { if (v === 'blk') return ACT.bkOpen(easyCase()?.work_order_id ? S.wo[easyCase().work_order_id].block_id : '');
-    if (v === 'edu') { ACT.go('3d'); if (T3.ready) { simStart(); render(); } else T3.wantSim = true; return; }
+    if (v === 'edu') { T3.wantSim = true; ACT.go('3d'); if (T3.ready) { T3.wantSim = false; simStart(); render(); } return; }   // wantSim을 먼저 세워야 휴대폰에서 3D 조선소로 보지 않고 재생 화면으로 연다
     if (v === '3d') { if (SIM.on) simStop(true); const c = easyCase(); if (c && c.work_order_id) T3.sel = S.wo[c.work_order_id].process_id; } ACT.go(v); },
   go3d(pid) { T3.sel = pid || null; ACT.go('3d'); },
   menuTog() { UI.menuOpen = !UI.menuOpen; render(); },
