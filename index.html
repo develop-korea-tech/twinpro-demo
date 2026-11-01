@@ -1610,7 +1610,7 @@ window.FIG_RUN = function (root) {
 
 // TWIN PRO 화면 모델 — 서버(Supabase) 테이블을 읽어 화면 계산에 쓰는 읽기 전용 상태 S를 만든다.
 // 상태를 바꾸는 규칙(R1~R7)은 전부 서버 함수(sql/02_functions.sql)에 있다. 여기에는 계산만 있다.
-const AI_LIMIT = 5;
+const AI_LIMIT = 10;
 const BASE = '2026-09-16 12:00', DAY = '2026-09-16', OP_START = '2026-09-07 08:00', SHIFT_END = '2026-09-16 16:00';
 const toM = s => { const [d, t] = s.split(' '); const [Y, M, D] = d.split('-').map(Number); const [h, m] = t.split(':').map(Number); return Date.UTC(Y, M - 1, D, h, m) / 60000; };
 const p2 = n => String(n).padStart(2, '0');
@@ -1858,7 +1858,7 @@ const API = NEEDS_SETUP ? null : window.__TP_TEST_API ? {
     async load() { const r = await Promise.all(TABLES.map(all)); return Object.fromEntries(TABLES.map((t, i) => [t, r[i]])); },
     resetWriter() { writer = null; },
     async rpc(fn, args) { const { data, error } = await getWriter().rpc(fn, args); if (error) throw new Error(error.message); return data; },
-    async ai(mode) {          // AI 운영 요약(mode 없음) · AI 우선순위 요약(mode = 'priority'): Edge Function(tp-ai-summary)이 시연 코드 확인 → 하루 5회 차감 → Claude 호출 → DB 저장
+    async ai(mode) {          // AI 운영 요약(mode 없음) · AI 우선순위 요약(mode = 'priority'): Edge Function(tp-ai-summary)이 시연 코드 확인 → 하루 10회 차감 → Claude 호출 → DB 저장
       const r = await fetch(`${SUPABASE_URL}/functions/v1/tp-ai-summary`, { method: 'POST', headers: { Authorization: `Bearer ${SUPABASE_ANON_KEY}`, apikey: SUPABASE_ANON_KEY, 'x-demo-code': DEMO_CODE, 'Content-Type': 'application/json' }, body: JSON.stringify(mode ? { mode } : {}) });
       const j = await r.json().catch(() => null); if (!j) throw new Error(`AI 서버 응답 오류(HTTP ${r.status})`); return j; },
     async aiBench(model_id, run_id) {   // AI 모델 비교 한 건(회사별 모델): Edge Function이 회차 확인 → 사실 → 호출 · 시간 측정 → 채점 · 저장
@@ -2953,7 +2953,7 @@ function priGraph(x) {
 function viewWoPri() {
   const L = priorities(), selId = L.some(x => x.inc.incident_id === UI.sel.pri) ? UI.sel.pri : L[0]?.inc.incident_id, sx = L.find(x => x.inc.incident_id === selId);
   const ai = S.aiPri, fresh = ai && ai.sim_at === nowS();
-  const aiBtn = S.aiPriReady ? `<button class="btn line" data-act="priAi" ${UI.aiBusy ? 'disabled' : ''} ${UI.canWrite ? '' : 'disabled title="시연 코드가 필요합니다(하루 5회)"'}>${UI.aiBusy ? 'AI 요약 중…' : fresh ? 'AI로 다시 요약' : 'AI로 요약'}</button><span class="small">오늘 ${S.aiUsed}/${AI_LIMIT}회</span>` : '';
+  const aiBtn = S.aiPriReady ? `<button class="btn line" data-act="priAi" ${UI.aiBusy ? 'disabled' : ''} ${UI.canWrite ? '' : 'disabled title="시연 코드가 필요합니다(하루 10회)"'}>${UI.aiBusy ? 'AI 요약 중…' : fresh ? 'AI로 다시 요약' : 'AI로 요약'}</button><span class="small">오늘 ${S.aiUsed}/${AI_LIMIT}회</span>` : '';
   const sumText = fresh ? esc(ai.text) : priSentence(L);
   const sum = `<div class="pv-ps"><div class="pv-psh"><span class="pv-tag ${fresh ? '' : 'rule'}">${fresh ? 'AI 요약' : '규칙 요약'}</span><span class="small">${hm(nowS())} 기준 · 미해결 ${L.length}건 · 순위는 아래 기준으로 서버 데이터에서 계산${fresh ? `, 문장만 AI(${esc(ai.model || '')})가 씀` : ''}${ai && !fresh ? ` · 이전 AI 요약(${md(ai.sim_at)} ${hm(ai.sim_at)})은 지금 상태와 달라 숨김` : ''}</span><span class="grow"></span>${aiBtn}</div>
     <div class="pv-pst" id="priText">${sumText}</div></div>`;
