@@ -1,6 +1,7 @@
 // TWIN PRO 화면 — 상태 S(서버에서 읽은 값)로 5개 화면을 그리고, 사용자 조작은 서버 함수(RPC)로 보낸 뒤 다시 읽는다.
 const UI = {
-  view: 'dash', busy: false, speed: 1, conn: '연결 중', draft: {}, page: { wo: 1, his: 1 }, sub: { wo: 'list', base: 'proc', eq: 'his', sum: '' },
+  view: 'dash', busy: false, speed: window.matchMedia('(max-width: 760px)').matches ? 4 : 1,   // 휴대폰은 처음부터 4배속
+  conn: '연결 중', draft: {}, page: { wo: 1, his: 1 }, sub: { wo: 'list', base: 'proc', eq: 'his', sum: '' },
   sel: { eq: 'EQ03', block: 'B008', wo: 'WO009-02', proc: 'P03', inc: null, node: null },
   f: { eq: { proc: '', st: '', q: '', kind: '' }, prod: { vessel: '', proc: '', st: '', q: '' }, wo: { proc: '', st: '', date: '16-17', q: '', overdue: false }, base: { q: '', zone: '' } },
   faultForm: false, resetArm: false, codeOpen: false, canWrite: false, intro: false, menuOpen: false, pausedFor: '',

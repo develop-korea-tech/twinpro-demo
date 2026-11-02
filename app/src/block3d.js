@@ -1,6 +1,6 @@
 // ---------- 블록 제조 화면(3D 확장 데모): 블록 하나가 강재 절단 → 소조립 → 블록 용접 → 검사 → 도장 → 이송을 거치는 과정 ----------
 // 공정별 수량(piece·set·m·point·m²·block)과 진행률은 서버 데이터 그대로. 부재 이름·크기·무게는 엑셀에 없어 블록 무게·부재 수에 맞춘 '가상 부재 구성'.
-const BK = { wrap: null, ready: false, err: null, block: null, s: null, play: false, speed: 1, sel: null, set: null, page: 1, drag: false, last: 0 };
+const BK = { wrap: null, ready: false, err: null, block: null, s: null, play: false, speed: window.matchMedia('(max-width: 760px)').matches ? 4 : 1, sel: null, set: null, page: 1, drag: false, last: 0 };
 const BK_UNIT_NAME = { piece: 'piece', set: 'set', m: 'm', point: 'point', m2: 'm²', block: 'block' };
 const BK_TYPE = { BP: ['바닥판', 'Bottom Plate'], LS: ['종보강재', 'Longitudinal Stiffener'], GD: ['거더', 'Girder'], FL: ['늑판', 'Transverse Floor'], SS: ['측판', 'Side Shell'], IB: ['내저판', 'Inner Bottom Plate'], BR: ['브래킷', 'Bracket'] };
 const BK_SETS = [['bot1', '바닥 패널 A'], ['bot2', '바닥 패널 B'], ['gird', '거더'], ['flo1', '늑판 A'], ['flo2', '늑판 B'], ['side', '측판'], ['inn1', '내저판 A'], ['inn2', '내저판 B']];
