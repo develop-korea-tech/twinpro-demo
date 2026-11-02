@@ -68,6 +68,7 @@ function topBar() {
     ${UI.trial ? `<div class="trialbar">🧪 <b>체험 중</b> · 지금 보이는 결과는 서버에 저장되지 않고 내 화면에만 보입니다.<span class="grow"></span><button class="btn" data-act="endTrial">체험 끝내기 (원래대로)</button></div>` : ''}`;
 }
 function shell() {
+  if (isMob() && UI.view === 'dash') return `${mobTop()}<main class="content mob ${UI.view !== UI.lastView ? 'enter' : ''}" id="content">${viewMobDash()}</main>${mobNav()}${UI.intro ? introBox() : ''}`;
   return `${topBar()}<main class="content ${UI.view !== UI.lastView ? 'enter' : ''}" id="content">${VIEW_RENDER[UI.view]()}</main>${UI.intro ? introBox() : ''}${UI.figModal ? figModal() : ''}${UI.ioModal ? ioModal() : ''}`;
 }
 // 재생 조작: ⏸/▶ + 배속(1× = 실제 10초당 가상 5분). 16:00이면 '처음부터', 다른 화면이 재생 중이면 잠금
@@ -170,6 +171,41 @@ function dayTimeline() {   // 오늘 공정 타임라인(08:00~16:00): 공정마
   const leg = [['RUNNING', 'b'], ['IDLE', 'n'], ['FAULT', 'r'], ['MAINTENANCE', 'p']].map(([k, c]) => `<span><i class="${c}"></i>${STATUS.eq[k][0]} ${minLabel(tot[k])}</span>`).join('');
   return `<section class="panel tlpanel"><div class="ph"><h2>오늘 공정 타임라인</h2><span class="sub">${md(DAY)} · <b class="tlk">실적 08:00~${hm(nowS())}</b> | <span class="tlk2">계획 ${hm(nowS())}~16:00</span></span><span class="grow"></span><span class="tleg">${leg}</span></div>
     <div class="tlg">${rows}<div class="tlax" style="grid-row:${todayWos().length + 1}">${ticks}</div><div class="tlov" style="grid-row:1 / span ${todayWos().length + 1}"><em class="tlfut" style="left:${x(now)}%"></em><i style="left:${x(now)}%"><b>${hm(nowS())}</b></i></div></div></section>`;
+}
+// ---------- 휴대폰 관제: 한 손으로 보는 요약 3단(지금 상태 · 지금 처리할 것 · 공정 흐름) ----------
+// 관제 데스크톱 화면과 같은 계산(kpis · progressKpi · priorities · nodeState)을 쓰고, 보여 주는 양만 줄인다
+const MOB_TABS = [['dash', '관제'], ['blk', '블록 3D'], ['edu', '공정 재생']];
+function mobNav() {
+  const cur = UI.view === '3d' && SIM.on ? 'edu' : UI.view;
+  return `<nav class="mnav" aria-label="휴대폰 메뉴">${MOB_TABS.map(([v, l]) => `<button class="${cur === v ? 'on' : ''}" data-act="topGo" data-arg="${v}"><svg viewBox="0 0 24 24">${RAIL_ICO[v]}</svg><span>${l}</span></button>`).join('')}</nav>`;
+}
+function mobTop() {
+  const now = nowS(), end = S.now >= toM(SHIFT_END) && !UI.simOn, lock = othersPlaying();
+  const btn = end ? `<button class="mplay" data-act="${UI.canWrite ? 'reset' : UI.trial ? 'endTrial' : 'noop'}">↺</button>`
+    : `<button class="mplay ${UI.simOn || lock ? 'on' : ''}" data-act="simToggle" ${lock ? 'disabled' : ''} aria-label="${UI.simOn ? '멈춤' : '시간 흐르게'}">${UI.simOn || lock ? '❚❚' : '▶'}</button>`;
+  return `<header class="mtop"><b>TWIN PRO</b><span class="grow"></span><span class="mclock ${UI.simOn || lock ? 'live' : ''}"><i></i>${md(now)} ${hm(now)}</span>${btn}</header>`;
+}
+function viewMobDash() {
+  const ws = todayWos(), g = progressKpi(), k = kpis(), pr = priorities().slice(0, 3);
+  const stop = ws.filter(w => nodeState(w).stop).length, a = Math.round(+g.a || 0), p = Math.round(+g.p || 0);
+  const head = stop ? `<b class="c-r">${stop}곳이 멈춰 있습니다</b>` : '<b class="c-g">모든 공정이 돌고 있습니다</b>';
+  const cards = pr.map(x => { const c = STATUS.cat[x.inc.category], cs = caseSteps(x.inc), done = cs.st.filter(t => t.done).length;
+    return `<button class="mcard ${c[1]}" data-act="bkOpen" data-arg="${x.w ? x.w.block_id : ''}"><span class="mrank">${x.rank}</span>
+      <span class="mct"><small>${c[0]} · ${x.min}분째</small><b>${x.w ? `${x.w.block_id} ${esc(proc(x.w.process_id).process_name)}` : esc(eqName(x.eq))}</b>
+      <em>${x.blocks ? '공정 전체가 막힘' : x.stopped ? '작업이 멈춤' : '확인 필요'}${x.wait ? ` · 뒤에 ${x.wait}건 대기` : ''}</em></span>
+      <span class="mdots">${cs.st.map(t => `<i class="${t.done ? 'on' : ''}"></i>`).join('')}<small>${done}/${cs.st.length}단계</small></span><span class="mgo">3D로 보기 ›</span></button>`; }).join('');
+  const flow = ws.map(w => { const pr0 = proc(w.process_id), ns = nodeState(w), r = actRatio(w);
+    return `<button class="mrow ${ns.c}" data-act="bkOpen" data-arg="${w.block_id}"><span class="mdot"><svg viewBox="0 0 40 40"><circle class="t" cx="20" cy="20" r="16"/><circle class="v" cx="20" cy="20" r="16" stroke-dasharray="${(r * 100.5).toFixed(1)} 100.5" transform="rotate(-90 20 20)"/></svg><b>${Math.round(r * 100)}</b></span>
+      <span class="mrt"><small>${p2(pr0.sequence_no)}</small><b>${esc(pr0.process_name)}</b><em>${w.block_id} · ${w.equipment_id}</em></span><span class="mst">${ns.l}</span></button>`; }).join('');
+  return `<div class="mdash">
+    <section class="mhero"><p>${head}</p>
+      <div class="mbig"><b>${cnt('m-prog', a)}<small>%</small></b><span>오늘 진행률<small>계획 ${p}%${g.gap >= 0.5 ? ` · <em>${g.gap.toFixed(0)}%p 늦음</em>` : ''}</small></span></div>
+      <div class="mbar"><i class="pl" style="width:${p}%"></i><i class="ac" style="width:${a}%"></i></div>
+      <div class="mmini"><span><b class="${stop ? 'c-r' : ''}">${cnt('m-stop', stop)}</b>/${ws.length}<small>멈춘 작업</small></span><span><b>${cnt('m-run', k.running)}</b>/${k.total}<small>설비 가동</small></span><span><b class="${k.open ? 'c-r' : ''}">${cnt('m-open', k.open)}</b><small>미해결 사건</small></span></div></section>
+    ${pr.length ? `<h2 class="mh">지금 처리할 것<small>옆으로 넘기기</small></h2><div class="mcards">${cards}</div>` : '<h2 class="mh">지금 처리할 것</h2><div class="mempty">미해결 사건이 없습니다</div>'}
+    <h2 class="mh">공정 흐름<small>누르면 블록 안 3D</small></h2><div class="mflow ${UI.simOn ? 'live' : ''}">${flow}</div>
+    ${UI.simOn ? '' : `<button class="mcta" data-act="simToggle" ${othersPlaying() || S.now >= toM(SHIFT_END) ? 'disabled' : ''}>▶ 시간을 흘려 보기<small>12:00 이후 공장이 어떻게 움직이는지</small></button>`}
+  </div>`;
 }
 function viewDash() {
   const inc = UI.sel.inc && incById(UI.sel.inc);
@@ -733,7 +769,7 @@ function render() {
   const app = document.getElementById('app'); const sx = window.scrollX, sy = window.scrollY;
   const focus = document.activeElement && document.activeElement.id;
   if (isMob() && !mobOk()) { if (SIM.on) simStop(true); UI.view = 'dash'; UI.menuOpen = false; try { history.replaceState(null, '', '#dash'); } catch (e) { /* file:// 등 */ } }   // 휴대폰에서 없는 화면으로 가려 하면(사건 선택 등) 관제에 머문다
-  app.innerHTML = UI.view === '3d' ? t3Shell() : UI.view === 'blk' ? bkShell() : shell();
+  app.innerHTML = (UI.view === '3d' ? t3Shell() : UI.view === 'blk' ? bkShell() : shell()) + (isMob() && UI.view !== 'dash' ? mobNav() : '');
   if (UI.view === '3d') { t3Mount(); simVidMount(); } if (UI.view === 'blk') bkMount(); if (UI.figModal) figMount(); if (UI.view !== '3d' && UI.view !== 'blk') pvMount(); cntMount(); UI.lastView = UI.view;   // 화면이 바뀔 때만 들어오는 움직임
   if (focus) { const el = document.getElementById(focus); if (el && el.focus) { el.focus(); if (el.setSelectionRange && el.type === 'text') { const n = el.value.length; el.setSelectionRange(n, n); } } }
   window.scrollTo(sx, sy);
