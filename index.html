@@ -1395,72 +1395,6 @@ td.eqbtns { white-space: nowrap; } td.eqbtns .btn + .btn { margin-left: 4px; }
   .simvchips { flex-wrap: wrap; } .simvchips button { white-space: nowrap; }
   .tx .txview { height: 440px; min-height: 0; }   /* 16배속 영상(16:9)과 조작 줄이 빈칸 없이 들어가는 높이 */
 }
-
-/* ---------- 휴대폰 관제(2026-11-03): 요약 3단 + 아래 탭. 휴대폰에서만 쓰는 클래스 ---------- */
-.content.mob { margin: 0; border: 0; border-radius: 0; padding: 0 14px 96px; min-height: 100vh; background: radial-gradient(120% 60% at 50% 0%, #16294A 0%, #0B1424 60%); color: #EEF3F8; }
-.mtop { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: rgba(11,20,36,.86); backdrop-filter: blur(10px); color: #EEF3F8; }
-.mtop > b { font-size: 17px; letter-spacing: .5px; }
-.mclock { display: inline-flex; align-items: center; gap: 6px; font: 600 15px 'IBM Plex Mono', monospace; color: #B9C6D6; }
-.mclock i { width: 7px; height: 7px; border-radius: 50%; background: #7C8BA1; } .mclock.live { color: #EEF3F8; } .mclock.live i { background: #22C55E; animation: mblink 1s infinite; }
-.mplay { width: 40px; height: 40px; border-radius: 50%; border: 0; background: #6FD3FF; color: #0B1424; font-size: 15px; font-weight: 800; display: grid; place-items: center; }
-.mplay.on { background: #22C55E; } .mplay:disabled { opacity: .5; }
-.mhero { margin-top: 6px; padding: 18px 18px 16px; border-radius: 22px; background: linear-gradient(160deg, #1B3157, #121F38); box-shadow: 0 10px 30px rgba(0,0,0,.35); }
-.mhero > p { margin: 0 0 10px; font-size: 17px; } .mhero .c-r { color: #FF6B6B; } .mhero .c-g { color: #4ADE80; }
-.mbig { display: flex; align-items: flex-end; gap: 12px; } .mbig > b { font-size: 64px; line-height: .95; font-weight: 800; letter-spacing: -2px; } .mbig > b small { font-size: 28px; margin-left: 2px; }
-.mbig > span { display: flex; flex-direction: column; gap: 2px; padding-bottom: 6px; font-size: 15px; color: #B9C6D6; } .mbig > span small { font-size: 13px; } .mbig em { font-style: normal; color: #FF9F43; font-weight: 700; }
-.mbar { position: relative; height: 10px; margin: 14px 0 16px; border-radius: 6px; background: rgba(255,255,255,.08); overflow: hidden; }
-.mbar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 6px; transition: width .8s cubic-bezier(.2,.8,.2,1); transform-origin: left; }
-.mbar .pl { background: rgba(111,211,255,.25); } .mbar .ac { background: linear-gradient(90deg, #3B8BFF, #6FD3FF); }
-.mmini { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.mmini > span { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px; padding: 10px 10px 8px; border-radius: 14px; background: rgba(255,255,255,.06); font-size: 13px; color: #B9C6D6; }
-.mmini b { font-size: 24px; color: #EEF3F8; } .mmini b.c-r { color: #FF6B6B; } .mmini small { flex: 1 1 100%; font-size: 12px; }
-.mh { display: flex; align-items: baseline; gap: 8px; margin: 22px 2px 10px; font-size: 18px; color: #EEF3F8; } .mh small { margin-left: auto; font-size: 12px; font-weight: 400; color: #7C8BA1; }
-.mcards { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; margin: 0 -14px; padding: 2px 14px 6px; scrollbar-width: none; } .mcards::-webkit-scrollbar { display: none; }
-.mcard { flex: 0 0 86%; scroll-snap-align: center; display: grid; grid-template-columns: 44px 1fr; gap: 6px 12px; text-align: left; padding: 16px; border-radius: 18px; border: 1px solid rgba(255,255,255,.08); background: #13203A; color: #EEF3F8; }
-.mcard.r { border-color: rgba(255,90,95,.55); box-shadow: 0 0 0 1px rgba(255,90,95,.2), 0 8px 24px rgba(255,90,95,.15); } .mcard.o { border-color: rgba(245,165,36,.45); }
-.mrank { grid-row: span 2; width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; font-size: 22px; font-weight: 800; background: rgba(255,255,255,.08); }
-.mcard.r .mrank { background: #FF5A5F; color: #fff; } .mcard.o .mrank { background: #F5A524; color: #0B1424; }
-.mct { display: flex; flex-direction: column; gap: 3px; min-width: 0; } .mct small { font-size: 12px; color: #B9C6D6; } .mct b { font-size: 18px; } .mct em { font-style: normal; font-size: 13px; color: #FFB4B4; } .mcard.o .mct em { color: #FFD08A; }
-.mdots { display: flex; align-items: center; gap: 4px; } .mdots i { width: 18px; height: 5px; border-radius: 3px; background: rgba(255,255,255,.14); } .mdots i.on { background: #4ADE80; } .mdots small { margin-left: 6px; font-size: 12px; color: #7C8BA1; }
-.mgo { grid-column: 1 / -1; justify-self: end; font-size: 13px; color: #6FD3FF; }
-.mempty { padding: 16px; border-radius: 16px; background: #13203A; color: #4ADE80; }
-.mflow { position: relative; display: flex; flex-direction: column; gap: 8px; }
-.mflow::before { content: ''; position: absolute; left: 33px; top: 24px; bottom: 24px; width: 2px; background: rgba(255,255,255,.1); }
-.mflow.live::after { content: ''; position: absolute; left: 30px; top: 24px; width: 8px; height: 8px; border-radius: 50%; background: #6FD3FF; box-shadow: 0 0 10px #6FD3FF; animation: mflowdot 2.4s linear infinite; }
-.mrow { position: relative; display: flex; align-items: center; gap: 12px; padding: 8px 12px 8px 8px; border-radius: 16px; border: 0; background: #13203A; color: #EEF3F8; text-align: left; }
-.mdot { position: relative; flex: none; width: 52px; height: 52px; display: grid; place-items: center; border-radius: 50%; background: #0B1424; }
-.mdot svg { position: absolute; inset: 0; } .mdot .t { fill: none; stroke: rgba(255,255,255,.1); stroke-width: 4; } .mdot .v { fill: none; stroke-width: 4; stroke-linecap: round; stroke: #7C8BA1; transition: stroke-dasharray .8s; }
-.mdot b { font-size: 14px; } .mrow.b .v { stroke: #3B8BFF; } .mrow.g .v { stroke: #22C55E; } .mrow.r .v { stroke: #FF5A5F; } .mrow.o .v { stroke: #F5A524; }
-.mrow.r .mdot { animation: mpulse 1.6s ease-out infinite; }
-.mrt { flex: 1; display: grid; grid-template-columns: auto 1fr; column-gap: 6px; min-width: 0; } .mrt small { font: 600 13px 'IBM Plex Mono', monospace; color: #7C8BA1; align-self: center; } .mrt b { font-size: 16px; } .mrt em { grid-column: 1 / -1; font-style: normal; font-size: 12px; color: #7C8BA1; }
-.mst { flex: none; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: rgba(255,255,255,.08); color: #B9C6D6; }
-.mrow.b .mst { background: rgba(59,139,255,.2); color: #8EC1FF; } .mrow.g .mst { background: rgba(34,197,94,.18); color: #7BE3A2; } .mrow.r .mst { background: #FF5A5F; color: #fff; } .mrow.o .mst { background: rgba(245,165,36,.2); color: #FFC766; }
-.mcta { position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; gap: 2px; width: 100%; margin-top: 22px; padding: 16px; border: 0; border-radius: 18px; background: linear-gradient(90deg, #3B8BFF, #6FD3FF); color: #0B1424; font-size: 18px; font-weight: 800; }
-.mcta small { font-size: 12px; font-weight: 500; } .mcta:disabled { opacity: .5; }
-.mcta::after { content: ''; position: absolute; top: 0; bottom: 0; width: 40%; left: -50%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.45), transparent); animation: mshine 3s ease-in-out infinite; }
-.mnav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; display: grid; grid-template-columns: repeat(3, 1fr); padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); background: rgba(11,20,36,.94); backdrop-filter: blur(12px); border-top: 1px solid rgba(255,255,255,.08); }
-.mnav button { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 0; border: 0; background: none; color: #7C8BA1; font-size: 12px; }
-.mnav svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; } .mnav button.on { color: #6FD3FF; }
-.mrow:active, .mcard:active, .mcta:active, .mnav button:active { transform: scale(.97); }
-.content.mob.enter .mhero { animation: mup .5s both; } .content.mob.enter .mh, .content.mob.enter .mcards { animation: mup .5s .12s both; }
-.content.mob.enter .mrow { animation: mup .45s both; } .content.mob.enter .mrow:nth-child(2) { animation-delay: .25s; } .content.mob.enter .mrow:nth-child(3) { animation-delay: .3s; } .content.mob.enter .mrow:nth-child(4) { animation-delay: .35s; } .content.mob.enter .mrow:nth-child(5) { animation-delay: .4s; } .content.mob.enter .mrow:nth-child(6) { animation-delay: .45s; } .content.mob.enter .mrow:first-child { animation-delay: .2s; }
-.content.mob.enter .mbar i { animation: mgrow 1s .2s both; } .content.mob.enter .mcta { animation: mup .5s .5s both; }
-@keyframes mup { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-@keyframes mgrow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-@keyframes mpulse { 0% { box-shadow: 0 0 0 0 rgba(255,90,95,.55); } 100% { box-shadow: 0 0 0 14px rgba(255,90,95,0); } }
-@keyframes mblink { 50% { opacity: .3; } }
-@keyframes mflowdot { from { top: 24px; opacity: 1; } 90% { opacity: 1; } to { top: calc(100% - 30px); opacity: 0; } }
-@keyframes mshine { 0%, 60% { left: -50%; } 100% { left: 120%; } }
-@media (prefers-reduced-motion: reduce) { .content.mob *, .content.mob *::after, .mclock i { animation: none !important; transition: none !important; } }
-@media (max-width: 760px) {
-  body:has(.mnav) { padding-bottom: 72px; background: #0B1424; }
-  /* 블록 내부 3D · 공정 재생: 아래 탭으로 화면을 바꾸므로 위쪽 탭 · 버튼은 숨기고 3D를 크게 */
-  .gbar .gtabs, .gbar .gmode, .gbar .gbtn, .gbar .gmenu, .gbar .gfocus { display: none !important; }
-  .bkl, .bkr, .bksets, .bktop .bkchip, .bktop .bklink, .bkctl .small, .bkctl select, .bkctl [data-act="bkFocus"] { display: none !important; }
-  .bkc { height: max(300px, calc(100svh - 470px)) !important; }
-  .bkctl { gap: 6px; } .bkctl button { flex: 1 1 auto; padding: 10px 8px; }
-  .txbar [data-act="go"][data-arg="dash"], .txbar [data-act="simEnd"], [data-act="simMode"][data-arg="full"] { display: none !important; }
-}
 .iso{
   --anatomy-page:#0b0b0b;--anatomy-card:#131313;--anatomy-text:#a3a3a3;--anatomy-strong:#e6e6e6;--anatomy-muted:#6e6e6e;
   --anatomy-paper:#131313;--anatomy-face:#1b1b1b;--anatomy-top:#1c1c1c;
@@ -2011,7 +1945,6 @@ function topBar() {
     ${UI.trial ? `<div class="trialbar">🧪 <b>체험 중</b> · 지금 보이는 결과는 서버에 저장되지 않고 내 화면에만 보입니다.<span class="grow"></span><button class="btn" data-act="endTrial">체험 끝내기 (원래대로)</button></div>` : ''}`;
 }
 function shell() {
-  if (isMob() && UI.view === 'dash') return `${mobTop()}<main class="content mob ${UI.view !== UI.lastView ? 'enter' : ''}" id="content">${viewMobDash()}</main>${mobNav()}${UI.intro ? introBox() : ''}`;
   return `${topBar()}<main class="content ${UI.view !== UI.lastView ? 'enter' : ''}" id="content">${VIEW_RENDER[UI.view]()}</main>${UI.intro ? introBox() : ''}${UI.figModal ? figModal() : ''}${UI.ioModal ? ioModal() : ''}`;
 }
 // 재생 조작: ⏸/▶ + 배속(1× = 실제 10초당 가상 5분). 16:00이면 '처음부터', 다른 화면이 재생 중이면 잠금
@@ -2114,41 +2047,6 @@ function dayTimeline() {   // 오늘 공정 타임라인(08:00~16:00): 공정마
   const leg = [['RUNNING', 'b'], ['IDLE', 'n'], ['FAULT', 'r'], ['MAINTENANCE', 'p']].map(([k, c]) => `<span><i class="${c}"></i>${STATUS.eq[k][0]} ${minLabel(tot[k])}</span>`).join('');
   return `<section class="panel tlpanel"><div class="ph"><h2>오늘 공정 타임라인</h2><span class="sub">${md(DAY)} · <b class="tlk">실적 08:00~${hm(nowS())}</b> | <span class="tlk2">계획 ${hm(nowS())}~16:00</span></span><span class="grow"></span><span class="tleg">${leg}</span></div>
     <div class="tlg">${rows}<div class="tlax" style="grid-row:${todayWos().length + 1}">${ticks}</div><div class="tlov" style="grid-row:1 / span ${todayWos().length + 1}"><em class="tlfut" style="left:${x(now)}%"></em><i style="left:${x(now)}%"><b>${hm(nowS())}</b></i></div></div></section>`;
-}
-// ---------- 휴대폰 관제: 한 손으로 보는 요약 3단(지금 상태 · 지금 처리할 것 · 공정 흐름) ----------
-// 관제 데스크톱 화면과 같은 계산(kpis · progressKpi · priorities · nodeState)을 쓰고, 보여 주는 양만 줄인다
-const MOB_TABS = [['dash', '관제'], ['blk', '블록 3D'], ['edu', '공정 재생']];
-function mobNav() {
-  const cur = UI.view === '3d' && SIM.on ? 'edu' : UI.view;
-  return `<nav class="mnav" aria-label="휴대폰 메뉴">${MOB_TABS.map(([v, l]) => `<button class="${cur === v ? 'on' : ''}" data-act="topGo" data-arg="${v}"><svg viewBox="0 0 24 24">${RAIL_ICO[v]}</svg><span>${l}</span></button>`).join('')}</nav>`;
-}
-function mobTop() {
-  const now = nowS(), end = S.now >= toM(SHIFT_END) && !UI.simOn, lock = othersPlaying();
-  const btn = end ? `<button class="mplay" data-act="${UI.canWrite ? 'reset' : UI.trial ? 'endTrial' : 'noop'}">↺</button>`
-    : `<button class="mplay ${UI.simOn || lock ? 'on' : ''}" data-act="simToggle" ${lock ? 'disabled' : ''} aria-label="${UI.simOn ? '멈춤' : '시간 흐르게'}">${UI.simOn || lock ? '❚❚' : '▶'}</button>`;
-  return `<header class="mtop"><b>TWIN PRO</b><span class="grow"></span><span class="mclock ${UI.simOn || lock ? 'live' : ''}"><i></i>${md(now)} ${hm(now)}</span>${btn}</header>`;
-}
-function viewMobDash() {
-  const ws = todayWos(), g = progressKpi(), k = kpis(), pr = priorities().slice(0, 3);
-  const stop = ws.filter(w => nodeState(w).stop).length, a = Math.round(+g.a || 0), p = Math.round(+g.p || 0);
-  const head = stop ? `<b class="c-r">${stop}곳이 멈춰 있습니다</b>` : '<b class="c-g">모든 공정이 돌고 있습니다</b>';
-  const cards = pr.map(x => { const c = STATUS.cat[x.inc.category], cs = caseSteps(x.inc), done = cs.st.filter(t => t.done).length;
-    return `<button class="mcard ${c[1]}" data-act="bkOpen" data-arg="${x.w ? x.w.block_id : ''}"><span class="mrank">${x.rank}</span>
-      <span class="mct"><small>${c[0]} · ${x.min}분째</small><b>${x.w ? `${x.w.block_id} ${esc(proc(x.w.process_id).process_name)}` : esc(eqName(x.eq))}</b>
-      <em>${x.blocks ? '공정 전체가 막힘' : x.stopped ? '작업이 멈춤' : '확인 필요'}${x.wait ? ` · 뒤에 ${x.wait}건 대기` : ''}</em></span>
-      <span class="mdots">${cs.st.map(t => `<i class="${t.done ? 'on' : ''}"></i>`).join('')}<small>${done}/${cs.st.length}단계</small></span><span class="mgo">3D로 보기 ›</span></button>`; }).join('');
-  const flow = ws.map(w => { const pr0 = proc(w.process_id), ns = nodeState(w), r = actRatio(w);
-    return `<button class="mrow ${ns.c}" data-act="bkOpen" data-arg="${w.block_id}"><span class="mdot"><svg viewBox="0 0 40 40"><circle class="t" cx="20" cy="20" r="16"/><circle class="v" cx="20" cy="20" r="16" stroke-dasharray="${(r * 100.5).toFixed(1)} 100.5" transform="rotate(-90 20 20)"/></svg><b>${Math.round(r * 100)}</b></span>
-      <span class="mrt"><small>${p2(pr0.sequence_no)}</small><b>${esc(pr0.process_name)}</b><em>${w.block_id} · ${w.equipment_id}</em></span><span class="mst">${ns.l}</span></button>`; }).join('');
-  return `<div class="mdash">
-    <section class="mhero"><p>${head}</p>
-      <div class="mbig"><b>${cnt('m-prog', a)}<small>%</small></b><span>오늘 진행률<small>계획 ${p}%${g.gap >= 0.5 ? ` · <em>${g.gap.toFixed(0)}%p 늦음</em>` : ''}</small></span></div>
-      <div class="mbar"><i class="pl" style="width:${p}%"></i><i class="ac" style="width:${a}%"></i></div>
-      <div class="mmini"><span><b class="${stop ? 'c-r' : ''}">${cnt('m-stop', stop)}</b>/${ws.length}<small>멈춘 작업</small></span><span><b>${cnt('m-run', k.running)}</b>/${k.total}<small>설비 가동</small></span><span><b class="${k.open ? 'c-r' : ''}">${cnt('m-open', k.open)}</b><small>미해결 사건</small></span></div></section>
-    ${pr.length ? `<h2 class="mh">지금 처리할 것<small>옆으로 넘기기</small></h2><div class="mcards">${cards}</div>` : '<h2 class="mh">지금 처리할 것</h2><div class="mempty">미해결 사건이 없습니다</div>'}
-    <h2 class="mh">공정 흐름<small>누르면 블록 안 3D</small></h2><div class="mflow ${UI.simOn ? 'live' : ''}">${flow}</div>
-    ${UI.simOn ? '' : `<button class="mcta" data-act="simToggle" ${othersPlaying() || S.now >= toM(SHIFT_END) ? 'disabled' : ''}>▶ 시간을 흘려 보기<small>12:00 이후 공장이 어떻게 움직이는지</small></button>`}
-  </div>`;
 }
 function viewDash() {
   const inc = UI.sel.inc && incById(UI.sel.inc);
@@ -2712,7 +2610,7 @@ function render() {
   const app = document.getElementById('app'); const sx = window.scrollX, sy = window.scrollY;
   const focus = document.activeElement && document.activeElement.id;
   if (isMob() && !mobOk()) { if (SIM.on) simStop(true); UI.view = 'dash'; UI.menuOpen = false; try { history.replaceState(null, '', '#dash'); } catch (e) { /* file:// 등 */ } }   // 휴대폰에서 없는 화면으로 가려 하면(사건 선택 등) 관제에 머문다
-  app.innerHTML = (UI.view === '3d' ? t3Shell() : UI.view === 'blk' ? bkShell() : shell()) + (isMob() && UI.view !== 'dash' ? mobNav() : '');
+  app.innerHTML = UI.view === '3d' ? t3Shell() : UI.view === 'blk' ? bkShell() : shell();
   if (UI.view === '3d') { t3Mount(); simVidMount(); } if (UI.view === 'blk') bkMount(); if (UI.figModal) figMount(); if (UI.view !== '3d' && UI.view !== 'blk') pvMount(); cntMount(); UI.lastView = UI.view;   // 화면이 바뀔 때만 들어오는 움직임
   if (focus) { const el = document.getElementById(focus); if (el && el.focus) { el.focus(); if (el.setSelectionRange && el.type === 'text') { const n = el.value.length; el.setSelectionRange(n, n); } } }
   window.scrollTo(sx, sy);

@@ -6,7 +6,7 @@
 |---|---|
 | 화면 | JavaScript(프레임워크 없음) 13개 모듈 + CSS, Three.js 0.160(3D) |
 | 서버 | Supabase: Postgres 테이블 33 · 뷰 3 · 서버 함수 51, Row Level Security, Realtime, Edge Function 1개 |
-| 테스트 | 화면 자동 테스트 182개(실제 브라우저 클릭 + 로컬 Postgres) · 연결 프로그램 테스트 4개(가상 PLC) |
+| 테스트 | 화면 자동 테스트 179개(실제 브라우저 클릭 + 로컬 Postgres) · 연결 프로그램 테스트 4개(가상 PLC) |
 | 자동 실행 | GitHub Actions: 소스가 바뀌면 빌드 → 테스트를 돌립니다(`.github/workflows/test.yml`) |
 
 ## 1. 폴더 구성
@@ -23,7 +23,7 @@
 | `sql/01_schema.sql` ~ `sql/25_ai_bench_example.sql` | 서버 SQL. 번호 순서대로 실행합니다. 짝수 `_security` 파일은 권한(RLS · 실행 권한) 설정입니다 |
 | `sql/make_seed.py` | 과제 엑셀(15개 시트)을 `03_seed.sql`로 바꾸는 스크립트. 원본 엑셀은 이 저장소에 없고, 변환 결과인 `03_seed.sql`만 있습니다 |
 | `lib_local.js` | 테스트용 서버: PGlite(브라우저 · Node에서 도는 Postgres)에 위 SQL을 그대로 올려 Supabase 대신 씁니다 |
-| `e2e.js` | 화면 자동 테스트 182개 |
+| `e2e.js` | 화면 자동 테스트 179개 |
 | `build.py` | 소스 + 그림 자료 → `dist/twinpro.html`(시연용), `dist/twinpro_test.html`(테스트용) |
 | `figures/` | 사건 설명도 3개(설비 고장 · 자재 대기 · 품질 보류) |
 | `assets/` | 설비 그림, 예시 사진(AI 생성), 공정 썸네일(Blender 렌더), 아이콘 |
@@ -52,7 +52,7 @@
    ```bash
    python3 build.py
    ```
-5. 자동 테스트를 돌립니다. 약 8~10분 걸리고, 마지막 줄에 `182/182 PASS`가 나오면 성공입니다. 실패가 하나라도 있으면 종료 코드 1로 끝납니다. 화면 캡처는 `shots/`, 결과는 `e2e_result.json`에 남습니다.
+5. 자동 테스트를 돌립니다. 약 8~10분 걸리고, 마지막 줄에 `179/179 PASS`가 나오면 성공입니다. 실패가 하나라도 있으면 종료 코드 1로 끝납니다. 화면 캡처는 `shots/`, 결과는 `e2e_result.json`에 남습니다.
    ```bash
    node e2e.js
    ```

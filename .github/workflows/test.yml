@@ -34,7 +34,7 @@ jobs:
         run: |
           cp config.example.json config.json
           python3 build.py
-      - name: 화면 자동 테스트(182개)
+      - name: 화면 자동 테스트(179개)
         run: node e2e.js
       - name: 연결 프로그램 테스트(가상 PLC Modbus · ETOS)
         working-directory: .

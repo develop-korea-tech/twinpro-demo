@@ -27,7 +27,6 @@ const check = (name, ok, detail) => { results.push({ name, ok: !!ok, detail }); 
     if (had && !(await page.evaluate(() => sessionStorage.getItem('tpDemoCode')))) { await page.evaluate(c => sessionStorage.setItem('tpDemoCode', c), had); await page.reload(); await page.waitForSelector('.sbar'); }
     await page.waitForFunction(() => !sessionStorage.getItem('tpDemoCode') || UI.canWrite); await page.waitForTimeout(100); };
   const nav = async v => { if (await page.isVisible('.grail')) return click(`.grail .gri[data-arg="${v}"]`);   // 좁은 화면(휴대폰)은 위쪽 탭·[관리 화면 ▾]
-    if (await page.isVisible('.mnav')) return click(`.mnav button[data-arg="${v}"]`);   // 휴대폰: 아래 탭 3개
     if (v === 'dash') return click('.gtabs button[data-arg="dash"]'); await click('.gmenu summary'); await click(`.gmenu button[data-arg="${v}"]`); };
   // 관리 화면은 메뉴로 들어오면 [그림] 보기가 먼저 열린다. 기존 시나리오(표·편집)는 [표] 보기로 바꿔 진행한다
   const go = async (v, mode = 'table') => { await nav(v); if (await page.$(`[data-act="mode"][data-arg="${v}:${mode}"]`)) await click(`[data-act="mode"][data-arg="${v}:${mode}"]`); };   // 사이드바를 누른 뒤 마우스를 치워 펼친 사이드바가 내용을 가리지 않게
@@ -483,15 +482,8 @@ const check = (name, ok, detail) => { results.push({ name, ok: !!ok, detail }); 
   await sr('tp_reset_demo', {}); await reloadDash();
   for (const v of ['dash', 'eq', 'prod', 'wo', 'base']) { await go(v); await shot('final_' + v); }
   check('콘솔 오류 0건', errors.length === 0, errors);
-  await page.setViewportSize({ width: 400, height: 900 }); await page.reload(); await page.waitForSelector('.mdash'); const ow = await page.evaluate(() => document.documentElement.scrollWidth); await shot('mobile_dash');
+  await page.setViewportSize({ width: 400, height: 900 }); await go('dash'); const ow = await page.evaluate(() => document.documentElement.scrollWidth); await shot('mobile_dash');
   check('폭 400px에서 가로 스크롤 없음', ow <= 400, ow);
-  { const m = await page.evaluate(() => ({ nav: document.querySelectorAll('.mnav button').length, rows: document.querySelectorAll('.mrow').length, cards: document.querySelectorAll('.mcard').length, first: document.querySelector('.mcard .mct b')?.textContent, prog: document.querySelector('.mbig b')?.textContent, rail: !!document.querySelector('.grail'), h: document.documentElement.scrollHeight }));
-    check('휴대폰 관제: 아래 탭 3 · 진행률 74% · 처리할 것 3장(1순위 B008 블록 용접) · 공정 6줄 · 사이드바 없음 · 화면 높이 1,400px 이하', m.nav === 3 && /74/.test(m.prog) && m.cards === 3 && /B008/.test(m.first) && m.rows === 6 && !m.rail && m.h <= 1400, m); }
-  await click('.mcard'); await page.waitForSelector('#bkhost');
-  check('휴대폰: 1순위 카드를 누르면 그 블록(B008) 내부 3D · 아래 탭 유지', (await page.inputValue('#bkBlock')) === 'B008' && await page.isVisible('.mnav') && await page.isVisible('[data-act="bkPlay"]'));
-  await click('.mnav button[data-arg="dash"]'); await page.waitForSelector('.mdash'); await click('.mcta'); await page.waitForFunction(() => !/12:00/.test(document.querySelector('.mclock').textContent), null, { timeout: 30000 });
-  check('휴대폰: [시간을 흘려 보기] → 시각이 흐름(재생 중 표시)', await page.isVisible('.mclock.live'), await page.textContent('.mclock'));
-  await click('.mplay'); await shot('mobile_dash_play');
   await browser.close();
   fs.writeFileSync('e2e_result.json', JSON.stringify({ pass: results.filter(r => r.ok).length, total: results.length, results }, null, 1));
   console.log(`\n${results.filter(r => r.ok).length}/${results.length} PASS`);
