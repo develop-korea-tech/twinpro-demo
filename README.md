@@ -2,6 +2,10 @@
 
 [![test](https://github.com/develop-korea-tech/twinpro-demo/actions/workflows/test.yml/badge.svg)](https://github.com/develop-korea-tech/twinpro-demo/actions/workflows/test.yml)
 
+**2026 울산 청년 AX 리더십 프로젝트 경진대회 최우수상** (2026-11-06, 2026 울산스타트업페스타 · 상금 150만 원)
+
+<img src="docs/award-2026-ulsan-ax.jpg" width="640" alt="2026 울산 청년 AX 리더십 프로젝트 최우수상 시상 사진 — 팀 TWIN PRO">
+
 <!-- TOP:START -->
 조선 블록 제작 공정(강재 절단 → 소조립·취부 → 블록 용접 → 치수·용접 검사 → 표면처리·도장 → 블록 이송)의 운영 상태를 한 화면에서 보고, 설비 고장·자재 대기 같은 문제를 처리 순서대로 해결해 보는 시연 시스템입니다. 2026 울산 청년 AX 리더십 프로젝트에서 팀 TWIN PRO의 과제(디지털트윈 기반 제조 운영 모니터링 플랫폼)로 만들었습니다.
 
@@ -81,6 +85,7 @@
 | `supabase_io.sql` | 약 6KB | 현장 데이터 수집 연결 확장 SQL(2026-10-31): 수집 포인트 표 `tp_io_point`(설비 8대 × 3포인트, 가상 기준정보), 신호 기록에 출처(SIM · MODBUS · ETOS) 칸 추가, 신호 입구 `tp_ingest_signal`에 출처 인자 추가(기존 호출은 그대로 동작). 적용 전에도 화면은 같은 정의의 기본값으로 동작합니다. |
 | `tools/io_bridge/` | 약 30KB | 연결 프로그램(파이썬, 설치 불필요): LS XGT PLC(Modbus TCP) · AC&T ETOS(XGT FEnet) 값을 읽어 서버 입구로 보냄 + 가상 현장 장비. 사용법은 폴더 안 `README.md` |
 | `docs/screen-ai.jpg` | 약 300KB | 화면 캡처: AI 운영 센터(모델 11개의 종합 점수 · 응답 시간 · 비용 · 정확도, 「가상 예시」 배지, 누적 비교 · 추천, 2026-11-01) |
+| `docs/award-2026-ulsan-ax.jpg` | 약 360KB | 2026 울산 청년 AX 리더십 프로젝트 경진대회 최우수상 시상 사진(2026-11-06) |
 | `docs/screen-base-eq.jpg` | 약 200KB | 화면 캡처: 기준정보 → 설비(설비 추가 · 사용 중지 · 삭제) |
 | `docs/screen-trend.jpg` | 약 200KB | 화면 캡처: 생산 현황 [추이](연간 월별 가동률 · 일별 · 당일 데이터 수집) |
 | `docs/screen-io.jpg` | 약 250KB | 화면 캡처: 현장 데이터 수집 연결 구조(통합 관제 「데이터 수집」 칩) |
