@@ -925,5 +925,5 @@ async function boot() {
   if (NEEDS_SETUP) return setupScreen();
   try { await reload(); UI.conn = '실시간 연결';
     if (DEMO_CODE) { const r = await API.rpc('tp_check_code', {}).catch(() => ({ ok: false })); UI.canWrite = !!r.ok; } API.subscribe(scheduleReload, s => { UI.conn = s; render(); }); render(); }
-  catch (e) { document.getElementById('app').innerHTML = `<div class="content"><h1>서버에 연결하지 못했습니다</h1><p>${esc(e.message || e)}</p><p class="small">설정의 Supabase 주소와 공개 키를 확인하세요.</p></div>`; }
+  catch (e) { document.getElementById('app').innerHTML = `<div class="content"><h1>시연 서버를 닫았습니다</h1><p>TWIN PRO 시연 서버(Supabase)는 2026-11-16 기준으로 닫혀 있어, 이 주소에서는 화면이 동작하지 않습니다.</p><p>화면 캡처 · 소개 영상 · 소스는 <a href="https://github.com/develop-korea-tech/twinpro-demo">GitHub 저장소</a>에서 볼 수 있습니다.</p><p class="small">서버 응답: ${esc(e.message || e)}<br>자기 Supabase에 따로 설치해 연결한 경우에는 설정의 Supabase 주소와 공개 키를 확인하세요.</p></div>`; }
 }

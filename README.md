@@ -6,10 +6,12 @@
 
 <img src="docs/award-2026-ulsan-ax.jpg" width="640" alt="2026 울산 청년 AX 리더십 프로젝트 최우수상 시상 사진 — 팀 TWIN PRO">
 
+> **안내 (2026-11-16): 시연 서버를 닫았습니다.** 시연 서버(Supabase 프로젝트 `twinpro-demo`)가 닫혀 있어 화면 주소 https://develop-korea-tech.github.io/twinpro-demo/ 는 열어도 동작하지 않고 안내 문구만 나옵니다. 화면 캡처와 소개 영상은 이 문서에서 그대로 볼 수 있고, 직접 돌려 보려면 5장대로 자기 Supabase에 서버를 설치하면 됩니다. 아래 문서의 실행 방법 · 시연 순서는 서버가 열려 있던 때 기준입니다.
+
 <!-- TOP:START -->
 조선 블록 제작 공정(강재 절단 → 소조립·취부 → 블록 용접 → 치수·용접 검사 → 표면처리·도장 → 블록 이송)의 운영 상태를 한 화면에서 보고, 설비 고장·자재 대기 같은 문제를 처리 순서대로 해결해 보는 시연 시스템입니다. 2026 울산 청년 AX 리더십 프로젝트에서 팀 TWIN PRO의 과제(디지털트윈 기반 제조 운영 모니터링 플랫폼)로 만들었습니다.
 
-- 바로 보기: https://develop-korea-tech.github.io/twinpro-demo/
+- 화면 주소: https://develop-korea-tech.github.io/twinpro-demo/ (시연 서버를 닫아 2026-11-16 기준 동작하지 않음)
 - 구성: 화면 파일 `index.html` 하나 + Supabase(Postgres) 서버 + 3D 조선소 모델 `twinpro_shipyard.glb`
 - 기술: JavaScript, Supabase(Postgres · RPC · Realtime · Edge Function), Three.js 0.160(3D), Blender Python(3D 모델 제작)
 - 데이터: 과제에서 제공한 조선 블록 제작 가상 데이터(엑셀 15개 시트)
@@ -52,9 +54,9 @@
 
 조선 블록 제작 운영 모니터링 시연 시스템입니다. 관제·관리 화면 5개(01H 확정안: 관제 대시보드 · 설비 상태 · 생산 현황 · 작업 관리 · 기준정보)와 3D 확장 화면(3D 조선소 · 블록 내부 3D · 공정 교육 재생), Supabase(Postgres) 서버 함수로 구성되어 있으며, 받은 엑셀(`02 가상데이터.xlsx`) 15개 시트를 그대로 DB에 올려 사용합니다.
 
-- 화면 주소: **https://develop-korea-tech.github.io/twinpro-demo/** (GitHub Pages, 저장소 develop-korea-tech/twinpro-demo)
+- 화면 주소: **https://develop-korea-tech.github.io/twinpro-demo/** (GitHub Pages, 저장소 develop-korea-tech/twinpro-demo) — 시연 서버를 닫아 2026-11-16 기준 안내 문구만 표시
 - 화면 파일: `index.html` 한 파일(2026-11-01 빌드). 전체 소스 패키지에서는 같은 빌드 결과물의 이름이 `twinpro.html`입니다. 이 문서에서는 화면 파일을 모두 `index.html`로 적습니다.
-- 서버: Supabase 프로젝트 `twinpro-demo`(서울 리전)
+- 서버: Supabase 프로젝트 `twinpro-demo`(서울 리전) — **2026-11-16 기준 닫혀 있음**
   - 주소: `https://rrgvqgphhwzkeuvdwndu.supabase.co` (`index.html`에 이미 들어 있습니다)
   - 시연 코드: 팀 단톡방에서 따로 공유합니다.
   - 현재 화면이 쓰는 서버 기능: `tp_` 테이블 24개 읽기, 서버 함수(RPC) 14개, Edge Function 1개(AI 요약 `tp-ai-summary`)
